@@ -1,12 +1,6 @@
 @import "tailwindcss";
 
 @font-face {
-  font-family: "Fraunces";
-  src: url("/fonts/fraunces.woff2") format("woff2");
-  font-weight: 100 900;
-  font-display: swap;
-}
-@font-face {
   font-family: "Instrument Sans";
   src: url("/fonts/instrument-sans.woff2") format("woff2");
   font-weight: 400 700;
@@ -14,19 +8,21 @@
 }
 
 :root {
-  --bg: oklch(0.965 0.008 85);
-  --surface: oklch(0.99 0.004 85);
-  --ink: oklch(0.24 0.02 260);
-  --ink-muted: oklch(0.5 0.02 260);
-  --line: oklch(0.24 0.02 260 / 0.1);
-  --accent: oklch(0.42 0.12 262);
-  --accent-ink: oklch(0.98 0.005 262);
-  --ok: oklch(0.52 0.12 155);
-  --warn: oklch(0.62 0.13 75);
-  --bad: oklch(0.52 0.17 25);
+  color-scheme: dark; 
+  --bg: #050505;
+  --surface: #0d0d0d;
+  --ink: #f2f2f2;
+  --ink-muted: rgba(255, 255, 255, 0.55);
+  --line: rgba(255, 255, 255, 0.12);
+  --accent: #e0e0e0; 
+  --accent-ink: #050505;
+  --ok: oklch(0.8 0.15 155);
+  --warn: oklch(0.83 0.14 85);
+  --bad: oklch(0.72 0.18 25);
   --radius: 0.75rem;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --dur: 200ms;
+  --chrome: #161616;                 /* tema gelap mercury */
 }
 
 @theme inline {
@@ -41,22 +37,44 @@
   --color-warn: var(--warn);
   --color-bad: var(--bad);
   --font-sans: "Instrument Sans", system-ui, sans-serif;
-  --font-display: "Fraunces", Georgia, serif;
+  --font-display: "Instrument Sans", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --color-chrome: var(--chrome);
 }
 
 body {
-  background: var(--bg);
+  background-color: var(--bg);
+
+  background-image: radial-gradient(ellipse 70% 45% at 90% -10%, rgba(224, 224, 224, 0.08), transparent 70%);
+  background-attachment: fixed;
   color: var(--ink);
   font-family: var(--font-sans);
   letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.02em; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.03em; }
+
+/* Di tema monokrom, tautan beraksen tidak lagi dibedakan oleh warna, jadi diberi garis bawah tipis. */
+a.text-accent { text-decoration: underline; text-decoration-color: rgba(255, 255, 255, 0.3); text-underline-offset: 3px; }
+a.text-accent:hover { text-decoration-color: currentColor; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* Animasi latar halaman login: tersedia sebagai utility `animate-float`. */
+@theme {
+  --animate-float: float 20s infinite alternate ease-in-out;
+
+  @keyframes float {
+    0% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(10vw, 20vh) scale(1.2); }
+    66% { transform: translate(-5vw, 10vh) scale(0.8); }
+    100% { transform: translate(5vw, -10vh) scale(1.1); }
   }
 }
