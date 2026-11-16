@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import pool from "@/lib/db";
 import { requireRole } from "@/lib/guard";
 import { simpanPengajuan, batalkanPengajuan } from "@/lib/queries/pengajuan";
+import { simulasiPengajuan } from "@/lib/queries/simulasi";
 
 const s = (fd, k) => String(fd.get(k) ?? "").trim();
 const angka = (fd, k) => (fd.get(k) ? Number(fd.get(k)) : null);
@@ -38,4 +39,15 @@ export async function batalkanCutiAction(_prev, fd) {
   if (!r.ok) return { pesan: r.pesan };
   revalidatePath("/cuti");
   redirect(`/cuti/${id}`);
+}
+
+export async function simulasiAction(input) {
+  const user = await requireRole(["karyawan", "ketua_divisi"]);
+  return simulasiPengajuan(pool, user.id, {
+    jenisId: input?.jenisId,
+    mulai: String(input?.mulai ?? ""),
+    selesai: String(input?.selesai ?? ""),
+    setengahHari: Boolean(input?.setengahHari),
+    handoverId: input?.handoverId,
+  });
 }

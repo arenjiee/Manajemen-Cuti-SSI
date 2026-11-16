@@ -32,6 +32,7 @@ export default async function EditUserPage({ params }) {
             {Object.entries(NAMA_ROLE).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
           </select>
         </L>
+        <L t="Kuota cuti tahunan (hari)"><input name="kuota_awal" type="number" step="0.5" min="0" max="365" defaultValue={u.kuota_awal} className={inputCls} /></L>
         <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="aktif" defaultChecked={u.aktif} /> Akun aktif</label>
       </FormAction>
     </div>

@@ -29,7 +29,7 @@ export async function ubahUserAction(_prev, fd) {
   const role = s(fd, "role");
   const aktif = fd.get("aktif") === "on";
   if (id === admin.id && (role !== "admin" || !aktif)) return { pesan: "Anda tidak dapat mengubah role atau menonaktifkan akun Anda sendiri." };
-  const r = await ubahUser(pool, id, { username: s(fd, "username"), email: s(fd, "email"), nama_lengkap: s(fd, "nama_lengkap"), role, aktif });
+  const r = await ubahUser(pool, id, { username: s(fd, "username"), email: s(fd, "email"), nama_lengkap: s(fd, "nama_lengkap"), role, aktif, kuota_awal: s(fd, "kuota_awal") });
   if (!r.ok) return { pesan: r.pesan };
   revalidatePath("/admin/users");
   redirect("/admin/users");

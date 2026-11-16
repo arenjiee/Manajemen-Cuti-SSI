@@ -4,10 +4,12 @@ import { requireRole } from "@/lib/guard";
 import pool from "@/lib/db";
 import { parseId } from "@/lib/id";
 import { detailPengajuan } from "@/lib/queries/detail";
+import { bolehUnduhSurat } from "@/lib/surat-akses";
 import { formatRentang, formatHari, formatTanggal, formatWaktu } from "@/lib/format";
 import StatusBadge from "@/components/StatusBadge";
 import Timeline from "@/components/Timeline";
 import BatalkanCuti from "./BatalkanCuti";
+import { btnPrimary } from "@/components/ui";
 
 export const metadata = { title: "Detail Cuti | SMCK" };
 
@@ -44,7 +46,10 @@ export default async function DetailCutiPage({ params }) {
           <h1 className="text-3xl font-semibold">{p.jenis_nama}</h1>
           <p className="mt-1 text-sm text-muted">{p.pengaju_nama}{p.divisi_nama ? ` · ${p.divisi_nama}` : ""}</p>
         </div>
-        <StatusBadge status={p.status} tahap={p.tahap} />
+        <div className="flex flex-col items-end gap-3">
+          <StatusBadge status={p.status} tahap={p.tahap} />
+          {bolehUnduhSurat(user, p) && <a href={`/api/surat/${p.id}`} className={btnPrimary}>Unduh surat cuti (PDF)</a>}
+        </div>
       </header>
 
       {tolak?.catatan && p.status === "Rejected" && (

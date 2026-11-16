@@ -22,7 +22,6 @@ const Bagian = ({ judul, aksi, children }) => (
   </section>
 );
 
-// Kartu yang bisa diklik menuju halaman terkait.
 const KartuTaut = ({ href, ...props }) => (
   <Link href={href} className="block rounded-xl transition hover:-translate-y-0.5 hover:shadow-sm"><StatCard {...props} /></Link>
 );
@@ -40,6 +39,9 @@ async function DashKaryawan({ user }) {
         <StatCard label="Kuota terpakai" nilai={formatHari(d.terpakai)} catatan="Pengajuan yang masih aktif" />
         <StatCard label="Menunggu proses" nilai={d.menunggu} catatan="Ketua Divisi atau HRD" tone={d.menunggu > 0 ? "warn" : undefined} />
         <StatCard label={`Disetujui ${d.tahun}`} nilai={d.perStatus.Approved} catatan="Pengajuan" tone="ok" />
+        <StatCard label={`Total pengajuan ${d.tahun}`} nilai={d.totalPengajuan} catatan="Semua status" />
+        <StatCard label={`Cuti sakit ${d.tahun}`} nilai={d.cutiSakitDiajukan} catatan="Pengajuan, tidak termasuk dibatalkan" />
+        <StatCard label="Divisi" nilai={d.divisi?.nama ?? "-"} catatan={d.divisi ? `Ketua: ${d.divisi.ketua_nama ?? "-"}` : "Belum tergabung di divisi"} />
       </div>
       <Bagian judul="Cuti mendatang" aksi={<Link href="/cuti/ajukan" className={btnPrimary}>Ajukan cuti</Link>}>
         <DataTable kolom={[{ label: "Jenis", key: "jenis_nama" }, kolomPeriode, kolomHari, kolomDetail]} rows={d.cutiMendatang} kosong="Belum ada cuti disetujui yang akan datang." />
@@ -62,12 +64,20 @@ async function DashKetua({ user }) {
       {!d.divisi && (
         <p role="note" className="rounded-xl border border-warn/40 bg-warn/10 p-4 text-sm">Anda belum memimpin divisi mana pun, sehingga belum ada antrean verifikasi. Hubungi Admin.</p>
       )}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <KartuTaut href="/verifikasi" label="Menunggu verifikasi Anda" nilai={d.menungguVerifikasi} catatan={d.divisi ? `Divisi ${d.divisi.nama}` : undefined} tone={d.menungguVerifikasi > 0 ? "warn" : undefined} />
         <StatCard label="Anggota cuti minggu ini" nilai={d.anggotaCutiMingguIni.length} catatan={`${formatTanggal(d.minggu.dari)} – ${formatTanggal(d.minggu.sampai)}`} />
+        <StatCard label={`Pengajuan masuk ${d.tahun}`} nilai={d.totalMasuk} catatan="Dari anggota divisi, semua status" />
         <StatCard label="Anggota aktif divisi" nilai={d.divisi?.jumlah_anggota_aktif ?? 0} catatan="Termasuk Ketua Divisi" />
         <StatCard label={`Sisa kuota Anda ${d.tahun}`} nilai={formatHari(d.sisa)} catatan={`dari ${formatHari(d.kuotaAwal)} hari`} tone={d.sisa <= 2 ? "warn" : undefined} />
       </div>
+      <Bagian judul="Anggota divisi">
+        <DataTable
+          kolom={[{ label: "Nama", key: "nama_lengkap" }, { label: "Minggu ini", render: (a) => (a.cutiMingguIni ? <span className="text-warn">Sedang cuti</span> : <span className="text-muted">Hadir</span>) }]}
+          rows={d.anggota}
+          kosong="Divisi belum memiliki anggota lain."
+        />
+      </Bagian>
       <Bagian judul="Anggota yang cuti minggu ini">
         <DataTable
           kolom={[{ label: "Nama", key: "nama_lengkap" }, { label: "Jenis", key: "jenis_nama" }, kolomPeriode, kolomHari, kolomDetail]}
@@ -86,13 +96,26 @@ async function DashHrd() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <KartuTaut href="/persetujuan" label="Menunggu persetujuan final" nilai={d.menungguFinal} catatan="Antrean HRD" tone={d.menungguFinal > 0 ? "warn" : undefined} />
         <StatCard label={`Karyawan cuti ${d.bulan.label}`} nilai={d.jumlahOrangCuti} catatan="Cuti berstatus Disetujui" />
-        <StatCard label="Pengajuan cuti bulan ini" nilai={d.cutiBulanIni.length} catatan="Jumlah pengajuan, bukan orang" />
+        <StatCard label="Pengajuan cuti bulan ini" nilai={d.pengajuanBulanIni} catatan="Diajukan pada bulan ini, semua status" />
       </div>
       <Bagian judul={`Karyawan cuti pada ${d.bulan.label}`}>
         <DataTable
           kolom={[{ label: "Nama", key: "nama_lengkap" }, { label: "Divisi", render: (r) => r.divisi_nama ?? "-" }, { label: "Jenis", key: "jenis_nama" }, kolomPeriode, kolomHari, kolomDetail]}
           rows={d.cutiBulanIni}
           kosong="Tidak ada karyawan yang cuti bulan ini."
+        />
+      </Bagian>
+      <Bagian judul="Daftar divisi" aksi={<Link href="/kapasitas" className="text-sm text-accent hover:underline">Kapasitas tim</Link>}>
+        <DataTable
+          kolom={[
+            { label: "Divisi", key: "nama" },
+            { label: "Ketua", render: (v) => v.ketua_nama ?? "-" },
+            { label: "Anggota aktif", key: "jumlah_anggota" },
+            { label: "Batas cuti bersamaan", render: (v) => `${v.maks_cuti_per_hari} orang/hari` },
+            { label: `Cuti ${d.bulan.label}`, render: (v) => `${v.cutiBulanIni} orang` },
+          ]}
+          rows={d.divisi}
+          kosong="Belum ada divisi."
         />
       </Bagian>
     </>
@@ -109,6 +132,8 @@ async function DashAdmin() {
         <KartuTaut href="/admin/divisi" label="Divisi" nilai={d.totalDivisi} />
         <KartuTaut href="/admin/jenis-cuti" label="Jenis cuti aktif" nilai={d.jenisCutiAktif} />
         <KartuTaut href="/admin/hari-libur" label="Hari libur tahun ini" nilai={d.hariLiburTahunIni} />
+        <StatCard label={`Pengajuan cuti ${d.bulan.label}`} nilai={d.pengajuanBulanIni} catatan="Diajukan pada bulan ini, semua status" />
+        <KartuTaut href="/riwayat" label="Menunggu persetujuan" nilai={d.pengajuanMenunggu} catatan="Menunggu Ketua Divisi atau HRD" tone={d.pengajuanMenunggu > 0 ? "warn" : undefined} />
       </div>
       <Bagian judul="Masa kerja kurang dari 1 tahun" aksi={<span className="text-xs text-muted">Belum berhak Cuti Tahunan</span>}>
         <DataTable
