@@ -1,12 +1,13 @@
-import { tanggalValid } from "./tanggal.js";
+import { tanggalValid, selisihHari } from "./tanggal.js";
 import { hariKerjaDalamRentang, hitungTotalHari } from "./hitung-hari.js";
 import { adaOverlap } from "./overlap.js";
 import { sisaKuota } from "./kuota.js";
-import { batasHarian, cekKapasitas } from "./kapasitas.js";
+import { cekKapasitas } from "./kapasitas.js";
 import { cekAturanJenis } from "./aturan-jenis.js";
 
 export const LAMPIRAN_MIME = ["application/pdf", "image/jpeg", "image/png"];
 export const LAMPIRAN_MAKS = 2 * 1024 * 1024;
+export const MAKS_RENTANG_HARI = 366;
 
 const gagal = (kode, pesan) => ({ ok: false, kode, pesan });
 
@@ -17,6 +18,7 @@ export function validasiPengajuan(input, k) {
   // 2. bentuk data
   if (!tanggalValid(mulai) || !tanggalValid(selesai)) return gagal("BENTUK_DATA", "Tanggal tidak valid.");
   if (selesai < mulai) return gagal("BENTUK_DATA", "Tanggal selesai tidak boleh sebelum tanggal mulai.");
+  if (selisihHari(mulai, selesai) > MAKS_RENTANG_HARI) return gagal("BENTUK_DATA", `Rentang tanggal maksimal ${MAKS_RENTANG_HARI} hari.`);
   if (setengah && mulai !== selesai) return gagal("BENTUK_DATA", "Cuti setengah hari hanya untuk satu tanggal.");
   if (!input.alasan || !String(input.alasan).trim()) return gagal("BENTUK_DATA", "Alasan cuti wajib diisi.");
   if (k.pengaju.divisiId == null) return gagal("TANPA_DIVISI", "Anda belum tergabung di divisi mana pun. Hubungi Admin.");
@@ -59,8 +61,7 @@ export function validasiPengajuan(input, k) {
   // 9. kapasitas divisi (Cuti Sakit tidak diblokir)
   if (k.jenis.kode !== "sakit" && k.divisi) {
     const hariKerja = hariKerjaDalamRentang(mulai, selesai, k.hariLibur);
-    const batas = batasHarian(k.divisi.maxPersen, k.divisi.jumlahAnggotaAktif);
-    const r = cekKapasitas({ hariKerja, okupansi: k.okupansi, batas });
+    const r = cekKapasitas({ hariKerja, okupansi: k.okupansi, batas: k.divisi.maksPerHari });
     if (!r.ok) return gagal("KAPASITAS", `Kapasitas divisi penuh pada ${r.tanggalPenuh} (${r.terisi}/${r.batas}). Pilih tanggal lain.`);
   }
 

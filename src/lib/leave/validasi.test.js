@@ -17,7 +17,7 @@ const ctx = (o = {}) => ({
   terpakaiPotongKuota: 0,
   terpakaiJenis: 0,
   kandidatRekan: [2, 3],
-  divisi: { maxPersen: 50, jumlahAnggotaAktif: 6 },
+  divisi: { maksPerHari: 3 },
   okupansi: new Map(),
   lampiran: null,
   ...o,
@@ -102,4 +102,9 @@ test("lampiran: Sakit wajib; tipe dan ukuran divalidasi", () => {
   gagal(s({ mime: "application/zip", ukuran: 1000 }), "LAMPIRAN_INVALID");
   gagal(s({ mime: "image/png", ukuran: 2 * 1024 * 1024 + 1 }), "LAMPIRAN_INVALID");
   assert.equal(s({ mime: "image/jpeg", ukuran: 2 * 1024 * 1024 }).ok, true);
+});
+
+test("rentang lebih dari 366 hari ditolak sebelum perhitungan lain", () => {
+  gagal(validasiPengajuan(input({ mulai: "2026-11-16", selesai: "2028-01-01" }), ctx()), "BENTUK_DATA");
+  gagal(validasiPengajuan(input({ mulai: "0001-01-01", selesai: "9999-12-31" }), ctx()), "BENTUK_DATA");
 });

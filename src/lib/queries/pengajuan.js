@@ -1,10 +1,11 @@
 import { denganTransaksi } from "./tx.js";
 import { ambilJenis } from "./jenis-cuti.js";
 import { muatHariLibur } from "./hari-libur.js";
+import { okupansiDivisi } from "./kapasitas.js";
 import { ambilLampiranUpload, tautkanLampiran } from "./lampiran.js";
-import { hariIni, tanggalValid, hariDalamRentang } from "../leave/tanggal.js";
+import { hariIni, tanggalValid, selisihHari } from "../leave/tanggal.js";
 import { kandidatRekan } from "../leave/rekan.js";
-import { validasiPengajuan } from "../leave/validasi.js";
+import { validasiPengajuan, MAKS_RENTANG_HARI } from "../leave/validasi.js";
 import { formatRentang } from "../format.js";
 
 const AKTIF = "('Pending','Approved by Leader','Approved')";
@@ -59,7 +60,7 @@ export async function muatKonteks(db, pengajuId, input, lampiran = null) {
   if (jenis.kuotaHari != null) k.terpakaiJenis = await terpakaiJenis(db, u.id, jenis.id, tahun);
 
   if (u.divisi_id) {
-    const dv = (await db.query("SELECT max_persen_cuti FROM divisi WHERE id=$1 AND deleted_at IS NULL", [u.divisi_id])).rows[0];
+    const dv = (await db.query("SELECT maks_cuti_per_hari FROM divisi WHERE id=$1 AND deleted_at IS NULL", [u.divisi_id])).rows[0];
     const anggotaRows = (await db.query("SELECT id FROM users WHERE divisi_id=$1 AND aktif AND deleted_at IS NULL", [u.divisi_id])).rows;
     const ids = anggotaRows.map((a) => a.id);
     const aktifAnggota = (await db.query(
@@ -67,15 +68,8 @@ export async function muatKonteks(db, pengajuId, input, lampiran = null) {
        WHERE pengaju_id = ANY($1) AND status IN ${AKTIF} AND tanggal_mulai <= $3 AND tanggal_selesai >= $2`, [ids, mulai, selesai])).rows;
     const anggota = ids.map((id) => ({ id, aktif: true, pengajuanAktif: aktifAnggota.filter((x) => x.pengaju_id === id) }));
     k.kandidatRekan = kandidatRekan(anggota, u.id, mulai, selesai);
-    if (dv) k.divisi = { maxPersen: dv.max_persen_cuti, jumlahAnggotaAktif: ids.length };
-    if (hariDalamRentang(mulai, selesai).length > 0) {
-      const ok = (await db.query(
-        `SELECT d::date AS tanggal, count(DISTINCT p.pengaju_id)::int AS n
-         FROM generate_series($2::date, $3::date, interval '1 day') d
-         JOIN pengajuan_cuti p ON p.divisi_id = $1 AND p.status IN ${AKTIF} AND p.tanggal_mulai <= d::date AND p.tanggal_selesai >= d::date
-         GROUP BY d`, [u.divisi_id, mulai, selesai])).rows;
-      k.okupansi = new Map(ok.map((r) => [r.tanggal, r.n]));
-    }
+    if (dv) k.divisi = { maksPerHari: dv.maks_cuti_per_hari };
+    k.okupansi = await okupansiDivisi(db, u.divisi_id, mulai, selesai);
   }
   return k;
 }
@@ -101,6 +95,8 @@ async function kirimNotifikasi(c, { id, pengaju, jenis, input, tahap, divisiId }
 
 export async function simpanPengajuan(pool, pengajuId, input, lampiranId = null) {
   if (!tanggalValid(input.mulai) || !tanggalValid(input.selesai)) return gagal("BENTUK_DATA", "Tanggal tidak valid.");
+  if (input.selesai < input.mulai) return gagal("BENTUK_DATA", "Tanggal selesai tidak boleh sebelum tanggal mulai.");
+  if (selisihHari(input.mulai, input.selesai) > MAKS_RENTANG_HARI) return gagal("BENTUK_DATA", `Rentang tanggal maksimal ${MAKS_RENTANG_HARI} hari.`);
   return denganTransaksi(pool, async (c) => {
     const u = (await c.query("SELECT role, divisi_id FROM users WHERE id=$1 AND aktif AND deleted_at IS NULL", [pengajuId])).rows[0];
     if (!u || !["karyawan", "ketua_divisi"].includes(u.role)) return gagal("ROLE", "Hanya Karyawan dan Ketua Divisi yang dapat mengajukan cuti.");

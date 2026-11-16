@@ -11,7 +11,6 @@ import { bolehUbahProfil, ubahFoto } from "@/lib/queries/profil";
 
 const pesan = (message, status) => NextResponse.json({ message }, { status });
 
-// Upload lewat Route Handler (bukan Server Action) agar tidak terkena batas body 1 MB.
 export async function POST(request) {
   const g = await guardApi(null, request);
   if (g.error) return g.error;

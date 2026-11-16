@@ -1,14 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { batasHarian, cekKapasitas } from "./kapasitas.js";
-
-test("batasHarian: minimum 1 dan pembulatan ke bawah", () => {
-  assert.equal(batasHarian(10, 8), 1);
-  assert.equal(batasHarian(25, 10), 2);
-  assert.equal(batasHarian(34, 6), 2);
-  assert.equal(batasHarian(0, 6), 1);
-  assert.equal(batasHarian(100, 4), 4);
-});
+import { cekKapasitas } from "./kapasitas.js";
 
 test("cekKapasitas melaporkan tanggal penuh pertama", () => {
   const okupansi = new Map([["2026-11-17", 2], ["2026-11-18", 1]]);

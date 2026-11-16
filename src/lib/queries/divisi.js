@@ -80,7 +80,7 @@ export async function daftarDivisi(db, f = {}) {
   if (f.minAnggota) tambah("jumlah_anggota >= ?", Number(f.minAnggota));
   if (f.maxAnggota) tambah("jumlah_anggota <= ?", Number(f.maxAnggota));
   const sql = `SELECT * FROM (
-      SELECT d.id, d.nama, d.deskripsi, d.max_persen_cuti, d.created_at, d.ketua_id, k.nama_lengkap AS ketua_nama,
+      SELECT d.id, d.nama, d.deskripsi, d.maks_cuti_per_hari, d.created_at, d.ketua_id, k.nama_lengkap AS ketua_nama,
              (SELECT count(*)::int FROM users u WHERE u.divisi_id = d.id AND u.deleted_at IS NULL AND u.aktif) AS jumlah_anggota
       FROM divisi d LEFT JOIN users k ON k.id = d.ketua_id
       WHERE d.deleted_at IS NULL) t
@@ -90,7 +90,7 @@ export async function daftarDivisi(db, f = {}) {
 
 export async function ambilDivisi(db, id) {
   const r = await db.query(
-    `SELECT d.id, d.nama, d.deskripsi, d.max_persen_cuti, d.created_at, d.ketua_id, k.nama_lengkap AS ketua_nama
+    `SELECT d.id, d.nama, d.deskripsi, d.maks_cuti_per_hari, d.created_at, d.ketua_id, k.nama_lengkap AS ketua_nama
      FROM divisi d LEFT JOIN users k ON k.id = d.ketua_id WHERE d.id=$1 AND d.deleted_at IS NULL`, [id]);
   return r.rows[0] ?? null;
 }

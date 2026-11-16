@@ -2,8 +2,9 @@ import { denganTransaksi } from "./tx.js";
 import { parseId } from "../id.js";
 import { terpakaiPotongKuota } from "./pengajuan.js";
 import { muatHariLibur } from "./hari-libur.js";
+import { okupansiDivisi } from "./kapasitas.js";
 import { hariKerjaDalamRentang } from "../leave/hitung-hari.js";
-import { batasHarian, cekKapasitas } from "../leave/kapasitas.js";
+import { cekKapasitas } from "../leave/kapasitas.js";
 import { sisaKuota } from "../leave/kuota.js";
 
 const gagal = (pesan) => ({ ok: false, pesan });
@@ -97,20 +98,14 @@ export async function muatPeringatanHrd(db, pengajuanId) {
   const hasil = { kuotaKurang: Boolean(p.potong_kuota) && sisaKuota(p.kuota_awal, await terpakaiPotongKuota(db, p.pengaju_id, tahun)) < 0 };
 
   if (p.kode !== "sakit" && p.divisi_id) {
-    const dv = (await db.query("SELECT max_persen_cuti FROM divisi WHERE id=$1", [p.divisi_id])).rows[0];
-    const jumlah = (await db.query("SELECT count(*)::int n FROM users WHERE divisi_id=$1 AND aktif AND deleted_at IS NULL", [p.divisi_id])).rows[0].n;
+    const dv = (await db.query("SELECT maks_cuti_per_hari FROM divisi WHERE id=$1", [p.divisi_id])).rows[0];
     if (dv) {
       const libur = await muatHariLibur(db, { dari: p.tanggal_mulai, sampai: p.tanggal_selesai });
-      const lain = (await db.query(
-        `SELECT d::date AS tanggal, count(DISTINCT p2.pengaju_id)::int AS n
-         FROM generate_series($2::date, $3::date, interval '1 day') d
-         JOIN pengajuan_cuti p2 ON p2.divisi_id = $1 AND p2.id <> $4 AND p2.pengaju_id <> $5
-          AND p2.status IN ('Pending','Approved by Leader','Approved') AND p2.tanggal_mulai <= d::date AND p2.tanggal_selesai >= d::date
-         GROUP BY d`, [p.divisi_id, p.tanggal_mulai, p.tanggal_selesai, id, p.pengaju_id])).rows;
+      const lain = await okupansiDivisi(db, p.divisi_id, p.tanggal_mulai, p.tanggal_selesai, { kecualiPengajuanId: id, kecualiPengajuId: p.pengaju_id });
       const r = cekKapasitas({
         hariKerja: hariKerjaDalamRentang(p.tanggal_mulai, p.tanggal_selesai, libur),
-        okupansi: new Map(lain.map((x) => [x.tanggal, x.n])),
-        batas: batasHarian(dv.max_persen_cuti, jumlah),
+        okupansi: lain,
+        batas: dv.maks_cuti_per_hari,
       });
       if (!r.ok) hasil.kapasitasPenuh = { tanggal: r.tanggalPenuh, terisi: r.terisi, batas: r.batas };
     }
@@ -121,7 +116,8 @@ export async function muatPeringatanHrd(db, pengajuanId) {
 // Satu transaksi per item: item yang gagal dilewati dan dilaporkan, sisanya tetap diproses.
 export async function approveBanyak(pool, hrdId, ids) {
   const berhasil = [], dilewati = [];
-  for (const raw of ids) {
+  const unik = [...new Set(ids.map(String))].slice(0, 100);
+  for (const raw of unik) {
     const r = await putuskan(pool, { pengajuanId: raw, approverId: hrdId, tahap: "hrd", keputusan: "approve", catatan: null });
     if (r.ok) berhasil.push(parseId(raw));
     else dilewati.push({ id: raw, pesan: r.pesan });

@@ -2,7 +2,6 @@ import bcrypt from "bcryptjs";
 import { bacaToken } from "./session.js";
 import { cariUserLogin, ambilUserAktif } from "./queries/users.js";
 
-// Hash tiruan agar waktu respons sama untuk akun yang tidak ada.
 const HASH_TIRUAN = bcrypt.hashSync("tiruan-tidak-dipakai", 10);
 
 export async function autentikasi(db, identifier, password) {

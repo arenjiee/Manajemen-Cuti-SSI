@@ -62,14 +62,16 @@ export async function ubahUser(db, id, d) {
   if (err) return gagal(err);
   const lama = (await db.query("SELECT role FROM users WHERE id=$1 AND deleted_at IS NULL", [id])).rows[0];
   if (!lama) return gagal("Pengguna tidak ditemukan.");
-  if (d.role !== "ketua_divisi") {
+  if (d.role !== "ketua_divisi" || !d.aktif) {
     const memimpin = await db.query("SELECT nama FROM divisi WHERE ketua_id=$1 AND deleted_at IS NULL", [id]);
     if (memimpin.rows[0]) return gagal(`Pengguna masih memimpin divisi ${memimpin.rows[0].nama}. Ganti ketua divisi terlebih dahulu.`);
   }
+  const kuota = d.kuota_awal === undefined || d.kuota_awal === null || d.kuota_awal === "" ? null : Number(d.kuota_awal);
+  if (kuota !== null && !(Number.isFinite(kuota) && kuota >= 0 && kuota <= 365)) return gagal("Kuota cuti harus antara 0 dan 365 hari.");
   try {
     await db.query(
-      "UPDATE users SET username=$2,email=$3,nama_lengkap=$4,role=$5,aktif=$6 WHERE id=$1",
-      [id, d.username.trim(), d.email.trim(), d.nama_lengkap.trim(), d.role, Boolean(d.aktif)]
+      "UPDATE users SET username=$2,email=$3,nama_lengkap=$4,role=$5,aktif=$6,kuota_awal=COALESCE($7,kuota_awal) WHERE id=$1",
+      [id, d.username.trim(), d.email.trim(), d.nama_lengkap.trim(), d.role, Boolean(d.aktif), kuota]
     );
     return { ok: true };
   } catch (e) {
