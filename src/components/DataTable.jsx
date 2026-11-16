@@ -7,7 +7,7 @@ export default function DataTable({ kolom, rows, kosong = "Belum ada data." }) {
     <>
       <div className="hidden overflow-x-auto rounded-xl border border-line bg-surface md:block">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-line text-xs tracking-wide text-muted uppercase">
+          <thead className="border-b border-line font-mono text-[11px] tracking-wider text-muted uppercase">
             <tr>{kolom.map((k) => <th key={k.label} className="px-4 py-3 font-medium">{k.label}</th>)}</tr>
           </thead>
           <tbody>

@@ -28,7 +28,7 @@ export default function Sidebar({ menu, nama, peran }) {
         className={`fixed inset-y-0 left-0 z-30 flex w-64 flex-col border-r border-line bg-surface p-5 transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${buka ? "translate-x-0" : "-translate-x-full"}`}
       >
         <p className="font-display text-2xl font-semibold">SMCK</p>
-        <p className="mt-0.5 text-xs tracking-wide text-muted uppercase">PT SSI Makassar</p>
+        <p className="mt-0.5 font-mono text-[10px] tracking-[0.2em] text-muted uppercase">PT SSI Makassar</p>
         <nav className="mt-8 flex-1 space-y-1 overflow-y-auto">
           {menu.map((m) => (
             <Link
@@ -50,7 +50,7 @@ export default function Sidebar({ menu, nama, peran }) {
           </button>
         </div>
       </aside>
-      {buka && <button aria-label="Tutup menu" className="fixed inset-0 z-20 bg-ink/30 lg:hidden" onClick={() => setBuka(false)} />}
+      {buka && <button aria-label="Tutup menu" className="fixed inset-0 z-20 bg-black/60 lg:hidden" onClick={() => setBuka(false)} />}
     </>
   );
 }

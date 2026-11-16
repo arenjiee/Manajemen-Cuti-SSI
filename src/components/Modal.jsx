@@ -15,7 +15,7 @@ export default function Modal({ buka, onTutup, judul, children }) {
       ref={ref}
       onClose={onTutup}
       onClick={(e) => e.target === ref.current && onTutup()}
-      className="m-auto w-full max-w-md rounded-2xl border border-line bg-surface p-0 text-ink backdrop:bg-ink/40"
+      className="m-auto w-full max-w-md rounded-2xl border border-line bg-surface p-0 text-ink backdrop:bg-black/70"
     >
       <div className="p-6">
         <h2 className="text-xl font-semibold">{judul}</h2>
