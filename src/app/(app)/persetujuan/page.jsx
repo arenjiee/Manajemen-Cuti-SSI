@@ -4,7 +4,6 @@ import { antreanHrd, muatPeringatanHrd } from "@/lib/queries/approval";
 import { formatTanggal, formatWaktu } from "@/lib/format";
 import KartuApproval from "@/components/KartuApproval";
 import { btnPrimary } from "@/components/ui";
-import { putuskanHrdAction, approveBanyakAction } from "./actions";
 
 export const metadata = { title: "Persetujuan Final | SMCK" };
 
@@ -25,7 +24,7 @@ export default async function PersetujuanPage({ searchParams }) {
           <p className="text-sm text-muted">{antre.length} pengajuan menunggu keputusan HRD.</p>
         </div>
         {antre.length > 0 && (
-          <form id="form-banyak" action={approveBanyakAction}>
+          <form id="form-banyak" action="/api/persetujuan/batch" method="POST">
             <button className={btnPrimary}>Setujui yang dipilih</button>
           </form>
         )}
@@ -47,7 +46,7 @@ export default async function PersetujuanPage({ searchParams }) {
               <KartuApproval
                 key={p.id}
                 p={p}
-                action={putuskanHrdAction}
+                action="/api/persetujuan"
                 pilih={<input type="checkbox" name="ids" value={p.id} form="form-banyak" aria-label={`Pilih pengajuan ${p.pengaju_nama}`} className="mt-3 h-4 w-4" />}
               >
                 {p.atasan ? (
@@ -59,14 +58,8 @@ export default async function PersetujuanPage({ searchParams }) {
                 ) : (
                   <p className="rounded-lg bg-accent/10 p-3 text-sm text-accent">Diajukan langsung oleh Ketua Divisi (tanpa verifikasi atasan).</p>
                 )}
-                {w.kapasitasPenuh && (
-                  <p role="alert" className="rounded-lg bg-warn/15 p-3 text-sm">
-                    <strong>Peringatan kapasitas:</strong> divisi {p.divisi_nama} sudah {w.kapasitasPenuh.terisi}/{w.kapasitasPenuh.batas} orang cuti pada {formatTanggal(w.kapasitasPenuh.tanggal)}. Menyetujui akan melampaui batas.
-                  </p>
-                )}
-                {w.kuotaKurang && (
-                  <p role="alert" className="rounded-lg bg-warn/15 p-3 text-sm"><strong>Peringatan kuota:</strong> sisa kuota cuti tahunan karyawan ini negatif.</p>
-                )}
+                {w && w.kapasitas && <p className="rounded-lg bg-bad/10 p-3 text-sm text-bad">Peringatan: pengajuan ini melebihi batas kapasitas divisi pada tanggal terkait.</p>}
+                {w && w.sisaKurang && <p className="rounded-lg bg-bad/10 p-3 text-sm text-bad">Peringatan: sisa kuota tahunan pemohon tidak mencukupi untuk jumlah hari ini.</p>}
               </KartuApproval>
             );
           })}

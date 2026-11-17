@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Modal from "./Modal";
 import FormAction from "./FormAction";
+import AutoTextarea from "./AutoTextarea";
 import { inputCls, btnPrimary, btnGhost } from "./ui";
 import { formatRentang, formatHari, formatTanggal } from "../lib/format";
 
@@ -49,7 +50,7 @@ export default function KartuApproval({ p, action, children, pilih }) {
           <input type="hidden" name="keputusan" value={mode ?? "approve"} />
           <label className="block text-sm">
             {tolak ? "Catatan penolakan (wajib)" : "Catatan (opsional)"}
-            <textarea name="catatan" rows={3} required={tolak} className={`${inputCls} mt-1`} />
+            <AutoTextarea name="catatan" rows={2} required={tolak} className={`${inputCls} mt-1`} />
           </label>
         </FormAction>
         <button type="button" onClick={() => setMode(null)} className={`${btnGhost} mt-3 w-full`}>Kembali</button>

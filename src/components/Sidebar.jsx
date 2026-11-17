@@ -3,7 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
-export default function Sidebar({ menu, nama, peran }) {
+export default function Sidebar({ menu, nama, peran, userId, fotoKey }) {
   const pathname = usePathname();
   const router = useRouter();
   const [buka, setBuka] = useState(false);
@@ -15,6 +15,7 @@ export default function Sidebar({ menu, nama, peran }) {
   }
 
   const aktif = (href) => (href === "/dashboard" ? pathname === href : pathname === href || pathname.startsWith(href + "/"));
+  const inisial = nama ? nama.split(/\s+/).slice(0, 2).map((x) => x[0]).join("").toUpperCase() : "";
 
   return (
     <>
@@ -43,8 +44,26 @@ export default function Sidebar({ menu, nama, peran }) {
           ))}
         </nav>
         <div className="border-t border-line pt-4">
-          <p className="truncate text-sm font-medium">{nama}</p>
-          <p className="text-xs text-muted">{peran}</p>
+          <div className="flex items-center gap-3">
+            {fotoKey && userId ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={`/api/foto/${userId}?v=${encodeURIComponent(fotoKey)}`}
+                alt={nama}
+                className="h-10 w-10 shrink-0 rounded-full border border-line object-cover"
+              />
+            ) : (
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10 font-display text-sm font-semibold text-accent">
+                {inisial}
+              </span>
+            )}
+            <div className="min-w-0 flex-1">
+              <Link href="/profil" className="block truncate text-sm font-medium hover:underline">
+                {nama}
+              </Link>
+              <p className="truncate text-xs text-muted">{peran}</p>
+            </div>
+          </div>
           <button onClick={logout} className="mt-3 w-full rounded-lg border border-line py-2 text-sm transition hover:bg-ink/5">
             Keluar
           </button>

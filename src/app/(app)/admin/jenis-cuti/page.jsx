@@ -8,7 +8,6 @@ import FormAction from "@/components/FormAction";
 import FormJenis from "@/components/FormJenis";
 import TombolKonfirmasi from "@/components/TombolKonfirmasi";
 import { btnDanger } from "@/components/ui";
-import { buatJenisAction, hapusJenisAction } from "./actions";
 
 export const metadata = { title: "Jenis Cuti | SMCK" };
 
@@ -25,7 +24,7 @@ export default async function JenisCutiPage({ searchParams }) {
     { label: "Aksi", render: (j) => (
       <div className="flex items-center gap-2">
         <Link href={`/admin/jenis-cuti/${j.id}`} className="text-sm text-accent hover:underline">Edit</Link>
-        {!j.isSystem && <TombolKonfirmasi action={hapusJenisAction} fields={{ id: j.id }} label="Hapus" pesan={`Hapus jenis cuti ${j.nama}?`} className={btnDanger} />}
+        {!j.isSystem && <TombolKonfirmasi action="/api/admin/jenis-cuti/hapus" fields={{ id: j.id }} label="Hapus" pesan={`Hapus jenis cuti ${j.nama}?`} className={btnDanger} />}
       </div>
     ) },
   ];
@@ -39,7 +38,7 @@ export default async function JenisCutiPage({ searchParams }) {
       <DataTable kolom={kolom} rows={rows} />
       <section className="max-w-xl space-y-4 border-t border-line pt-6">
         <h2 className="text-xl font-semibold">Tambah jenis cuti</h2>
-        <FormAction action={buatJenisAction} label="Tambah jenis"><FormJenis /></FormAction>
+        <FormAction action="/api/admin/jenis-cuti" redirectTo="/admin/jenis-cuti" label="Tambah jenis"><FormJenis /></FormAction>
       </section>
     </div>
   );

@@ -7,7 +7,6 @@ import { petaKapasitas } from "@/lib/queries/kapasitas";
 import KalenderMini from "@/components/KalenderMini";
 import FormAction from "@/components/FormAction";
 import { inputCls } from "@/components/ui";
-import { ubahBatasAction } from "./actions";
 
 export const metadata = { title: "Kapasitas Tim | SMCK" };
 
@@ -57,15 +56,14 @@ export default async function KapasitasPage({ searchParams }) {
                   Maksimal <strong>{p.batas}</strong> orang cuti per hari.
                   {p.hariPenuh > 0 ? <span className="text-bad"> {p.hariPenuh} hari penuh bulan ini.</span> : <span className="text-muted"> Belum ada hari penuh bulan ini.</span>}
                 </p>
-                <FormAction action={ubahBatasAction} label="Simpan batas" className="flex flex-wrap items-end gap-3">
+                <FormAction action="/api/kapasitas" label="Simpan batas" className="flex flex-wrap items-end gap-3">
                   <input type="hidden" name="divisiId" value={p.id} />
                   <input type="hidden" name="bulan" value={bulan} />
-                  <label className="text-xs text-muted">Maksimal orang cuti per hari
-                    <input name="batas" type="number" min="1" max="999" step="1" required defaultValue={p.batas} className={`${inputCls} mt-1 w-28`} />
+                  <label className="text-sm">Batas harian
+                    <input name="batas" type="number" min="1" max="999" defaultValue={p.batas} required className={`${inputCls} mt-1 w-28`} />
                   </label>
                 </FormAction>
-                {p.batas >= p.jumlahAnggota && <p className="text-xs text-warn">Batas sama atau lebih besar dari jumlah anggota aktif, jadi tidak ada pembatasan yang efektif.</p>}
-                <KalenderMini kalender={[{ bulan, label: labelBulan(dari), offset, hari: p.harian }]} />
+                <KalenderMini kalender={[{ bulan: dari.slice(0, 7), label: labelBulan(dari), offset, hari: p.harian }]} />
               </article>
             ))}
           </div>

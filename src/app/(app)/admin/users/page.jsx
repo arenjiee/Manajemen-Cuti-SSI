@@ -8,7 +8,6 @@ import { formatTanggal } from "@/lib/format";
 import DataTable from "@/components/DataTable";
 import FilterBar from "@/components/FilterBar";
 import TombolKonfirmasi from "@/components/TombolKonfirmasi";
-import { hapusUserAction } from "./actions";
 import { btnPrimary, btnDanger } from "@/components/ui";
 
 export const metadata = { title: "Pengguna | SMCK" };
@@ -39,7 +38,7 @@ export default async function UsersPage({ searchParams }) {
         <div className="flex items-center gap-2">
           <Link href={`/admin/users/${u.id}`} className="text-sm text-accent hover:underline">Edit</Link>
           {["karyawan", "ketua_divisi"].includes(u.role) && (
-            <TombolKonfirmasi action={hapusUserAction} fields={{ id: u.id }} label="Hapus" pesan={`Hapus pengguna ${u.nama_lengkap}?`} className={btnDanger} />
+            <TombolKonfirmasi action="/api/admin/users/hapus" fields={{ id: u.id }} label="Hapus" pesan={`Hapus pengguna ${u.nama_lengkap}?`} className={btnDanger} />
           )}
         </div>
       ),

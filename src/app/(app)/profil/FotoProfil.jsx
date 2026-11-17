@@ -6,7 +6,7 @@ import { btnGhost } from "@/components/ui";
 const MAKS = 2 * 1024 * 1024;
 const inisial = (n) => n.split(/\s+/).slice(0, 2).map((x) => x[0]).join("").toUpperCase();
 
-export default function FotoProfil({ userId, nama, fotoKey, hapusAction }) {
+export default function FotoProfil({ userId, nama, fotoKey }) {
   const router = useRouter();
   const input = useRef(null);
   const [error, setError] = useState(null);
@@ -16,7 +16,6 @@ export default function FotoProfil({ userId, nama, fotoKey, hapusAction }) {
     const berkas = e.target.files?.[0];
     if (!berkas) return;
     setError(null);
-    // Pemeriksaan di browser hanya kenyamanan; server tetap memeriksa isi berkas dan ukurannya.
     if (berkas.size > MAKS) return setError("Ukuran foto maksimal 2 MB.");
     if (!["image/jpeg", "image/png"].includes(berkas.type)) return setError("Foto harus berformat JPG atau PNG.");
     const fd = new FormData();
@@ -50,7 +49,7 @@ export default function FotoProfil({ userId, nama, fotoKey, hapusAction }) {
             <input ref={input} type="file" accept="image/jpeg,image/png" onChange={pilih} className="sr-only" />
           </label>
           {fotoKey && (
-            <form action={hapusAction}>
+            <form action="/api/profil/foto" method="POST">
               <input type="hidden" name="id" value={userId} />
               <button className={btnGhost}>Hapus foto</button>
             </form>

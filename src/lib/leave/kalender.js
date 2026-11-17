@@ -11,14 +11,21 @@ export function statusHari({ tanggal, libur, terisi, batas, cekKapasitas = true 
   return "ok";
 }
 
-export function bangunKalender({ dari, sampai, okupansi, batas, ...rest }) {
+export function bangunKalender({ dari, sampai, okupansi, batas, libur, ...rest }) {
   const hasil = [];
   let kursor = dari;
   while (kursor <= sampai) {
     const { dari: awal, sampai: akhir } = rentangBulan(kursor);
     const hari = hariDalamRentang(awal, akhir <= sampai ? akhir : sampai).map((tanggal) => {
       const terisi = okupansi.get(tanggal) ?? 0;
-      return { tanggal, terisi, status: statusHari({ tanggal, terisi, batas, ...rest }) };
+      const status = statusHari({ tanggal, terisi, batas, libur, ...rest });
+      const liburInfo = libur?.get ? libur.get(tanggal) : null;
+      return {
+        tanggal,
+        terisi,
+        status,
+        ...(liburInfo ? { liburInfo } : {}),
+      };
     });
     const [y, m, d] = awal.split("-").map(Number);
     hasil.push({ bulan: awal.slice(0, 7), label: labelBulan(awal), offset: (new Date(Date.UTC(y, m - 1, d)).getUTCDay() + 6) % 7, hari });

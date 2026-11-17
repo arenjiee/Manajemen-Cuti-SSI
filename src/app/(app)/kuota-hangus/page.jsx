@@ -8,7 +8,6 @@ import StatCard from "@/components/StatCard";
 import DataTable from "@/components/DataTable";
 import FilterBar from "@/components/FilterBar";
 import { btnPrimary } from "@/components/ui";
-import { kirimPengingatAction } from "./actions";
 
 export const metadata = { title: "Kuota Hangus | SMCK" };
 
@@ -40,7 +39,7 @@ export default async function KuotaHangusPage({ searchParams }) {
           <p className="text-sm text-muted">Karyawan berhak Cuti Tahunan dengan sisa kuota besar. Kuota tidak dibawa ke tahun berikutnya.</p>
         </div>
         {d.rows.length > 0 && (
-          <form id="form-pengingat" action={kirimPengingatAction}>
+          <form id="form-pengingat" action="/api/kuota-hangus/pengingat" method="POST">
             <input type="hidden" name="ambang" value={d.ambang} />
             <button className={btnPrimary}>Kirim pengingat ke yang dipilih</button>
           </form>
@@ -59,9 +58,8 @@ export default async function KuotaHangusPage({ searchParams }) {
         <StatCard label="Hari kerja tersisa" nilai={d.hariKerjaTersisa} catatan={`Sampai 31 Des ${d.tahun} (dari ${formatTanggal(d.hari)})`} />
       </div>
 
-      <FilterBar fields={[{ name: "ambang", label: "Ambang sisa (hari)", type: "number", placeholder: "5" }]} values={{ ambang: d.ambang }} resetHref="/kuota-hangus" />
-      <DataTable kolom={kolom} rows={d.rows} kosong="Tidak ada karyawan dengan sisa kuota di atas ambang." />
-      <p className="text-xs text-muted">Pengingat dikirim sebagai notifikasi. Karyawan yang sudah diingatkan dalam {JEDA_PENGINGAT_HARI} hari terakhir tidak dikirimi lagi.</p>
+      <FilterBar fields={[{ name: "ambang", label: "Ambang sisa (hari)", type: "number", placeholder: "6" }]} values={sp} resetHref="/kuota-hangus" />
+      <DataTable kolom={kolom} rows={d.rows} kosong="Tidak ada karyawan dengan sisa kuota melebihi ambang." />
     </div>
   );
 }

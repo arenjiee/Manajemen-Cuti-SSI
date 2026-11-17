@@ -5,9 +5,9 @@ import { ambilDivisi, anggotaDivisi, calonKetua, karyawanTanpaDivisi } from "@/l
 import { formatTanggal } from "@/lib/format";
 import DataTable from "@/components/DataTable";
 import FormAction from "@/components/FormAction";
+import AutoTextarea from "@/components/AutoTextarea";
 import TombolKonfirmasi from "@/components/TombolKonfirmasi";
 import { inputCls, btnPrimary, btnDanger } from "@/components/ui";
-import { ubahDivisiAction, hapusDivisiAction, tambahAnggotaAction, keluarkanAnggotaAction } from "../actions";
 
 export default async function DetailDivisiPage({ params, searchParams }) {
   await requireRole(["admin"]);
@@ -24,9 +24,22 @@ export default async function DetailDivisiPage({ params, searchParams }) {
     { label: "Peran", render: (a) => (a.role === "ketua_divisi" ? "Ketua Divisi" : "Anggota") },
     { label: "Status", render: (a) => (a.aktif ? "Aktif" : "Tidak aktif") },
     { label: "Bergabung", render: (a) => formatTanggal(a.tanggal_bergabung) },
-    { label: "Aksi", render: (a) => a.role === "karyawan" && (
-      <TombolKonfirmasi action={keluarkanAnggotaAction} fields={{ divisiId: d.id, userId: a.id }} label="Keluarkan" pesan={`Keluarkan ${a.nama_lengkap} dari divisi? Akun tidak dihapus.`} className={btnDanger} />
-    ) },
+    {
+      label: "Aksi",
+      render: (a) => (
+        <TombolKonfirmasi
+          action="/api/admin/divisi/anggota/keluar"
+          fields={{ divisiId: d.id, userId: a.id }}
+          label={a.role === "ketua_divisi" ? "Keluarkan Ketua" : "Keluarkan"}
+          pesan={
+            a.role === "ketua_divisi"
+              ? `Keluarkan ${a.nama_lengkap} dari jabatan Ketua Divisi ${d.nama}? Akun tidak dihapus.`
+              : `Keluarkan ${a.nama_lengkap} dari divisi? Akun tidak dihapus.`
+          }
+          className={btnDanger}
+        />
+      ),
+    },
   ];
 
   return (
@@ -39,12 +52,13 @@ export default async function DetailDivisiPage({ params, searchParams }) {
 
       <section className="max-w-xl space-y-4">
         <h2 className="text-xl font-semibold">Edit divisi</h2>
-        <FormAction action={ubahDivisiAction} label="Simpan perubahan">
+        <FormAction action={`/api/admin/divisi/${d.id}`} label="Simpan perubahan">
           <input type="hidden" name="id" value={d.id} />
           <label className="block text-sm">Nama divisi<input name="nama" defaultValue={d.nama} required className={`${inputCls} mt-1`} /></label>
-          <label className="block text-sm">Deskripsi<textarea name="deskripsi" rows={3} defaultValue={d.deskripsi ?? ""} className={`${inputCls} mt-1`} /></label>
+          <label className="block text-sm">Deskripsi<AutoTextarea name="deskripsi" rows={2} defaultValue={d.deskripsi ?? ""} className={`${inputCls} mt-1`} /></label>
           <label className="block text-sm">Ketua divisi
-            <select name="ketuaId" defaultValue={d.ketua_id ?? ""} required className={`${inputCls} mt-1`}>
+            <select name="ketuaId" defaultValue={d.ketua_id ?? ""} className={`${inputCls} mt-1`}>
+              <option value="">-- Tanpa Ketua Divisi --</option>
               {ketuaOpsi.map((k) => <option key={k.id} value={k.id}>{k.nama_lengkap}</option>)}
             </select>
           </label>
@@ -54,7 +68,7 @@ export default async function DetailDivisiPage({ params, searchParams }) {
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">Anggota</h2>
         <DataTable kolom={kolom} rows={anggota} kosong="Divisi belum memiliki anggota." />
-        <form action={tambahAnggotaAction} className="flex flex-wrap items-end gap-3">
+        <form action={`/api/admin/divisi/${d.id}/anggota`} method="POST" className="flex flex-wrap items-end gap-3">
           <input type="hidden" name="divisiId" value={d.id} />
           <label className="text-sm">Tambah anggota
             <select name="userId" required defaultValue="" className={`${inputCls} mt-1 min-w-56`}>
@@ -69,7 +83,7 @@ export default async function DetailDivisiPage({ params, searchParams }) {
       <section className="border-t border-line pt-6">
         <h2 className="text-xl font-semibold text-bad">Hapus divisi</h2>
         <p className="mb-3 text-sm text-muted">Anggota kehilangan atribut divisi; akun mereka tetap ada.</p>
-        <TombolKonfirmasi action={hapusDivisiAction} fields={{ id: d.id }} label="Hapus divisi" konfirmasi={2}
+        <TombolKonfirmasi action="/api/admin/divisi/hapus" fields={{ id: d.id }} label="Hapus divisi" konfirmasi={2}
           pesan={`Hapus divisi ${d.nama}?`} className="rounded-lg border border-bad px-4 py-2 text-sm text-bad transition hover:bg-bad/10" />
       </section>
     </div>

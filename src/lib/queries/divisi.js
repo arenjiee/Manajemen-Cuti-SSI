@@ -38,6 +38,16 @@ export async function ubahDivisi(db, id, { nama, deskripsi, ketuaId }) {
   if (!nama?.trim()) return gagal("Nama divisi wajib diisi.");
   const lama = (await db.query("SELECT ketua_id FROM divisi WHERE id=$1 AND deleted_at IS NULL", [id])).rows[0];
   if (!lama) return gagal("Divisi tidak ditemukan.");
+
+  // Jika ketua dikosongkan
+  if (!ketuaId) {
+    return denganTransaksi(db, async (c) => {
+      if (lama.ketua_id) await c.query("UPDATE users SET divisi_id=NULL WHERE id=$1", [lama.ketua_id]);
+      await c.query("UPDATE divisi SET nama=$2, deskripsi=$3, ketua_id=NULL WHERE id=$1", [id, nama.trim(), deskripsi ?? null]);
+      return { ok: true };
+    });
+  }
+
   const err = await cekKetua(db, ketuaId, id);
   if (err) return gagal(err);
   try {
@@ -116,9 +126,20 @@ export async function tambahAnggota(db, divisiId, userId) {
 export async function keluarkanAnggota(db, userId) {
   const u = (await db.query("SELECT role FROM users WHERE id=$1 AND deleted_at IS NULL", [userId])).rows[0];
   if (!u) return gagal("Pengguna tidak ditemukan.");
-  if (u.role !== "karyawan") return gagal("Ketua divisi tidak dapat dikeluarkan. Ganti ketua lewat Edit Divisi.");
+  if (u.role !== "karyawan") return gagal("Ketua divisi tidak dapat dikeluarkan lewat fungsi ini. Gunakan keluarkanKetua.");
   await db.query("UPDATE users SET divisi_id=NULL WHERE id=$1", [userId]);
   return { ok: true };
+}
+
+export async function keluarkanKetua(db, divisiId) {
+  const d = (await db.query("SELECT id, ketua_id FROM divisi WHERE id=$1 AND deleted_at IS NULL", [divisiId])).rows[0];
+  if (!d) return gagal("Divisi tidak ditemukan.");
+  if (!d.ketua_id) return gagal("Divisi ini tidak memiliki ketua.");
+  return denganTransaksi(db, async (c) => {
+    await c.query("UPDATE users SET divisi_id=NULL WHERE id=$1", [d.ketua_id]);
+    await c.query("UPDATE divisi SET ketua_id=NULL WHERE id=$1", [divisiId]);
+    return { ok: true };
+  });
 }
 
 export async function calonKetua(db) {

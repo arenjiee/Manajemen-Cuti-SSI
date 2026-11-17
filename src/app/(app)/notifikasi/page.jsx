@@ -4,7 +4,6 @@ import { notifikasiUser, jumlahBelumDibaca } from "@/lib/queries/riwayat";
 import { tautanInternal } from "@/lib/tautan";
 import { formatWaktu } from "@/lib/format";
 import { btnGhost } from "@/components/ui";
-import { bukaNotifikasiAction, tandaiSemuaAction } from "./actions";
 
 export const metadata = { title: "Notifikasi | SMCK" };
 
@@ -22,7 +21,11 @@ export default async function NotifikasiPage({ searchParams }) {
           <h1 className="text-3xl font-semibold">Notifikasi</h1>
           <p className="text-sm text-muted">{belum > 0 ? `${belum} belum dibaca.` : "Semua notifikasi sudah dibaca."}</p>
         </div>
-        {belum > 0 && <form action={tandaiSemuaAction}><button className={btnGhost}>Tandai semua dibaca</button></form>}
+        {belum > 0 && (
+          <form action="/api/notifikasi/baca-semua" method="POST">
+            <button className={btnGhost}>Tandai semua dibaca</button>
+          </form>
+        )}
       </header>
 
       <nav className="flex gap-2" aria-label="Filter notifikasi">
@@ -44,8 +47,7 @@ export default async function NotifikasiPage({ searchParams }) {
                 <p className="mt-1 text-xs text-muted">{formatWaktu(n.created_at)}</p>
               </div>
               {(!n.dibaca || tautanInternal(n.link)) && (
-                <form action={bukaNotifikasiAction}>
-                  <input type="hidden" name="id" value={n.id} />
+                <form action={`/api/notifikasi/${n.id}/baca`} method="POST">
                   <button className="text-sm whitespace-nowrap text-accent hover:underline">{tautanInternal(n.link) ? "Buka" : "Tandai dibaca"}</button>
                 </form>
               )}

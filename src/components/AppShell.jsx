@@ -52,18 +52,40 @@ function NavList({ menu, aktifHref, ciut, onPilih, idIndikator }) {
 
 function KartuUser({ user, ciut, onKeluar }) {
   const inisial = user.nama.split(/\s+/).slice(0, 2).map((x) => x[0]).join("").toUpperCase();
+  const avatar = user.fotoKey ? (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={`/api/foto/${user.id}?v=${encodeURIComponent(user.fotoKey)}`}
+      alt={`Foto ${user.nama}`}
+      className="h-9 w-9 shrink-0 rounded-full border border-line object-cover"
+    />
+  ) : (
+    <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/10 font-display text-sm font-semibold text-accent">
+      {inisial}
+    </span>
+  );
+
   if (ciut) {
     return (
-      <button type="button" title="Keluar" aria-label="Keluar" onClick={onKeluar} className="mx-auto flex h-9 w-9 items-center justify-center rounded-full bg-accent/10 text-accent transition hover:bg-accent/20">
-        <LogOut className="h-4 w-4" />
-      </button>
+      <div className="flex flex-col items-center gap-2">
+        <Link href="/profil" title={`Profil: ${user.nama}`} className="transition hover:opacity-80">
+          {avatar}
+        </Link>
+        <button type="button" title="Keluar" aria-label="Keluar" onClick={onKeluar} className="mx-auto flex h-8 w-8 items-center justify-center rounded-lg text-muted transition hover:bg-ink/5 hover:text-ink">
+          <LogOut className="h-4 w-4" />
+        </button>
+      </div>
     );
   }
   return (
     <div className="flex w-full items-center gap-3 rounded-lg bg-bg px-3 py-2">
-      <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/10 font-display text-sm font-semibold text-accent">{inisial}</span>
+      <Link href="/profil" title="Lihat profil" className="shrink-0 transition hover:opacity-80">
+        {avatar}
+      </Link>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-xs font-medium">{user.nama}</p>
+        <Link href="/profil" className="block truncate text-xs font-medium hover:underline">
+          {user.nama}
+        </Link>
         <p className="truncate text-[11px] text-muted">{user.peran}</p>
       </div>
       <button type="button" title="Keluar" aria-label="Keluar" onClick={onKeluar} className="rounded-md p-1.5 text-muted transition hover:bg-ink/5 hover:text-ink">

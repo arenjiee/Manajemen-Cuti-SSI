@@ -3,7 +3,11 @@ import pool from "@/lib/db";
 import { daftarJenisAktif } from "@/lib/queries/jenis-cuti";
 import { terpakaiPotongKuota } from "@/lib/queries/pengajuan";
 import { sisaKuota } from "@/lib/leave/kuota";
-import { hariIni } from "@/lib/leave/tanggal";
+import { hariIni, tambahHari } from "@/lib/leave/tanggal";
+import { daftarHariLiburMendatang, muatPetaHariLibur } from "@/lib/queries/hari-libur";
+import { rentangBulan } from "@/lib/periode";
+import { okupansiDivisi } from "@/lib/queries/kapasitas";
+import { bangunKalender } from "@/lib/leave/kalender";
 import FormPengajuan from "./FormPengajuan";
 
 export const metadata = { title: "Ajukan Cuti | SMCK" };
@@ -18,12 +22,32 @@ export default async function AjukanPage() {
       </div>
     );
   }
-  const tahun = Number(hariIni().slice(0, 4));
-  const [jenis, rekan, terpakai] = await Promise.all([
+  const hari = hariIni();
+  const tahun = Number(hari.slice(0, 4));
+
+  const { dari: awalBulanIni, sampai: akhirBulanIni } = rentangBulan(hari);
+  const { sampai: akhirBulanDepan } = rentangBulan(tambahHari(akhirBulanIni, 1));
+
+  const [jenis, rekan, terpakai, hariLiburMendatang, dv, liburPeta, okupansi] = await Promise.all([
     daftarJenisAktif(pool),
     pool.query("SELECT id, nama_lengkap FROM users WHERE divisi_id=$1 AND id<>$2 AND aktif AND deleted_at IS NULL ORDER BY nama_lengkap", [user.divisi_id, user.id]),
     terpakaiPotongKuota(pool, user.id, tahun),
+    daftarHariLiburMendatang(pool, { dari: hari, limit: 6 }),
+    pool.query("SELECT maks_cuti_per_hari FROM divisi WHERE id=$1 AND deleted_at IS NULL", [user.divisi_id]),
+    muatPetaHariLibur(pool, { dari: awalBulanIni, sampai: akhirBulanDepan }),
+    okupansiDivisi(pool, user.divisi_id, awalBulanIni, akhirBulanDepan),
   ]);
+
+  const batas = dv.rows[0]?.maks_cuti_per_hari ?? Infinity;
+  const kalenderAwal = bangunKalender({
+    dari: awalBulanIni,
+    sampai: akhirBulanDepan,
+    okupansi,
+    batas,
+    libur: liburPeta,
+    cekKapasitas: true,
+  });
+
   return (
     <div className="space-y-6">
       <header>
@@ -35,6 +59,8 @@ export default async function AjukanPage() {
         rekan={rekan.rows}
         sisa={sisaKuota(user.kuota_awal, terpakai)}
         tahun={tahun}
+        kalenderAwal={kalenderAwal}
+        hariLiburMendatang={hariLiburMendatang}
       />
     </div>
   );

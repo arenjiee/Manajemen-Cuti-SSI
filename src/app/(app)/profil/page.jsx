@@ -7,9 +7,9 @@ import { ambilProfil, bolehUbahProfil } from "@/lib/queries/profil";
 import { formatHari, formatTanggal } from "@/lib/format";
 import StatCard from "@/components/StatCard";
 import FormAction from "@/components/FormAction";
+import AutoTextarea from "@/components/AutoTextarea";
 import { inputCls } from "@/components/ui";
 import FotoProfil from "./FotoProfil";
-import { ubahProfilAction, hapusFotoAction } from "./actions";
 
 export const metadata = { title: "Profil | SMCK" };
 
@@ -40,7 +40,7 @@ export default async function ProfilPage({ searchParams }) {
 
       {sp.ok && <p role="status" className="rounded-lg bg-ok/10 px-3 py-2 text-sm text-ok">{sp.ok === "foto" ? "Foto profil diperbarui." : "Profil berhasil disimpan."}</p>}
 
-      <FotoProfil userId={p.id} nama={p.nama_lengkap} fotoKey={p.foto_key} hapusAction={hapusFotoAction} />
+      <FotoProfil userId={p.id} nama={p.nama_lengkap} fotoKey={p.foto_key} />
 
       {k && (
         <section>
@@ -59,32 +59,29 @@ export default async function ProfilPage({ searchParams }) {
           <Baris t="Username">{p.username}</Baris>
           <Baris t="Role">{NAMA_ROLE[p.role]}</Baris>
           <Baris t="Divisi">{p.divisi_nama}</Baris>
-          {p.divisi_nama && p.role !== "ketua_divisi" && <Baris t="Ketua Divisi">{p.ketua_nama}</Baris>}
+          <Baris t="Ketua divisi">{p.ketua_nama}</Baris>
           <Baris t="Tanggal bergabung">{formatTanggal(p.tanggal_bergabung)}</Baris>
+          <Baris t="Status akun">{p.aktif ? "Aktif" : "Nonaktif"}</Baris>
         </dl>
       </section>
 
-      <section>
-        <h2 className="mb-3 text-xl font-semibold">Ubah data diri</h2>
-        <FormAction action={ubahProfilAction} label="Simpan perubahan">
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold">Ubah profil</h2>
+        <FormAction action="/api/profil" label="Simpan profil">
           <input type="hidden" name="id" value={p.id} />
-          <L t="Nama lengkap"><input name="nama_lengkap" defaultValue={p.nama_lengkap} required maxLength={100} className={inputCls} /></L>
-          <L t="Email"><input name="email" type="email" defaultValue={p.email} required maxLength={100} className={inputCls} /></L>
-          <L t="Telepon"><input name="telepon" type="tel" defaultValue={p.telepon ?? ""} maxLength={30} className={inputCls} /></L>
-          <L t="Alamat"><textarea name="alamat" rows={3} defaultValue={p.alamat ?? ""} maxLength={500} className={inputCls} /></L>
+          <L t="Nama lengkap"><input name="nama_lengkap" defaultValue={p.nama_lengkap} required className={inputCls} /></L>
+          <L t="Email"><input name="email" type="email" defaultValue={p.email} required className={inputCls} /></L>
+          <L t="Nomor telepon"><input name="telepon" defaultValue={p.telepon ?? ""} inputMode="tel" className={inputCls} /></L>
+          <L t="Alamat"><AutoTextarea name="alamat" rows={2} defaultValue={p.alamat ?? ""} className={inputCls} /></L>
           {admin && (
-            <div className="space-y-4 rounded-xl border border-line p-4">
-              <p className="text-xs tracking-wide text-muted uppercase">Khusus Admin</p>
-              <L t="Username"><input name="username" defaultValue={p.username} required maxLength={50} className={inputCls} /></L>
-              {milikSendiri ? (
-                <p className="text-sm text-muted">Role akun Anda sendiri tidak dapat diubah.</p>
-              ) : (
-                <L t="Role">
-                  <select name="role" defaultValue={p.role} className={inputCls}>
-                    {Object.entries(NAMA_ROLE).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-                  </select>
-                </L>
-              )}
+            <div className="rounded-xl border border-line p-4 space-y-4">
+              <p className="text-xs text-muted">Kolom berikut hanya tampil untuk Admin:</p>
+              <L t="Username"><input name="username" defaultValue={p.username} required className={inputCls} /></L>
+              <L t="Role">
+                <select name="role" defaultValue={p.role} className={inputCls}>
+                  {Object.entries(NAMA_ROLE).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                </select>
+              </L>
             </div>
           )}
         </FormAction>

@@ -1,0 +1,34 @@
+import { NextResponse } from "next/server";
+import pool from "@/lib/db";
+import { guardApi } from "@/lib/guard";
+import { hapusUser } from "@/lib/queries/users";
+import { parseId } from "@/lib/id";
+
+export async function POST(request) {
+  const g = await guardApi(["admin"], request);
+  if (g.error) return g.error;
+
+  let idRaw = null;
+  const contentType = request.headers.get("content-type") || "";
+
+  if (contentType.includes("application/json")) {
+    const body = await request.json().catch(() => ({}));
+    idRaw = body.id;
+  } else {
+    const fd = await request.formData().catch(() => null);
+    idRaw = fd?.get("id");
+  }
+
+  const id = parseId(idRaw);
+  if (id == null) {
+    return NextResponse.json({ ok: false, message: "ID tidak valid." }, { status: 400 });
+  }
+
+  const r = await hapusUser(pool, id);
+  if (!r.ok) {
+    return NextResponse.json({ ok: false, message: r.pesan }, { status: 400 });
+  }
+
+  return NextResponse.json({ ok: true, message: "Pengguna berhasil dihapus." });
+}
+

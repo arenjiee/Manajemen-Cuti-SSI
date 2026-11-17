@@ -3,7 +3,6 @@ import { requireRole } from "@/lib/guard";
 import pool from "@/lib/db";
 import FormAction from "@/components/FormAction";
 import FormLibur from "@/components/FormLibur";
-import { ubahLiburAction } from "../actions";
 
 export default async function EditLiburPage({ params }) {
   await requireRole(["admin"]);
@@ -14,7 +13,9 @@ export default async function EditLiburPage({ params }) {
   return (
     <div className="max-w-xl space-y-6">
       <h1 className="text-3xl font-semibold">Edit hari libur</h1>
-      <FormAction action={ubahLiburAction} label="Simpan perubahan"><FormLibur h={h} /></FormAction>
+      <FormAction action={`/api/admin/hari-libur/${h.id}`} redirectTo="/admin/hari-libur" label="Simpan perubahan">
+        <FormLibur h={h} />
+      </FormAction>
     </div>
   );
 }

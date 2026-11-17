@@ -2,7 +2,6 @@ import { requireRole } from "@/lib/guard";
 import pool from "@/lib/db";
 import { antreanLeader } from "@/lib/queries/approval";
 import KartuApproval from "@/components/KartuApproval";
-import { putuskanLeaderAction } from "./actions";
 
 export const metadata = { title: "Verifikasi Cuti | SMCK" };
 
@@ -19,7 +18,7 @@ export default async function VerifikasiPage() {
         <p className="rounded-xl border border-dashed border-line p-10 text-center text-sm text-muted">Tidak ada pengajuan yang menunggu verifikasi.</p>
       ) : (
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {antre.map((p) => <KartuApproval key={p.id} p={p} action={putuskanLeaderAction} />)}
+          {antre.map((p) => <KartuApproval key={p.id} p={p} action="/api/verifikasi" />)}
         </div>
       )}
     </div>

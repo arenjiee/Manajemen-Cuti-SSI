@@ -8,7 +8,15 @@ export default async function AppLayout({ children }) {
   return (
     // useSearchParams di AppShell membutuhkan batas Suspense.
     <Suspense fallback={null}>
-      <AppShell menu={menuUntukRole(user.role)} user={{ id: user.id, nama: user.nama_lengkap, peran: NAMA_ROLE[user.role] }}>
+      <AppShell
+        menu={menuUntukRole(user.role)}
+        user={{
+          id: user.id,
+          nama: user.nama_lengkap,
+          peran: NAMA_ROLE[user.role],
+          fotoKey: user.foto_key,
+        }}
+      >
         {children}
       </AppShell>
     </Suspense>

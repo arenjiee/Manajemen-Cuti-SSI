@@ -17,6 +17,35 @@ export async function muatHariLibur(db, { dari, sampai } = {}) {
   return new Set(r.rows.map((x) => x.tanggal));
 }
 
+export async function muatPetaHariLibur(db, { dari, sampai } = {}) {
+  const r = await db.query(
+    "SELECT tanggal, keterangan, jenis FROM hari_libur WHERE ($1::date IS NULL OR tanggal >= $1) AND ($2::date IS NULL OR tanggal <= $2) ORDER BY tanggal ASC",
+    [dari ?? null, sampai ?? null]
+  );
+  const peta = new Map();
+  for (const row of r.rows) {
+    peta.set(row.tanggal, { keterangan: row.keterangan, jenis: row.jenis });
+  }
+  return peta;
+}
+
+export async function daftarHariLiburMendatang(db, { dari, limit = 8 } = {}) {
+  const r = await db.query(
+    "SELECT tanggal, keterangan, jenis FROM hari_libur WHERE ($1::date IS NULL OR tanggal >= $1) ORDER BY tanggal ASC LIMIT $2",
+    [dari ?? null, limit]
+  );
+  return r.rows;
+}
+
+export async function muatHariLiburDalamRentang(db, { mulai, selesai }) {
+  if (!mulai || !selesai) return [];
+  const r = await db.query(
+    "SELECT tanggal, keterangan, jenis FROM hari_libur WHERE tanggal >= $1 AND tanggal <= $2 ORDER BY tanggal ASC",
+    [mulai, selesai]
+  );
+  return r.rows;
+}
+
 function cek(d) {
   if (!tanggalValid(d.tanggal)) return "Tanggal tidak valid.";
   if (!d.keterangan?.trim()) return "Keterangan wajib diisi.";
