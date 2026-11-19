@@ -11,7 +11,7 @@ import { inputCls } from "@/components/ui";
 export const metadata = { title: "Kapasitas Tim | SMCK" };
 
 const BULAN = /^\d{4}-(0[1-9]|1[0-2])$/;
-const PESAN = { batas: "Batas kapasitas disimpan." };
+const PESAN = { batas: "Persentase kapasitas disimpan." };
 
 export default async function KapasitasPage({ searchParams }) {
   await requireRole(["admin", "hrd"]);
@@ -53,14 +53,14 @@ export default async function KapasitasPage({ searchParams }) {
                   <p className="text-xs text-muted">Ketua: {p.ketuaNama ?? "-"} · {p.jumlahAnggota} anggota aktif</p>
                 </header>
                 <p className="text-sm">
-                  Maksimal <strong>{p.batas}</strong> orang cuti per hari.
+                  Maksimal <strong>{p.persen}%</strong> (<strong>{p.batas}</strong> orang/hari dari {p.jumlahAnggota} anggota aktif).
                   {p.hariPenuh > 0 ? <span className="text-bad"> {p.hariPenuh} hari penuh bulan ini.</span> : <span className="text-muted"> Belum ada hari penuh bulan ini.</span>}
                 </p>
-                <FormAction action="/api/kapasitas" label="Simpan batas" className="flex flex-wrap items-end gap-3">
+                <FormAction action="/api/kapasitas" label="Simpan persen" className="flex flex-wrap items-end gap-3">
                   <input type="hidden" name="divisiId" value={p.id} />
                   <input type="hidden" name="bulan" value={bulan} />
-                  <label className="text-sm">Batas harian
-                    <input name="batas" type="number" min="1" max="999" defaultValue={p.batas} required className={`${inputCls} mt-1 w-28`} />
+                  <label className="text-sm">Batas cuti (%)
+                    <input name="persen" type="number" min="1" max="100" defaultValue={p.persen} required className={`${inputCls} mt-1 w-28`} suppressHydrationWarning />
                   </label>
                 </FormAction>
                 <KalenderMini kalender={[{ bulan: dari.slice(0, 7), label: labelBulan(dari), offset, hari: p.harian }]} />

@@ -44,10 +44,10 @@ CREATE TABLE public.divisi (
     nama character varying(100) NOT NULL,
     deskripsi text,
     ketua_id integer,
-    max_persen_cuti integer DEFAULT 10 NOT NULL,
+    max_persen_cuti integer DEFAULT 20 NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     deleted_at timestamp with time zone,
-    CONSTRAINT divisi_max_persen_cuti_check CHECK (((max_persen_cuti >= 0) AND (max_persen_cuti <= 100)))
+    CONSTRAINT divisi_max_persen_cuti_check CHECK (((max_persen_cuti >= 1) AND (max_persen_cuti <= 100)))
 );
 
 

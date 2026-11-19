@@ -1,4 +1,5 @@
 import { denganTransaksi } from "./tx.js";
+import { hitungBatasHarian } from "../leave/kapasitas.js";
 
 const gagal = (pesan) => ({ ok: false, pesan });
 
@@ -90,25 +91,35 @@ export async function daftarDivisi(db, f = {}) {
   if (f.minAnggota) tambah("jumlah_anggota >= ?", Number(f.minAnggota));
   if (f.maxAnggota) tambah("jumlah_anggota <= ?", Number(f.maxAnggota));
   const sql = `SELECT * FROM (
-      SELECT d.id, d.nama, d.deskripsi, d.maks_cuti_per_hari, d.created_at, d.ketua_id, k.nama_lengkap AS ketua_nama,
+      SELECT d.id, d.nama, d.deskripsi, d.max_persen_cuti, d.created_at, d.ketua_id, k.nama_lengkap AS ketua_nama,
              (SELECT count(*)::int FROM users u WHERE u.divisi_id = d.id AND u.deleted_at IS NULL AND u.aktif) AS jumlah_anggota
       FROM divisi d LEFT JOIN users k ON k.id = d.ketua_id
       WHERE d.deleted_at IS NULL) t
     ${w.length ? "WHERE " + w.join(" AND ") : ""} ORDER BY ${URUT_DIVISI[f.urut] ?? URUT_DIVISI.nama_asc}`;
-  return (await db.query(sql, p)).rows;
+  return (await db.query(sql, p)).rows.map((d) => ({
+    ...d,
+    batas_harian: hitungBatasHarian(d.max_persen_cuti, d.jumlah_anggota),
+  }));
 }
 
 export async function ambilDivisi(db, id) {
   const r = await db.query(
-    `SELECT d.id, d.nama, d.deskripsi, d.maks_cuti_per_hari, d.created_at, d.ketua_id, k.nama_lengkap AS ketua_nama
+    `SELECT d.id, d.nama, d.deskripsi, d.max_persen_cuti, d.created_at, d.ketua_id, k.nama_lengkap AS ketua_nama,
+            (SELECT count(*)::int FROM users u WHERE u.divisi_id=d.id AND u.deleted_at IS NULL AND u.aktif) AS jumlah_anggota
      FROM divisi d LEFT JOIN users k ON k.id = d.ketua_id WHERE d.id=$1 AND d.deleted_at IS NULL`, [id]);
-  return r.rows[0] ?? null;
+  const d = r.rows[0];
+  return d ? { ...d, batas_harian: hitungBatasHarian(d.max_persen_cuti, d.jumlah_anggota) } : null;
 }
 
 export async function anggotaDivisi(db, divisiId) {
   const r = await db.query(
-    `SELECT id, username, nama_lengkap, role, aktif, tanggal_bergabung FROM users
-     WHERE divisi_id=$1 AND deleted_at IS NULL ORDER BY (role='ketua_divisi') DESC, nama_lengkap`, [divisiId]);
+    `SELECT u.id, u.username, u.nama_lengkap, u.role, u.aktif, u.tanggal_bergabung,
+            EXISTS (
+              SELECT 1 FROM pengajuan_cuti p
+              WHERE p.pengaju_id=u.id AND p.status='Approved'
+                AND p.tanggal_mulai <= ${HARI_INI_SQL} AND p.tanggal_selesai >= ${HARI_INI_SQL}
+            ) AS sedang_cuti
+     FROM users u WHERE u.divisi_id=$1 AND u.deleted_at IS NULL ORDER BY (u.role='ketua_divisi') DESC, u.nama_lengkap`, [divisiId]);
   return r.rows;
 }
 

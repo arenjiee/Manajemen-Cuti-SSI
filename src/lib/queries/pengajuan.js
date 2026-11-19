@@ -5,6 +5,7 @@ import { okupansiDivisi } from "./kapasitas.js";
 import { ambilLampiranUpload, tautkanLampiran } from "./lampiran.js";
 import { hariIni, tanggalValid, selisihHari } from "../leave/tanggal.js";
 import { kandidatRekan } from "../leave/rekan.js";
+import { hitungBatasHarian } from "../leave/kapasitas.js";
 import { validasiPengajuan, MAKS_RENTANG_HARI } from "../leave/validasi.js";
 import { formatRentang } from "../format.js";
 
@@ -60,7 +61,7 @@ export async function muatKonteks(db, pengajuId, input, lampiran = null) {
   if (jenis.kuotaHari != null) k.terpakaiJenis = await terpakaiJenis(db, u.id, jenis.id, tahun);
 
   if (u.divisi_id) {
-    const dv = (await db.query("SELECT maks_cuti_per_hari FROM divisi WHERE id=$1 AND deleted_at IS NULL", [u.divisi_id])).rows[0];
+    const dv = (await db.query("SELECT max_persen_cuti FROM divisi WHERE id=$1 AND deleted_at IS NULL", [u.divisi_id])).rows[0];
     const anggotaRows = (await db.query("SELECT id FROM users WHERE divisi_id=$1 AND aktif AND deleted_at IS NULL", [u.divisi_id])).rows;
     const ids = anggotaRows.map((a) => a.id);
     const aktifAnggota = (await db.query(
@@ -68,7 +69,7 @@ export async function muatKonteks(db, pengajuId, input, lampiran = null) {
        WHERE pengaju_id = ANY($1) AND status IN ${AKTIF} AND tanggal_mulai <= $3 AND tanggal_selesai >= $2`, [ids, mulai, selesai])).rows;
     const anggota = ids.map((id) => ({ id, aktif: true, pengajuanAktif: aktifAnggota.filter((x) => x.pengaju_id === id) }));
     k.kandidatRekan = kandidatRekan(anggota, u.id, mulai, selesai);
-    if (dv) k.divisi = { maksPerHari: dv.maks_cuti_per_hari };
+    if (dv) k.divisi = { maksPerHari: hitungBatasHarian(dv.max_persen_cuti, ids.length) };
     k.okupansi = await okupansiDivisi(db, u.divisi_id, mulai, selesai);
   }
   return k;

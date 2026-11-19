@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { guardApi } from "@/lib/guard";
-import { petaKapasitas, ubahBatasKapasitas } from "@/lib/queries/kapasitas";
+import { petaKapasitas, ubahPersenKapasitas } from "@/lib/queries/kapasitas";
 import { rentangBulan } from "@/lib/periode";
 import { hariIni } from "@/lib/leave/tanggal";
 
@@ -39,14 +39,14 @@ async function handleUpdate(request) {
     if (fd) {
       body = {
         divisiId: fd.get("divisiId"),
-        batas: fd.get("batas"),
+        persen: fd.get("persen"),
         bulan: fd.get("bulan"),
       };
     }
   }
 
   const s = (v) => String(v ?? "").trim();
-  const r = await ubahBatasKapasitas(pool, s(body.divisiId), s(body.batas));
+  const r = await ubahPersenKapasitas(pool, s(body.divisiId), s(body.persen));
 
   if (!r.ok) {
     return NextResponse.json({ ok: false, message: r.pesan }, { status: 400 });
@@ -58,6 +58,6 @@ async function handleUpdate(request) {
     return NextResponse.redirect(new URL(`/kapasitas${bulanParam}`, request.url), 303);
   }
 
-  return NextResponse.json({ ok: true, message: "Batas kapasitas disimpan." });
+  return NextResponse.json({ ok: true, message: "Persentase kapasitas disimpan." });
 }
 

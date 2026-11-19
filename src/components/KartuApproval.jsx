@@ -9,9 +9,10 @@ import { formatRentang, formatHari, formatTanggal } from "../lib/format";
 
 const inisial = (n) => n.split(/\s+/).slice(0, 2).map((x) => x[0]).join("").toUpperCase();
 
-export default function KartuApproval({ p, action, children, pilih }) {
+export default function KartuApproval({ p, action, children, pilih, fromHref }) {
   const [mode, setMode] = useState(null); // "approve" | "reject" | null
   const tolak = mode === "reject";
+  const detailHref = fromHref ? `/cuti/${p.id}?from=${encodeURIComponent(fromHref)}` : `/cuti/${p.id}`;
   return (
     <article className="flex flex-col gap-4 rounded-2xl border border-line bg-surface p-5">
       <header className="flex items-start gap-3">
@@ -40,7 +41,7 @@ export default function KartuApproval({ p, action, children, pilih }) {
       <footer className="mt-auto flex flex-wrap items-center gap-2 pt-1">
         <button onClick={() => setMode("approve")} className={btnPrimary}>Setujui</button>
         <button onClick={() => setMode("reject")} className="rounded-lg border border-bad px-4 py-2 text-sm text-bad transition hover:bg-bad/10">Tolak</button>
-        <Link href={`/cuti/${p.id}`} className="ml-auto text-sm text-muted hover:underline">Detail</Link>
+        <Link href={detailHref} className="ml-auto text-sm text-muted hover:underline">Detail</Link>
       </footer>
 
       <Modal buka={mode !== null} onTutup={() => setMode(null)} judul={tolak ? "Tolak pengajuan?" : "Setujui pengajuan?"}>

@@ -1,6 +1,7 @@
 import { requireRole } from "@/lib/guard";
 import { NAMA_ROLE } from "@/lib/nav";
 import FormAction from "@/components/FormAction";
+import TombolKembali from "@/components/TombolKembali";
 import { inputCls } from "@/components/ui";
 
 export const metadata = { title: "Tambah Pengguna | SMCK" };
@@ -11,8 +12,9 @@ export default async function BaruUserPage() {
   await requireRole(["admin"]);
   return (
     <div className="max-w-xl space-y-6">
+      <TombolKembali href="/admin/users" label="Kembali ke Pengguna" />
       <h1 className="text-3xl font-semibold">Tambah pengguna</h1>
-      <FormAction action="/api/admin/users" redirectTo="/admin/users" label="Buat pengguna">
+      <FormAction action="/api/admin/users" redirectTo="/admin/users" batalHref="/admin/users" label="Buat pengguna">
         <L t="Nama lengkap"><input name="nama_lengkap" required className={inputCls} /></L>
         <div className="grid gap-4 sm:grid-cols-2">
           <L t="Username"><input name="username" required className={inputCls} /></L>

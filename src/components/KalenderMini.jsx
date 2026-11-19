@@ -1,3 +1,5 @@
+"use client";
+
 import { formatTanggal } from "@/lib/format";
 
 const WARNA = {
@@ -59,6 +61,7 @@ export default function KalenderMini({ kalender, mulai, selesai, onPilihTanggal 
                     type="button"
                     key={h.tanggal}
                     title={titleText}
+                    suppressHydrationWarning
                     onClick={() => onPilihTanggal?.(h.tanggal)}
                     disabled={!onPilihTanggal}
                     className={`rounded py-1 tabular-nums transition-colors ${WARNA[statusKunci] ?? WARNA[h.status] ?? ""} ${dipilih ? "ring-2 ring-accent shadow-sm" : ""} ${onPilihTanggal ? "cursor-pointer hover:opacity-80" : "cursor-default"}`}

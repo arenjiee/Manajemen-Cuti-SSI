@@ -21,7 +21,7 @@ export default async function UsersPage({ searchParams }) {
     { name: "q", label: "Cari", placeholder: "Nama, username, email" },
     { name: "role", label: "Role", type: "select", options: Object.entries(NAMA_ROLE).map(([value, label]) => ({ value, label })) },
     { name: "divisiId", label: "Divisi", type: "select", options: divisi.map((d) => ({ value: d.id, label: d.nama })) },
-    { name: "aktif", label: "Status", type: "select", options: [{ value: "true", label: "Aktif" }, { value: "false", label: "Tidak aktif" }] },
+    { name: "aktif", label: "Status", type: "select", options: [{ value: "true", label: "Aktif (Tidak Cuti)" }, { value: "cuti", label: "Sedang Cuti" }, { value: "false", label: "Nonaktif" }] },
     { name: "masaKerja", label: "Masa kerja", type: "select", options: [{ value: "lt1", label: "< 1 tahun" }, { value: "gte1", label: "≥ 1 tahun" }] },
     { name: "urut", label: "Urutkan", type: "select", options: [{ value: "nama", label: "Nama" }, { value: "bergabung", label: "Tanggal bergabung" }, { value: "divisi", label: "Divisi" }] },
   ];
@@ -31,7 +31,7 @@ export default async function UsersPage({ searchParams }) {
     { label: "Role", render: (u) => NAMA_ROLE[u.role] },
     { label: "Divisi", render: (u) => u.divisi_nama ?? "-" },
     { label: "Bergabung", render: (u) => formatTanggal(u.tanggal_bergabung) },
-    { label: "Status", render: (u) => (u.aktif ? "Aktif" : "Tidak aktif") },
+    { label: "Status", render: (u) => (!u.aktif ? <span className="text-muted">Nonaktif</span> : u.sedang_cuti ? <span className="text-warn">Sedang cuti</span> : <span className="text-ok">Aktif</span>) },
     {
       label: "Aksi",
       render: (u) => (

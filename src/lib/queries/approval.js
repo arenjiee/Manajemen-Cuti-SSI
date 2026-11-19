@@ -5,6 +5,7 @@ import { muatHariLibur } from "./hari-libur.js";
 import { okupansiDivisi } from "./kapasitas.js";
 import { hariKerjaDalamRentang } from "../leave/hitung-hari.js";
 import { cekKapasitas } from "../leave/kapasitas.js";
+import { hitungBatasHarian } from "../leave/kapasitas.js";
 import { sisaKuota } from "../leave/kuota.js";
 
 const gagal = (pesan) => ({ ok: false, pesan });
@@ -98,14 +99,20 @@ export async function muatPeringatanHrd(db, pengajuanId) {
   const hasil = { kuotaKurang: Boolean(p.potong_kuota) && sisaKuota(p.kuota_awal, await terpakaiPotongKuota(db, p.pengaju_id, tahun)) < 0 };
 
   if (p.kode !== "sakit" && p.divisi_id) {
-    const dv = (await db.query("SELECT maks_cuti_per_hari FROM divisi WHERE id=$1", [p.divisi_id])).rows[0];
+    const dv = (await db.query(
+      `SELECT d.max_persen_cuti,
+              (SELECT count(*)::int FROM users u WHERE u.divisi_id = d.id AND u.aktif AND u.deleted_at IS NULL) AS jumlah_anggota
+       FROM divisi d WHERE d.id=$1`,
+      [p.divisi_id]
+    )).rows[0];
     if (dv) {
       const libur = await muatHariLibur(db, { dari: p.tanggal_mulai, sampai: p.tanggal_selesai });
       const lain = await okupansiDivisi(db, p.divisi_id, p.tanggal_mulai, p.tanggal_selesai, { kecualiPengajuanId: id, kecualiPengajuId: p.pengaju_id });
+      const batas = hitungBatasHarian(dv.max_persen_cuti, dv.jumlah_anggota);
       const r = cekKapasitas({
         hariKerja: hariKerjaDalamRentang(p.tanggal_mulai, p.tanggal_selesai, libur),
         okupansi: lain,
-        batas: dv.maks_cuti_per_hari,
+        batas,
       });
       if (!r.ok) hasil.kapasitasPenuh = { tanggal: r.tanggalPenuh, terisi: r.terisi, batas: r.batas };
     }

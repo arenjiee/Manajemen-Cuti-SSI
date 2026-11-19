@@ -24,7 +24,13 @@ export async function ambilProfil(db, userId, opts) {
   if (id == null) return null;
   const u = (await db.query(
     `SELECT u.id, u.username, u.email, u.nama_lengkap, u.telepon, u.alamat, u.foto_key, u.role, u.aktif, u.divisi_id,
-            u.tanggal_bergabung, u.kuota_awal, d.nama AS divisi_nama, k.nama_lengkap AS ketua_nama
+            u.tanggal_bergabung, u.kuota_awal, d.nama AS divisi_nama, k.nama_lengkap AS ketua_nama,
+            EXISTS (
+              SELECT 1 FROM pengajuan_cuti p
+              WHERE p.pengaju_id=u.id AND p.status='Approved'
+                AND p.tanggal_mulai <= (now() AT TIME ZONE 'Asia/Makassar')::date
+                AND p.tanggal_selesai >= (now() AT TIME ZONE 'Asia/Makassar')::date
+            ) AS sedang_cuti
      FROM users u
      LEFT JOIN divisi d ON d.id = u.divisi_id AND d.deleted_at IS NULL
      LEFT JOIN users k ON k.id = d.ketua_id AND k.deleted_at IS NULL

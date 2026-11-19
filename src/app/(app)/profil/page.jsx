@@ -2,11 +2,13 @@ import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/guard";
 import pool from "@/lib/db";
 import { parseId } from "@/lib/id";
+import { tautanInternal } from "@/lib/tautan";
 import { NAMA_ROLE } from "@/lib/nav";
 import { ambilProfil, bolehUbahProfil } from "@/lib/queries/profil";
 import { formatHari, formatTanggal } from "@/lib/format";
 import StatCard from "@/components/StatCard";
 import FormAction from "@/components/FormAction";
+import TombolKembali from "@/components/TombolKembali";
 import AutoTextarea from "@/components/AutoTextarea";
 import { inputCls } from "@/components/ui";
 import FotoProfil from "./FotoProfil";
@@ -31,8 +33,12 @@ export default async function ProfilPage({ searchParams }) {
   const milikSendiri = p.id === user.id;
   const k = p.kuota;
 
+  const asalValid = sp.from && tautanInternal(sp.from) ? sp.from : "/admin/users";
+  const labelKembali = asalValid.includes("/admin/users/") ? "Kembali ke Edit Pengguna" : "Kembali ke Pengguna";
+
   return (
     <div className="max-w-3xl space-y-8">
+      {!milikSendiri && <TombolKembali href={asalValid} label={labelKembali} />}
       <header>
         <h1 className="text-3xl font-semibold">{milikSendiri ? "Profil saya" : `Profil ${p.nama_lengkap}`}</h1>
         <p className="text-sm text-muted">{NAMA_ROLE[p.role]}{p.divisi_nama ? ` · Divisi ${p.divisi_nama}` : ""}{p.aktif ? "" : " · Akun nonaktif"}</p>
@@ -62,6 +68,7 @@ export default async function ProfilPage({ searchParams }) {
           <Baris t="Ketua divisi">{p.ketua_nama}</Baris>
           <Baris t="Tanggal bergabung">{formatTanggal(p.tanggal_bergabung)}</Baris>
           <Baris t="Status akun">{p.aktif ? "Aktif" : "Nonaktif"}</Baris>
+          <Baris t="Status kehadiran">{!p.aktif ? "Nonaktif" : p.sedang_cuti ? "Sedang cuti" : "Aktif (Hadir)"}</Baris>
         </dl>
       </section>
 

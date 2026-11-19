@@ -156,10 +156,10 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
         </div>
 
         {errorPesan && <p role="alert" className="rounded-lg bg-bad/10 px-3 py-2 text-sm text-bad">{errorPesan}</p>}
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <button type="submit" disabled={pending || unggah.loading} className={btnPrimary}>{pending ? "Mengirim…" : "Kirim pengajuan"}</button>
           <button type="reset" className={btnGhost}>Reset</button>
-          <Link href="/cuti" className="px-2 py-2 text-sm text-muted hover:underline">Batal</Link>
+          <Link href="/cuti" className={btnGhost}>Batal</Link>
         </div>
       </form>
 

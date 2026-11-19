@@ -2,6 +2,12 @@ import { HARI_INI_SQL } from "./tx.js";
 export const USER_KOLOM =
   "id, username, email, nama_lengkap, telepon, alamat, foto_key, role, divisi_id, tanggal_bergabung, kuota_awal";
 
+const SEDANG_CUTI_SQL = `EXISTS (
+  SELECT 1 FROM pengajuan_cuti p
+  WHERE p.pengaju_id=u.id AND p.status='Approved'
+    AND p.tanggal_mulai <= ${HARI_INI_SQL} AND p.tanggal_selesai >= ${HARI_INI_SQL}
+) AS sedang_cuti`;
+
 export async function cariUserLogin(db, identifier) {
   const r = await db.query(
     `SELECT ${USER_KOLOM}, password_hash FROM users
@@ -104,7 +110,21 @@ export async function daftarUser(db, f = {}) {
   const tambah = (sql, v) => { p.push(v); w.push(sql.replace("?", `$${p.length}`)); };
   if (f.role) tambah("u.role = ?", f.role);
   if (f.divisiId) tambah("u.divisi_id = ?", Number(f.divisiId));
-  if (f.aktif === "true" || f.aktif === "false") tambah("u.aktif = ?", f.aktif === "true");
+  if (f.aktif === "true") {
+    w.push(`u.aktif AND NOT EXISTS (
+      SELECT 1 FROM pengajuan_cuti p
+      WHERE p.pengaju_id=u.id AND p.status='Approved'
+        AND p.tanggal_mulai <= ${HARI_INI_SQL} AND p.tanggal_selesai >= ${HARI_INI_SQL}
+    )`);
+  } else if (f.aktif === "cuti") {
+    w.push(`u.aktif AND EXISTS (
+      SELECT 1 FROM pengajuan_cuti p
+      WHERE p.pengaju_id=u.id AND p.status='Approved'
+        AND p.tanggal_mulai <= ${HARI_INI_SQL} AND p.tanggal_selesai >= ${HARI_INI_SQL}
+    )`);
+  } else if (f.aktif === "false") {
+    w.push("NOT u.aktif");
+  }
   if (f.masaKerja === "lt1") w.push(`u.tanggal_bergabung > ${HARI_INI_SQL} - interval '1 year'`);
   if (f.masaKerja === "gte1") w.push(`u.tanggal_bergabung <= ${HARI_INI_SQL} - interval '1 year'`);
   if (f.q) {
@@ -112,7 +132,8 @@ export async function daftarUser(db, f = {}) {
     const n = `$${p.length}`;
     w.push(`(u.nama_lengkap ILIKE ${n} OR u.username ILIKE ${n} OR u.email ILIKE ${n})`);
   }
-  const sql = `SELECT u.id, u.username, u.email, u.nama_lengkap, u.role, u.aktif, u.tanggal_bergabung, u.divisi_id, d.nama AS divisi_nama
+  const sql = `SELECT u.id, u.username, u.email, u.nama_lengkap, u.role, u.aktif, u.tanggal_bergabung, u.divisi_id, d.nama AS divisi_nama,
+             ${SEDANG_CUTI_SQL}
      FROM users u LEFT JOIN divisi d ON d.id = u.divisi_id AND d.deleted_at IS NULL
      WHERE ${w.join(" AND ")} ORDER BY ${URUT_USER[f.urut] ?? "u.id"}`;
   return (await db.query(sql, p)).rows;
@@ -120,7 +141,8 @@ export async function daftarUser(db, f = {}) {
 
 export async function ambilUser(db, id) {
   const r = await db.query(
-    `SELECT id, username, email, nama_lengkap, telepon, alamat, role, aktif, tanggal_bergabung, kuota_awal, divisi_id
-     FROM users WHERE id=$1 AND deleted_at IS NULL`, [id]);
+    `SELECT u.id, u.username, u.email, u.nama_lengkap, u.telepon, u.alamat, u.role, u.aktif, u.tanggal_bergabung, u.kuota_awal, u.divisi_id,
+            ${SEDANG_CUTI_SQL}
+     FROM users u WHERE u.id=$1 AND u.deleted_at IS NULL`, [id]);
   return r.rows[0] ?? null;
 }

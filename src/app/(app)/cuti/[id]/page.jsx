@@ -3,11 +3,13 @@ import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/guard";
 import pool from "@/lib/db";
 import { parseId } from "@/lib/id";
+import { tautanInternal } from "@/lib/tautan";
 import { detailPengajuan } from "@/lib/queries/detail";
 import { bolehUnduhSurat } from "@/lib/surat-akses";
 import { formatRentang, formatHari, formatTanggal, formatWaktu } from "@/lib/format";
 import StatusBadge from "@/components/StatusBadge";
 import Timeline from "@/components/Timeline";
+import TombolKembali from "@/components/TombolKembali";
 import BatalkanCuti from "./BatalkanCuti";
 import { btnPrimary } from "@/components/ui";
 
@@ -17,9 +19,9 @@ const Baris = ({ t, children }) => (
   <div className="flex justify-between gap-6 border-b border-line py-2 text-sm last:border-0"><dt className="text-muted">{t}</dt><dd className="text-right">{children || "-"}</dd></div>
 );
 
-export default async function DetailCutiPage({ params }) {
+export default async function DetailCutiPage({ params, searchParams }) {
   const user = await requireRole();
-  const { id } = await params;
+  const [{ id }, sp] = await Promise.all([params, searchParams]);
   if (parseId(id) == null) notFound();
   const p = await detailPengajuan(pool, id, user);
   if (!p) notFound();
@@ -38,9 +40,21 @@ export default async function DetailCutiPage({ params }) {
   const tolak = p.persetujuan.find((s) => s.keputusan === "reject");
   const milikSendiri = p.pengaju_id === user.id;
 
+  const asalValid = sp?.from && tautanInternal(sp.from) ? sp.from : null;
+  const hrefKembali = asalValid ?? (milikSendiri ? "/cuti" : "/riwayat");
+  let labelKembali = milikSendiri ? "Kembali ke Cuti Saya" : "Kembali ke Riwayat";
+  if (asalValid) {
+    if (asalValid.startsWith("/verifikasi")) labelKembali = "Kembali ke Verifikasi";
+    else if (asalValid.startsWith("/persetujuan")) labelKembali = "Kembali ke Persetujuan";
+    else if (asalValid.startsWith("/cuti")) labelKembali = "Kembali ke Cuti Saya";
+    else if (asalValid.startsWith("/riwayat")) labelKembali = "Kembali ke Riwayat";
+    else if (asalValid.startsWith("/dashboard")) labelKembali = "Kembali ke Dashboard";
+    else labelKembali = "Kembali";
+  }
+
   return (
     <div className="max-w-3xl space-y-8">
-      <Link href={milikSendiri ? "/cuti" : "/riwayat"} className="text-sm text-muted hover:underline">← Kembali</Link>
+      <TombolKembali href={hrefKembali} label={labelKembali} />
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-semibold">{p.jenis_nama}</h1>

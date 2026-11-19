@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireRole } from "@/lib/guard";
 import pool from "@/lib/db";
 import { antreanLeader } from "@/lib/queries/approval";
@@ -15,10 +16,17 @@ export default async function VerifikasiPage() {
         <p className="text-sm text-muted">Pengajuan cuti dari anggota divisi Anda yang menunggu persetujuan pertama.</p>
       </header>
       {antre.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-line p-10 text-center text-sm text-muted">Tidak ada pengajuan yang menunggu verifikasi.</p>
+        <div className="rounded-xl border border-dashed border-line p-10 text-center space-y-3">
+          <p className="text-sm text-muted">Tidak ada pengajuan yang menunggu verifikasi.</p>
+          <div className="flex justify-center gap-3">
+            <Link href="/dashboard" className="text-sm text-accent hover:underline">Ke Dashboard</Link>
+            <span className="text-muted">·</span>
+            <Link href="/riwayat" className="text-sm text-accent hover:underline">Lihat Riwayat</Link>
+          </div>
+        </div>
       ) : (
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {antre.map((p) => <KartuApproval key={p.id} p={p} action="/api/verifikasi" />)}
+          {antre.map((p) => <KartuApproval key={p.id} p={p} action="/api/verifikasi" fromHref="/verifikasi" />)}
         </div>
       )}
     </div>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireRole } from "@/lib/guard";
 import pool from "@/lib/db";
 import { antreanHrd, muatPeringatanHrd } from "@/lib/queries/approval";
@@ -37,7 +38,14 @@ export default async function PersetujuanPage({ searchParams }) {
       )}
 
       {antre.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-line p-10 text-center text-sm text-muted">Tidak ada pengajuan yang menunggu persetujuan final.</p>
+        <div className="rounded-xl border border-dashed border-line p-10 text-center space-y-3">
+          <p className="text-sm text-muted">Tidak ada pengajuan yang menunggu persetujuan final.</p>
+          <div className="flex justify-center gap-3">
+            <Link href="/dashboard" className="text-sm text-accent hover:underline">Ke Dashboard</Link>
+            <span className="text-muted">·</span>
+            <Link href="/riwayat" className="text-sm text-accent hover:underline">Lihat Riwayat</Link>
+          </div>
+        </div>
       ) : (
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {antre.map((p, i) => {
@@ -47,6 +55,7 @@ export default async function PersetujuanPage({ searchParams }) {
                 key={p.id}
                 p={p}
                 action="/api/persetujuan"
+                fromHref="/persetujuan"
                 pilih={<input type="checkbox" name="ids" value={p.id} form="form-banyak" aria-label={`Pilih pengajuan ${p.pengaju_nama}`} className="mt-3 h-4 w-4" />}
               >
                 {p.atasan ? (
@@ -58,8 +67,16 @@ export default async function PersetujuanPage({ searchParams }) {
                 ) : (
                   <p className="rounded-lg bg-accent/10 p-3 text-sm text-accent">Diajukan langsung oleh Ketua Divisi (tanpa verifikasi atasan).</p>
                 )}
-                {w && w.kapasitas && <p className="rounded-lg bg-bad/10 p-3 text-sm text-bad">Peringatan: pengajuan ini melebihi batas kapasitas divisi pada tanggal terkait.</p>}
-                {w && w.sisaKurang && <p className="rounded-lg bg-bad/10 p-3 text-sm text-bad">Peringatan: sisa kuota tahunan pemohon tidak mencukupi untuk jumlah hari ini.</p>}
+                {w && (w.kapasitasPenuh || w.kapasitas) && (
+                  <p className="rounded-lg bg-bad/10 p-3 text-sm text-bad">
+                    Peringatan: kapasitas divisi penuh pada {w.kapasitasPenuh?.tanggal ?? "tanggal terkait"} ({w.kapasitasPenuh?.terisi ?? "penuh"}/{w.kapasitasPenuh?.batas ?? ""}).
+                  </p>
+                )}
+                {w && (w.kuotaKurang || w.sisaKurang) && (
+                  <p className="rounded-lg bg-bad/10 p-3 text-sm text-bad">
+                    Peringatan: sisa kuota tahunan pemohon tidak mencukupi untuk pengajuan ini.
+                  </p>
+                )}
               </KartuApproval>
             );
           })}

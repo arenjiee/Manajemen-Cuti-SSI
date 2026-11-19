@@ -2,6 +2,7 @@ import { requireRole } from "@/lib/guard";
 import pool from "@/lib/db";
 import { calonKetua } from "@/lib/queries/divisi";
 import FormAction from "@/components/FormAction";
+import TombolKembali from "@/components/TombolKembali";
 import AutoTextarea from "@/components/AutoTextarea";
 import { inputCls } from "@/components/ui";
 
@@ -10,8 +11,9 @@ export default async function BaruDivisiPage() {
   const calon = await calonKetua(pool);
   return (
     <div className="max-w-xl space-y-6">
+      <TombolKembali href="/admin/divisi" label="Kembali ke Divisi" />
       <h1 className="text-3xl font-semibold">Tambah divisi</h1>
-      <FormAction action="/api/admin/divisi" redirectTo="/admin/divisi" label="Buat divisi">
+      <FormAction action="/api/admin/divisi" redirectTo="/admin/divisi" batalHref="/admin/divisi" label="Buat divisi">
         <label className="block text-sm">Nama divisi<input name="nama" required className={`${inputCls} mt-1`} /></label>
         <label className="block text-sm">Deskripsi (opsional)<AutoTextarea name="deskripsi" rows={2} className={`${inputCls} mt-1`} /></label>
         <label className="block text-sm">Ketua divisi

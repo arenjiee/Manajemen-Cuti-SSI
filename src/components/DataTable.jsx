@@ -1,6 +1,6 @@
 export default function DataTable({ kolom, rows, kosong = "Belum ada data." }) {
   if (rows.length === 0) {
-    return <p className="rounded-xl border border-dashed border-line p-8 text-center text-sm text-muted">{kosong}</p>;
+    return <div className="rounded-xl border border-dashed border-line p-8 text-center text-sm text-muted">{kosong}</div>;
   }
   const sel = (k, r) => (k.render ? k.render(r) : r[k.key]);
   return (

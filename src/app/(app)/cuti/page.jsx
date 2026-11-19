@@ -47,7 +47,16 @@ export default async function CutiSayaPage({ searchParams }) {
         <StatCard label={`Sisa kuota tahunan ${tahun}`} nilai={formatHari(sisa)} catatan={`dari ${formatHari(user.kuota_awal)} hari`} tone={sisa <= 2 ? "warn" : undefined} />
       </div>
       <FilterBar fields={fields} values={sp} resetHref="/cuti" />
-      <DataTable kolom={kolom} rows={rows} kosong="Belum ada pengajuan cuti." />
+      <DataTable
+        kolom={kolom}
+        rows={rows}
+        kosong={
+          <div className="space-y-3 py-2">
+            <p>Belum ada pengajuan cuti.</p>
+            <Link href="/cuti/ajukan" className={`${btnPrimary} inline-block`}>Ajukan cuti sekarang</Link>
+          </div>
+        }
+      />
     </div>
   );
 }

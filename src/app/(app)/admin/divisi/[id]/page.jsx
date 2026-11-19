@@ -5,6 +5,7 @@ import { ambilDivisi, anggotaDivisi, calonKetua, karyawanTanpaDivisi } from "@/l
 import { formatTanggal } from "@/lib/format";
 import DataTable from "@/components/DataTable";
 import FormAction from "@/components/FormAction";
+import TombolKembali from "@/components/TombolKembali";
 import AutoTextarea from "@/components/AutoTextarea";
 import TombolKonfirmasi from "@/components/TombolKonfirmasi";
 import { inputCls, btnPrimary, btnDanger } from "@/components/ui";
@@ -22,7 +23,7 @@ export default async function DetailDivisiPage({ params, searchParams }) {
   const kolom = [
     { label: "Nama", render: (a) => a.nama_lengkap },
     { label: "Peran", render: (a) => (a.role === "ketua_divisi" ? "Ketua Divisi" : "Anggota") },
-    { label: "Status", render: (a) => (a.aktif ? "Aktif" : "Tidak aktif") },
+    { label: "Status", render: (a) => (!a.aktif ? <span className="text-muted">Nonaktif</span> : a.sedang_cuti ? <span className="text-warn">Sedang cuti</span> : <span className="text-ok">Aktif</span>) },
     { label: "Bergabung", render: (a) => formatTanggal(a.tanggal_bergabung) },
     {
       label: "Aksi",
@@ -44,15 +45,16 @@ export default async function DetailDivisiPage({ params, searchParams }) {
 
   return (
     <div className="space-y-10">
+      <TombolKembali href="/admin/divisi" label="Kembali ke Divisi" />
       <header>
         <h1 className="text-3xl font-semibold">{d.nama}</h1>
-        <p className="text-sm text-muted">Ketua: {d.ketua_nama ?? "-"} · {anggota.length} anggota</p>
+        <p className="text-sm text-muted">Ketua: {d.ketua_nama ?? "-"} · {anggota.length} anggota · Batas cuti {d.max_persen_cuti}% ({d.batas_harian} orang/hari)</p>
       </header>
       {sp.error && <p role="alert" className="rounded-lg bg-bad/10 px-3 py-2 text-sm text-bad">{sp.error}</p>}
 
       <section className="max-w-xl space-y-4">
         <h2 className="text-xl font-semibold">Edit divisi</h2>
-        <FormAction action={`/api/admin/divisi/${d.id}`} label="Simpan perubahan">
+        <FormAction action={`/api/admin/divisi/${d.id}`} batalHref="/admin/divisi" label="Simpan perubahan">
           <input type="hidden" name="id" value={d.id} />
           <label className="block text-sm">Nama divisi<input name="nama" defaultValue={d.nama} required className={`${inputCls} mt-1`} /></label>
           <label className="block text-sm">Deskripsi<AutoTextarea name="deskripsi" rows={2} defaultValue={d.deskripsi ?? ""} className={`${inputCls} mt-1`} /></label>

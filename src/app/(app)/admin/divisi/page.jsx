@@ -29,7 +29,7 @@ export default async function DivisiPage({ searchParams }) {
     { label: "Divisi", render: (d) => <><p className="font-medium">{d.nama}</p><p className="text-xs text-muted">{d.deskripsi}</p></> },
     { label: "Ketua", render: (d) => d.ketua_nama ?? "-" },
     { label: "Anggota", key: "jumlah_anggota" },
-    { label: "Batas cuti", render: (d) => `${d.maks_cuti_per_hari} orang/hari` },
+    { label: "Batas cuti", render: (d) => `${d.max_persen_cuti}% · ${d.batas_harian} orang/hari` },
     { label: "Dibentuk", render: (d) => formatTanggal(String(d.created_at.toISOString?.() ?? d.created_at).slice(0, 10)) },
     { label: "Aksi", render: (d) => <Link href={`/admin/divisi/${d.id}`} className="text-sm text-accent hover:underline">Detail</Link> },
   ];

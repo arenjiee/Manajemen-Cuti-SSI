@@ -1,7 +1,8 @@
 "use client";
 import { useState, useActionState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { btnPrimary } from "./ui";
+import { btnPrimary, btnGhost } from "./ui";
 
 export default function FormAction({
   action,
@@ -11,6 +12,8 @@ export default function FormAction({
   className = "space-y-4",
   onSuccess,
   redirectTo,
+  batalHref,
+  batalLabel = "Batal",
 }) {
   const router = useRouter();
   const isUrl = typeof action === "string";
@@ -57,31 +60,45 @@ export default function FormAction({
 
   if (isUrl) {
     return (
-      <form onSubmit={handleHttpSubmit} className={className}>
+      <form onSubmit={handleHttpSubmit} className={className} suppressHydrationWarning>
         {children}
         {errorPesan && (
           <p role="alert" className="rounded-lg bg-bad/10 px-3 py-2 text-sm text-bad">
             {errorPesan}
           </p>
         )}
-        <button disabled={loading} className={btnPrimary}>
-          {loading ? "Menyimpan…" : label}
-        </button>
+        <div className="flex items-center gap-3 pt-2">
+          <button disabled={loading} className={btnPrimary} suppressHydrationWarning>
+            {loading ? "Menyimpan…" : label}
+          </button>
+          {batalHref && (
+            <Link href={batalHref} className={btnGhost}>
+              {batalLabel}
+            </Link>
+          )}
+        </div>
       </form>
     );
   }
 
   return (
-    <form action={standardFormAction} className={className}>
+    <form action={standardFormAction} className={className} suppressHydrationWarning>
       {children}
       {actionState?.pesan && (
         <p role="alert" className="rounded-lg bg-bad/10 px-3 py-2 text-sm text-bad">
           {actionState.pesan}
         </p>
       )}
-      <button disabled={actionPending} className={btnPrimary}>
-        {actionPending ? "Menyimpan…" : label}
-      </button>
+      <div className="flex items-center gap-3 pt-2">
+        <button disabled={actionPending} className={btnPrimary} suppressHydrationWarning>
+          {actionPending ? "Menyimpan…" : label}
+        </button>
+        {batalHref && (
+          <Link href={batalHref} className={btnGhost}>
+            {batalLabel}
+          </Link>
+        )}
+      </div>
     </form>
   );
 }

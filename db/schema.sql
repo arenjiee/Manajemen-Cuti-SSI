@@ -23,7 +23,7 @@ CREATE TABLE divisi (
   nama VARCHAR(100) NOT NULL,
   deskripsi TEXT,
   ketua_id INTEGER REFERENCES users(id),
-  max_persen_cuti INTEGER NOT NULL DEFAULT 10 CHECK (max_persen_cuti BETWEEN 0 AND 100),
+  max_persen_cuti INTEGER NOT NULL DEFAULT 20 CHECK (max_persen_cuti BETWEEN 1 AND 100),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   deleted_at TIMESTAMPTZ
 );

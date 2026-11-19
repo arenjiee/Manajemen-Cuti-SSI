@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireRole } from "@/lib/guard";
 import pool from "@/lib/db";
 import { notifikasiUser, jumlahBelumDibaca } from "@/lib/queries/riwayat";
@@ -29,8 +30,8 @@ export default async function NotifikasiPage({ searchParams }) {
       </header>
 
       <nav className="flex gap-2" aria-label="Filter notifikasi">
-        <a href="/notifikasi" className={tab(!hanyaBelum)} aria-current={!hanyaBelum ? "page" : undefined}>Semua</a>
-        <a href="/notifikasi?tampil=belum" className={tab(hanyaBelum)} aria-current={hanyaBelum ? "page" : undefined}>Belum dibaca</a>
+        <Link href="/notifikasi" className={tab(!hanyaBelum)} aria-current={!hanyaBelum ? "page" : undefined}>Semua</Link>
+        <Link href="/notifikasi?tampil=belum" className={tab(hanyaBelum)} aria-current={hanyaBelum ? "page" : undefined}>Belum dibaca</Link>
       </nav>
 
       {rows.length === 0 ? (

@@ -65,6 +65,7 @@ function ChromeTab({ tab, menu, aktif, bisaTutup, tetanggaKananAktif, onActivate
           <button
             type="button"
             tabIndex={-1}
+            suppressHydrationWarning
             aria-label={`Tutup tab ${label}`}
             onClick={(e) => { e.stopPropagation(); onClose(); }}
             className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-ink/10 hover:text-ink ${aktif ? "" : "opacity-0 group-hover:opacity-100 max-md:opacity-100"}`}
@@ -138,6 +139,7 @@ export default function TabBar({ tabs, activeId, menu, awal, onActivate, onClose
         <button
           type="button"
           disabled={penuh}
+          suppressHydrationWarning
           title={penuh ? `Maksimal ${MAKS_TAB} tab` : "Tab baru (tahan atau arahkan kursor untuk buka cepat)"}
           aria-label="Tab baru"
           onClick={() => {
@@ -168,6 +170,7 @@ export default function TabBar({ tabs, activeId, menu, awal, onActivate, onClose
         type="button"
         aria-label="Menu tab"
         aria-haspopup="menu"
+        suppressHydrationWarning
         onClick={(e) => {
           if (lainnya) return setLainnya(null);
           const { r, y } = posisi(e.currentTarget);

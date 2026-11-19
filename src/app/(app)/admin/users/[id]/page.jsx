@@ -5,6 +5,7 @@ import pool from "@/lib/db";
 import { ambilUser } from "@/lib/queries/users";
 import { NAMA_ROLE } from "@/lib/nav";
 import FormAction from "@/components/FormAction";
+import TombolKembali from "@/components/TombolKembali";
 import { inputCls } from "@/components/ui";
 
 const L = ({ t, children }) => <label className="block text-sm">{t}<div className="mt-1">{children}</div></label>;
@@ -17,9 +18,10 @@ export default async function EditUserPage({ params }) {
   if (!u) notFound();
   return (
     <div className="max-w-xl space-y-6">
+      <TombolKembali href="/admin/users" label="Kembali ke Pengguna" />
       <h1 className="text-3xl font-semibold">Edit pengguna</h1>
-      <Link href={`/profil?id=${u.id}`} className="inline-block text-sm text-accent hover:underline">Lihat profil, foto, dan kuota →</Link>
-      <FormAction action={`/api/admin/users/${u.id}`} redirectTo="/admin/users" label="Simpan perubahan">
+      <Link href={`/profil?id=${u.id}&from=${encodeURIComponent(`/admin/users/${u.id}`)}`} className="inline-block text-sm text-accent hover:underline">Lihat profil, foto, dan kuota →</Link>
+      <FormAction action={`/api/admin/users/${u.id}`} redirectTo="/admin/users" batalHref="/admin/users" label="Simpan perubahan">
         <input type="hidden" name="id" value={u.id} />
         <L t="Nama lengkap"><input name="nama_lengkap" defaultValue={u.nama_lengkap} required className={inputCls} /></L>
         <div className="grid gap-4 sm:grid-cols-2">
