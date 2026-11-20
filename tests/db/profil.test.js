@@ -87,11 +87,11 @@ test("ganti role lewat form profil oleh non-admin ditolak, termasuk menaikkan di
   assert.equal(ana.role, "karyawan"); assert.equal(ana.nama_lengkap, "Ana Rahma");   // seluruh perubahan dibatalkan
 });
 
-test("non-admin boleh mengirim role yang sama (tanpa perubahan) tetapi tidak boleh mengubah username", async () => {
+test("non-admin boleh mengubah username sendiri selama format sah dan unik", async () => {
   assert.equal((await ubahProfil(pool, aktor.ana, id.ana, data({ role: "karyawan", username: "ana" }))).ok, true);
   const r = await ubahProfil(pool, aktor.ana, id.ana, data({ username: "ana.baru" }));
-  assert.equal(r.ok, false);
-  assert.equal((await baris("ana")).username, "ana");
+  assert.equal(r.ok, true);
+  assert.equal((await baris("ana")).username, "ana.baru");
 });
 
 test("Admin dapat mengganti role user lain, tetapi bukan role dirinya sendiri atau ketua yang masih memimpin divisi", async () => {

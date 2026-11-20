@@ -120,21 +120,21 @@ test("hrd: satu orang dengan dua pengajuan di bulan yang sama dihitung satu oran
 test("admin: hitungan per role mengabaikan user terhapus; masa kerja < 1 tahun muncul", async () => {
   const a = await dashboardAdmin(pool, opts);
   assert.equal(a.perRole.admin, 1); assert.equal(a.perRole.hrd, 1);
-  assert.deepEqual(a.masaKerjaKurang1Tahun.map((u) => u.nama_lengkap), ["Rina Karyawan Baru"]);
-  assert.equal(a.masaKerjaKurang1Tahun[0].layakTahunan, "2027-06-01");
+  assert.deepEqual(a.masaKerjaDiBawah1Tahun.map((u) => u.nama_lengkap), ["Rina Karyawan Baru"]);
+  assert.equal(a.masaKerjaDiBawah1Tahun[0].layakTahunan, "2027-06-01");
   assert.equal(a.totalDivisi, 3); assert.equal(a.jenisCutiAktif, 4); assert.equal(a.hariLiburTahunIni, 6);
   const sebelum = a.perRole.karyawan;
   await q("UPDATE users SET deleted_at=now(), aktif=false WHERE id=$1", [id.rina]);
   const b = await dashboardAdmin(pool, opts);
   assert.equal(b.perRole.karyawan, sebelum - 1);
-  assert.deepEqual(b.masaKerjaKurang1Tahun, []);
+  assert.deepEqual(b.masaKerjaDiBawah1Tahun, []);
 });
 
 test("admin: tepat satu tahun masa kerja sudah tidak termasuk; nonaktif dihitung terpisah", async () => {
   await q("UPDATE users SET tanggal_bergabung='2025-11-10' WHERE id=$1", [id.cici]);   // genap 1 tahun hari ini
   await q("UPDATE users SET tanggal_bergabung='2025-11-11' WHERE id=$1", [id.dedi]);   // besok genap 1 tahun
   const a = await dashboardAdmin(pool, opts);
-  assert.deepEqual(a.masaKerjaKurang1Tahun.map((u) => u.nama_lengkap), ["Rina Karyawan Baru", "Dedi Kurniawan"]); // Cici genap 1 tahun → keluar
+  assert.deepEqual(a.masaKerjaDiBawah1Tahun.map((u) => u.nama_lengkap), ["Rina Karyawan Baru", "Dedi Kurniawan"]); // Cici genap 1 tahun → keluar
   const aktif = a.totalAktif;
   await q("UPDATE users SET aktif=false WHERE id=$1", [id.budi]);
   const b = await dashboardAdmin(pool, opts);
