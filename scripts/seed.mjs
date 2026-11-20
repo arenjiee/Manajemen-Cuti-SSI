@@ -53,7 +53,8 @@ export async function seed(pool) {
     ('2026-01-01','Tahun Baru 2026','nasional'),('2026-05-01','Hari Buruh','nasional'),
     ('2026-06-01','Hari Lahir Pancasila','nasional'),('2026-08-17','Hari Kemerdekaan RI','nasional'),
     ('2026-12-24','Cuti Bersama Natal','cuti_bersama'),('2026-12-25','Hari Natal','nasional')`);
-  await q(`INSERT INTO pengaturan (key,value) VALUES ('ambang_kuota_hangus','8'),('bulan_mulai_peringatan','9')`);
+  await q(`INSERT INTO pengaturan (key,value) VALUES ('ambang_kuota_hangus','8'),('bulan_mulai_peringatan','9')
+    ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value`);
 
   const J = { tahunan: 1, sakit: 2 };
   const ajukan = async (o) => {

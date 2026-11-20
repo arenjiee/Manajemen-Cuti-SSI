@@ -24,13 +24,14 @@ export async function POST(request) {
     }
   }
 
-  const ambang = ambangValid(ambangRaw);
+  const ambang = ambangRaw !== null && ambangRaw !== "" && ambangRaw !== undefined ? ambangValid(ambangRaw) : undefined;
   const r = await kirimPengingat(pool, ids, { ambang });
 
   const acceptsHtml = request.headers.get("accept")?.includes("text/html");
   if (acceptsHtml) {
+    const qAmbang = ambang ? `ambang=${ambang}&` : "";
     return NextResponse.redirect(
-      new URL(`/kuota-hangus?ambang=${ambang}&terkirim=${r.terkirim}&dilewati=${r.dilewati}`, request.url),
+      new URL(`/kuota-hangus?${qAmbang}terkirim=${r.terkirim}&dilewati=${r.dilewati}`, request.url),
       303
     );
   }

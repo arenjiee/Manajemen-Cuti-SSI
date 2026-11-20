@@ -9,7 +9,8 @@ export async function GET(request) {
   if (g.error) return g.error;
 
   const url = new URL(request.url);
-  const ambang = ambangValid(url.searchParams.get("ambang"));
+  const ambangParam = url.searchParams.get("ambang");
+  const ambang = ambangParam !== null && ambangParam !== "" ? ambangValid(ambangParam) : undefined;
   const data = await daftarKuotaHangus(pool, { ambang });
 
   return NextResponse.json({ ok: true, data });

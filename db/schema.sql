@@ -114,3 +114,7 @@ CREATE TABLE pengaturan (
   key VARCHAR(50) PRIMARY KEY,
   value VARCHAR(200) NOT NULL
 );
+INSERT INTO pengaturan (key, value) VALUES
+  ('ambang_kuota_hangus', '8'),
+  ('bulan_mulai_peringatan', '9')
+ON CONFLICT (key) DO NOTHING;

@@ -10,15 +10,15 @@ import PageHeader from "@/components/PageHeader";
 import GlowCard from "@/components/GlowCard";
 import { btnPrimary } from "@/components/ui";
 
-export const metadata = { title: "Kuota Habis | SMCK" };
+export const metadata = { title: "Kuota Hangus | SMCK" };
 
 const angka = (v) => (/^\d{1,4}$/.test(v ?? "") ? Number(v) : null);
 
 export default async function KuotaHangusPage({ searchParams }) {
   await requireRole(["admin", "hrd"]);
   const sp = await searchParams;
-  const ambang = ambangValid(sp.ambang);
-  const d = await daftarKuotaHangus(pool, { ambang });
+  const ambangInput = sp.ambang !== undefined && sp.ambang !== "" ? ambangValid(sp.ambang) : undefined;
+  const d = await daftarKuotaHangus(pool, { ambang: ambangInput });
   const terkirim = angka(sp.terkirim), dilewati = angka(sp.dilewati);
   const pasti = d.rows.filter((r) => r.risiko === "pasti").length;
 
@@ -28,17 +28,17 @@ export default async function KuotaHangusPage({ searchParams }) {
     { label: "Kuota", render: (r) => `${formatHari(r.kuotaAwal)} hari` },
     { label: "Terpakai", render: (r) => `${formatHari(r.terpakai)} hari` },
     { label: "Sisa", render: (r) => <strong className={r.risiko === "pasti" ? "text-bad" : "text-warn"}>{formatHari(r.sisa)} hari</strong> },
-    { label: "Risiko", render: (r) => (r.risiko === "pasti" ? "Tidak mungkin habis" : "Waspada") },
+    { label: "Risiko", render: (r) => (r.risiko === "pasti" ? "Pasti hangus" : "Waspada") },
     { label: "Pengingat terakhir", render: (r) => (r.pengingatTerakhir ? formatWaktu(r.pengingatTerakhir) : "Belum pernah") },
   ];
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Peringatan Kuota Habis"
-        description="Karyawan dengan sisa Cuti Tahunan besar. Kuota tidak dibawa ke tahun berikutnya."
+        title="Peringatan Kuota Hangus"
+        description="Karyawan dengan sisa Cuti Tahunan besar menjelang akhir tahun. Kuota tidak dibawa ke tahun berikutnya."
         action={
-          d.rows.length > 0 && (
+          d.aktif && d.rows.length > 0 && (
             <form id="form-pengingat" action="/api/kuota-hangus/pengingat" method="POST">
               <input type="hidden" name="ambang" value={d.ambang} />
               <button className={btnPrimary}>Kirim pengingat ke yang dipilih</button>
@@ -53,14 +53,28 @@ export default async function KuotaHangusPage({ searchParams }) {
         </p>
       )}
 
+      {!d.aktif && (
+        <p role="status" className="rounded-2xl border border-line bg-surface p-4 text-sm text-muted">
+          Periode peringatan kuota hangus belum aktif untuk bulan ini. Sistem akan mengaktifkan peringatan menjelang akhir tahun (mulai bulan ke-{d.bulanMulai}).
+        </p>
+      )}
+
       <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-4">
         <GlowCard label="Karyawan berisiko" value={d.rows.length} description={`Sisa ≥ ${formatHari(d.ambang)} hari`} tone={d.rows.length > 0 ? "warn" : undefined} />
-        <GlowCard label="Tidak mungkin habis" value={pasti} description="Sisa melebihi hari kerja tersisa" tone={pasti > 0 ? "bad" : undefined} />
+        <GlowCard label="Pasti hangus" value={pasti} description="Sisa melebihi hari kerja tersisa" tone={pasti > 0 ? "bad" : undefined} />
         <GlowCard label="Hari kerja tersisa" value={d.hariKerjaTersisa} description={`Sampai 31 Des ${d.tahun} (dari ${formatTanggal(d.hari)})`} />
       </div>
 
-      <FilterBar fields={[{ name: "ambang", label: "Ambang sisa (hari)", type: "number", placeholder: "6" }]} values={sp} resetHref="/kuota-hangus" />
-      <DataTable kolom={kolom} rows={d.rows} kosong="Tidak ada karyawan dengan sisa kuota melebihi ambang." />
+      <FilterBar fields={[{ name: "ambang", label: "Ambang sisa (hari)", type: "number", placeholder: String(d.ambang) }]} values={sp} resetHref="/kuota-hangus" />
+      <DataTable
+        kolom={kolom}
+        rows={d.rows}
+        kosong={
+          d.aktif
+            ? "Tidak ada karyawan dengan sisa kuota melebihi ambang."
+            : `Peringatan belum aktif. Periode peringatan kuota hangus dimulai bulan ke-${d.bulanMulai}.`
+        }
+      />
     </div>
   );
 }
