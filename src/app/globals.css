@@ -55,8 +55,8 @@ body {
 
 h1, h2, h3 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.03em; }
 
-/* Di tema monokrom, tautan beraksen tidak lagi dibedakan oleh warna, jadi diberi garis bawah tipis. */
-a.text-accent { text-decoration: underline; text-decoration-color: rgba(255, 255, 255, 0.3); text-underline-offset: 3px; }
+/* Di tema monokrom, tautan beraksen dibedakan dengan warna aksen. Pilih underline per komponen, bukan secara paksa global. */
+a.text-accent { text-decoration: none; }
 a.text-accent:hover { text-decoration-color: currentColor; }
 
 @media (prefers-reduced-motion: reduce) {

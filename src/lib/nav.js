@@ -38,3 +38,7 @@ export function menuUntukRole(role) {
 }
 
 export const NAMA_ROLE = { admin: "Admin", karyawan: "Karyawan", ketua_divisi: "Ketua Divisi", hrd: "HRD" };
+
+// Admin tidak dapat ditambahkan atau dipilih lewat form: sistem hanya punya satu akun Admin.
+export const ROLE_DAPAT_DIPILIH = Object.entries(NAMA_ROLE).filter(([v]) => v !== "admin");
+export const ROLE_DAPAT_DIHAPUS = ["karyawan", "ketua_divisi", "hrd"];

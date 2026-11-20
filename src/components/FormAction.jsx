@@ -63,7 +63,7 @@ export default function FormAction({
       <form onSubmit={handleHttpSubmit} className={className} suppressHydrationWarning>
         {children}
         {errorPesan && (
-          <p role="alert" className="rounded-lg bg-bad/10 px-3 py-2 text-sm text-bad">
+          <p role="alert" className="rounded-xl border border-bad/30 bg-bad/10 px-3.5 py-2.5 text-sm text-bad">
             {errorPesan}
           </p>
         )}
@@ -85,7 +85,7 @@ export default function FormAction({
     <form action={standardFormAction} className={className} suppressHydrationWarning>
       {children}
       {actionState?.pesan && (
-        <p role="alert" className="rounded-lg bg-bad/10 px-3 py-2 text-sm text-bad">
+        <p role="alert" className="rounded-xl border border-bad/30 bg-bad/10 px-3.5 py-2.5 text-sm text-bad">
           {actionState.pesan}
         </p>
       )}

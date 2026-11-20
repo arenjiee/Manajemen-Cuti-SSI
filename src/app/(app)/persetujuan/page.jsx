@@ -4,6 +4,7 @@ import pool from "@/lib/db";
 import { antreanHrd, muatPeringatanHrd } from "@/lib/queries/approval";
 import { formatTanggal, formatWaktu } from "@/lib/format";
 import KartuApproval from "@/components/KartuApproval";
+import PageHeader from "@/components/PageHeader";
 import { btnPrimary } from "@/components/ui";
 
 export const metadata = { title: "Persetujuan Final | SMCK" };
@@ -19,31 +20,31 @@ export default async function PersetujuanPage({ searchParams }) {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold">Persetujuan final</h1>
-          <p className="text-sm text-muted">{antre.length} pengajuan menunggu keputusan HRD.</p>
-        </div>
-        {antre.length > 0 && (
-          <form id="form-banyak" action="/api/persetujuan/batch" method="POST">
-            <button className={btnPrimary}>Setujui yang dipilih</button>
-          </form>
-        )}
-      </header>
+      <PageHeader
+        title="Persetujuan Final"
+        description={antre.length ? `${antre.length} pengajuan menunggu keputusan akhir dari HRD.` : "Tidak ada pengajuan yang menunggu keputusan akhir."}
+        action={
+          antre.length > 0 && (
+            <form id="form-banyak" action="/api/persetujuan/batch" method="POST">
+              <button className={btnPrimary}>Setujui yang dipilih</button>
+            </form>
+          )
+        }
+      />
 
       {ok != null && (
-        <p role="status" className="rounded-lg bg-ok/10 px-3 py-2 text-sm text-ok">
+        <p role="status" className="rounded-2xl border border-ok/30 bg-ok/10 px-4 py-3 text-sm text-ok">
           {ok} pengajuan disetujui{lewat ? `, ${lewat} dilewati karena sudah diproses atau tidak valid` : ""}.
         </p>
       )}
 
       {antre.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-line p-10 text-center space-y-3">
-          <p className="text-sm text-muted">Tidak ada pengajuan yang menunggu persetujuan final.</p>
-          <div className="flex justify-center gap-3">
-            <Link href="/dashboard" className="text-sm text-accent hover:underline">Ke Dashboard</Link>
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-line bg-surface/40 p-12 text-center">
+          <p className="text-sm text-muted">Tidak ada pengajuan yang menunggu persetujuan final saat ini.</p>
+          <div className="mt-3 flex items-center justify-center gap-3 text-xs">
+            <Link href="/dashboard" className="text-accent hover:underline">Ke Dashboard</Link>
             <span className="text-muted">·</span>
-            <Link href="/riwayat" className="text-sm text-accent hover:underline">Lihat Riwayat</Link>
+            <Link href="/riwayat" className="text-accent hover:underline">Lihat Riwayat</Link>
           </div>
         </div>
       ) : (

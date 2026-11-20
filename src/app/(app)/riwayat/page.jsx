@@ -10,6 +10,8 @@ import { labelStatus } from "@/components/StatusBadge";
 import StatusBadge from "@/components/StatusBadge";
 import DataTable from "@/components/DataTable";
 import FilterBar from "@/components/FilterBar";
+import PageHeader from "@/components/PageHeader";
+import TautanDetail from "@/components/TautanDetail";
 
 export const metadata = { title: "Riwayat | SMCK" };
 
@@ -45,15 +47,15 @@ export default async function RiwayatPage({ searchParams }) {
     { label: "Hari", render: (r) => formatHari(r.total_hari) },
     { label: "Status", render: (r) => <StatusBadge status={r.status} tahap={r.tahap} /> },
     { label: "Diajukan", render: (r) => formatTanggal(r.tanggal_pengajuan) },
-    { label: "Aksi", render: (r) => <Link href={`/cuti/${r.id}`} className="text-sm text-accent hover:underline">Detail</Link> },
+    { label: "Aksi", render: (r) => <TautanDetail href={`/cuti/${r.id}`} /> },
   ];
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-3xl font-semibold">Riwayat cuti</h1>
-        <p className="text-sm text-muted">{CAKUPAN[user.role]} {rows.length} pengajuan ditampilkan.</p>
-      </header>
+      <PageHeader
+        title="Riwayat Cuti"
+        description={`${CAKUPAN[user.role]} ${rows.length} pengajuan ditampilkan.`}
+      />
       <FilterBar fields={fields} values={sp} resetHref="/riwayat" />
       <DataTable kolom={kolom} rows={rows} kosong="Tidak ada pengajuan yang cocok dengan filter." />
     </div>

@@ -2,18 +2,20 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { inputCls, btnPrimary, btnGhost } from "@/components/ui";
+import { CalendarDays } from "lucide-react";
+import { inputCls, btnPrimary, btnGhost, labelCls, selectCls } from "@/components/ui";
 import KalenderMini from "@/components/KalenderMini";
 import AutoTextarea from "@/components/AutoTextarea";
 import { formatHari, formatTanggal } from "@/lib/format";
+import { labelBatasPengajuan, keteranganBatasPengajuan } from "@/lib/leave/aturan-jenis";
 
 const hint = (j) => {
   if (!j) return "";
-  const b = j.batas > 0 ? `Diajukan minimal H-${j.batas}.` : j.batas === 0 ? "Tidak dapat diajukan untuk tanggal yang sudah lewat." : `Boleh diajukan sampai ${-j.batas} hari setelah mulai.`;
+  const b = `Diajukan ${labelBatasPengajuan(j.batas)} (${keteranganBatasPengajuan(j.batas)}).`;
   return `${b}${j.lampiran ? " Wajib melampirkan dokumen." : ""}${j.potong ? " Memotong kuota tahunan." : ""}`;
 };
 
-const L = ({ t, children }) => <label className="block text-sm">{t}<div className="mt-1">{children}</div></label>;
+const L = ({ t, children }) => <label className="block"><span className={labelCls}>{t}</span>{children}</label>;
 
 export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal = [], hariLiburMendatang = [] }) {
   const router = useRouter();
@@ -108,9 +110,9 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
   const tahunTampil = punyaSim ? sim.tahun : tahun;
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_22rem]">
-      <form onSubmit={handleSubmit} onReset={reset} className="space-y-5">
+      <form onSubmit={handleSubmit} onReset={reset} className="space-y-5 rounded-2xl border border-line bg-surface p-5 sm:p-6">
         <L t="Jenis cuti">
-          <select name="jenisId" required value={jenisId} onChange={(e) => setJenisId(e.target.value)} className={inputCls}>
+          <select name="jenisId" required value={jenisId} onChange={(e) => setJenisId(e.target.value)} className={selectCls}>
             <option value="" disabled>Pilih jenis cuti</option>
             {jenis.map((j) => <option key={j.id} value={j.id}>{j.nama}</option>)}
           </select>
@@ -133,7 +135,7 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
 
         <L t="Alasan cuti"><AutoTextarea name="alasan" required rows={2} placeholder="Tuliskan alasan pengajuan cuti..." className={inputCls} /></L>
         <L t="Rekan pengganti (handover)">
-          <select name="handoverId" required value={rekanDipilih} onChange={(e) => setHandoverId(e.target.value)} className={inputCls}>
+          <select name="handoverId" required value={rekanDipilih} onChange={(e) => setHandoverId(e.target.value)} className={selectCls}>
             <option value="" disabled>{punyaSim ? "Pilih rekan yang tersedia pada tanggal tersebut" : "Pilih rekan satu divisi"}</option>
             {opsiRekan.map((r) => <option key={r.id} value={r.id}>{r.nama_lengkap}</option>)}
           </select>

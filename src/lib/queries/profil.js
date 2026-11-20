@@ -3,7 +3,7 @@ import { hariIni } from "../leave/tanggal.js";
 import { mimeDariKunci } from "../foto-file.js";
 import { denganTransaksi } from "./tx.js";
 import { ringkasanKuota } from "./kuota.js";
-import { pesanUnik, EMAIL, ROLES } from "./users.js";
+import { pesanUnik, EMAIL, ROLES, cekUsername } from "./users.js";
 
 const gagal = (pesan) => ({ ok: false, pesan });
 const PEMOHON = ["karyawan", "ketua_divisi"];
@@ -72,13 +72,15 @@ export async function ubahProfil(db, actor, targetId, d) {
 
   const usernameBaru = d.username === undefined || d.username === null ? null : String(d.username).trim();
   if (usernameBaru !== null && usernameBaru !== lama.username) {
-    if (actor.role !== "admin") return gagal("Hanya Admin yang dapat mengubah username.");
-    if (!usernameBaru || usernameBaru.length > 50) return gagal("Username wajib diisi (maksimal 50 karakter).");
+    const errUsername = cekUsername(usernameBaru);
+    if (errUsername) return gagal(errUsername);
     kolom.username = usernameBaru;
   }
 
   if (d.role !== undefined && d.role !== null && d.role !== "" && d.role !== lama.role) {
     if (actor.role !== "admin") return gagal("Hanya Admin yang dapat mengubah role.");
+    if (d.role === "admin") return gagal("Role Admin tidak dapat diberikan.");
+    if (lama.role === "admin") return gagal("Role Admin utama tidak dapat diubah.");
     if (!ROLES.includes(d.role)) return gagal("Role tidak valid.");
     if (actor.id === id) return gagal("Anda tidak dapat mengubah role akun Anda sendiri.");
     if (lama.role === "ketua_divisi") {

@@ -17,12 +17,39 @@ const ROLE_KOSONG = () => ({ admin: 0, karyawan: 0, ketua_divisi: 0, hrd: 0 });
 export async function dashboardAdmin(db, opts) {
   const { hari, tahun } = konteks(opts);
   const bulan = rentangBulan(hari);
-  const [role, nonaktif, divisi, jenis, libur, baru, pengajuan] = await Promise.all([
+  const [role, nonaktif, divisi, jenis, libur, tanpaDivisi, divisiTanpaKetua, cutiHariIni, baru, pengajuan] = await Promise.all([
     db.query("SELECT role, count(*)::int AS n FROM users WHERE deleted_at IS NULL AND aktif GROUP BY role"),
     db.query("SELECT count(*)::int AS n FROM users WHERE deleted_at IS NULL AND NOT aktif"),
     db.query("SELECT count(*)::int AS n FROM divisi WHERE deleted_at IS NULL"),
     db.query("SELECT count(*)::int AS n FROM jenis_cuti WHERE aktif"),
     db.query("SELECT count(*)::int AS n FROM hari_libur WHERE EXTRACT(YEAR FROM tanggal) = $1", [tahun]),
+    db.query(
+      `SELECT u.id, u.nama_lengkap, u.role, u.tanggal_bergabung
+       FROM users u
+       WHERE u.role = ANY($1) AND u.aktif AND u.deleted_at IS NULL AND u.divisi_id IS NULL
+       ORDER BY u.role, u.nama_lengkap`,
+      [PEMOHON]
+    ),
+    db.query(
+      `SELECT d.id, d.nama, d.max_persen_cuti,
+              (SELECT count(*)::int FROM users u WHERE u.divisi_id = d.id AND u.aktif AND u.deleted_at IS NULL) AS jumlah_anggota
+       FROM divisi d
+       WHERE d.deleted_at IS NULL AND d.ketua_id IS NULL
+       ORDER BY d.nama`
+    ),
+    db.query(
+      `SELECT p.id, u.id AS pengaju_id, u.nama_lengkap, d.nama AS divisi_nama, j.nama AS jenis_nama,
+              p.tanggal_mulai, p.tanggal_selesai, p.total_hari
+       FROM pengajuan_cuti p
+       JOIN users u ON u.id = p.pengaju_id
+       JOIN jenis_cuti j ON j.id = p.jenis_id
+       LEFT JOIN divisi d ON d.id = p.divisi_id
+       WHERE p.status = 'Approved'
+         AND p.tanggal_mulai <= $1 AND p.tanggal_selesai >= $1
+         AND u.aktif AND u.deleted_at IS NULL
+       ORDER BY d.nama NULLS LAST, u.nama_lengkap`,
+      [hari]
+    ),
     // Prefilter longgar di SQL; batas pastinya memakai aturan yang sama dengan validasi Cuti Tahunan (tambahTahun).
     db.query(
       `SELECT u.id, u.nama_lengkap, u.role, u.tanggal_bergabung, d.nama AS divisi_nama
@@ -38,6 +65,8 @@ export async function dashboardAdmin(db, opts) {
       [bulan.dari, bulan.sampai]
     ),
   ]);
+  const karyawanTanpaDivisi = tanpaDivisi.rows.filter((u) => u.role === "karyawan").length;
+  const ketuaTanpaDivisi = tanpaDivisi.rows.filter((u) => u.role === "ketua_divisi").length;
   const perRole = ROLE_KOSONG();
   for (const r of role.rows) perRole[r.role] = r.n;
   return {
@@ -49,8 +78,16 @@ export async function dashboardAdmin(db, opts) {
     hariLiburTahunIni: libur.rows[0].n,
     pengajuanBulanIni: pengajuan.rows[0].bulan_ini,
     pengajuanMenunggu: pengajuan.rows[0].menunggu,
+    tanpaDivisi: {
+      total: tanpaDivisi.rows.length,
+      karyawan: karyawanTanpaDivisi,
+      ketua: ketuaTanpaDivisi,
+      rows: tanpaDivisi.rows,
+    },
+    divisiTanpaKetua: divisiTanpaKetua.rows,
+    cutiHariIni: cutiHariIni.rows,
     bulan: { ...bulan, label: labelBulan(hari) },
-    masaKerjaKurang1Tahun: baru.rows
+    masaKerjaDiBawah1Tahun: baru.rows
       .map((u) => ({ ...u, layakTahunan: tambahTahun(u.tanggal_bergabung, 1) }))
       .filter((u) => u.layakTahunan > hari),
   };

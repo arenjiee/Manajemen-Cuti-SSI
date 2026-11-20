@@ -8,7 +8,11 @@ import FilterBar from "@/components/FilterBar";
 import FormAction from "@/components/FormAction";
 import FormLibur from "@/components/FormLibur";
 import TombolKonfirmasi from "@/components/TombolKonfirmasi";
-import { btnDanger } from "@/components/ui";
+import PageHeader from "@/components/PageHeader";
+import Section from "@/components/Section";
+import TautanDetail from "@/components/TautanDetail";
+import { CalendarDays } from "lucide-react";
+import { btnDanger, inputCls } from "@/components/ui";
 
 export const metadata = { title: "Hari Libur | SMCK" };
 
@@ -36,38 +40,38 @@ export default async function HariLiburPage({ searchParams }) {
     {
       label: "Aksi",
       render: (h) => (
-        <div className="flex items-center gap-2">
-          <Link href={`/admin/hari-libur/${h.id}`} className="text-sm text-accent hover:underline">
-            Edit
-          </Link>
-          <TombolKonfirmasi
-            action="/api/admin/hari-libur/hapus"
-            fields={{ id: h.id }}
-            label="Hapus"
-            pesan={`Hapus hari libur ${formatTanggal(h.tanggal)}?`}
-            className={btnDanger}
-          />
-        </div>
+      <div className="flex items-center gap-2">
+        <TautanDetail href={`/admin/hari-libur/${h.id}`} label="Edit" />
+        <TombolKonfirmasi
+          action="/api/admin/hari-libur/hapus"
+          fields={{ id: h.id }}
+          label="Hapus"
+          pesan={`Hapus hari libur ${formatTanggal(h.tanggal)}?`}
+          className={btnDanger}
+        />
+      </div>
       ),
     },
   ];
 
   return (
     <div className="space-y-8">
-      <header>
-        <h1 className="text-3xl font-semibold">Hari Libur & Cuti Bersama</h1>
-        <p className="text-sm text-muted">Tanggal di sini tidak dihitung sebagai hari cuti dan ditandai di kalender pengajuan.</p>
-      </header>
+      <PageHeader
+        title="Hari Libur & Cuti Bersama"
+        description="Tanggal di sini tidak dihitung sebagai hari cuti dan ditandai di kalender pengajuan."
+      />
 
-      {/* Integrasi Liburin */}
-      <section className="rounded-2xl border border-line bg-surface p-5 space-y-3">
-        <div>
-          <h2 className="text-lg font-semibold flex items-center gap-2">
-            <span>🌐</span> Integrasi Kalender Nasional (Liburin)
-          </h2>
-          <p className="text-xs text-muted">
-            Tarik otomatis seluruh daftar hari libur resmi dan cuti bersama berdasarkan SKB 3 Menteri dari API Liburin (liburin.vercel.app). Tanggal yang sudah ada akan diperbarui tanpa membuat duplikat.
-          </p>
+      <section className="rounded-2xl border border-line bg-surface p-6 space-y-4">
+        <div className="flex items-start gap-3">
+          <span className="flex shrink-0 h-10 w-10 items-center justify-center rounded-xl bg-accent/10 text-accent">
+            <CalendarDays className="h-5 w-5" aria-hidden />
+          </span>
+          <div className="flex-1">
+            <h2 className="text-lg font-semibold">Integrasi Kalender Nasional (Liburin)</h2>
+            <p className="mt-1 text-xs text-muted">
+              Tarik otomatis seluruh daftar hari libur resmi dan cuti bersama berdasarkan SKB 3 Menteri dari API Liburin (liburin.vercel.app). Tanggal yang sudah ada akan diperbarui tanpa membuat duplikat.
+            </p>
+          </div>
         </div>
         <FormAction
           action="/api/admin/hari-libur/sinkron"
@@ -75,8 +79,8 @@ export default async function HariLiburPage({ searchParams }) {
           redirectTo={`/admin/hari-libur?tahun=${tahun ?? tahunAktif}`}
           className="flex flex-wrap items-center gap-3"
         >
-          <label className="text-sm flex items-center gap-2">
-            <span className="text-muted">Tahun:</span>
+          <label className="flex items-center gap-2">
+            <span className="text-sm text-muted">Tahun:</span>
             <input
               name="tahun"
               type="number"
@@ -84,7 +88,8 @@ export default async function HariLiburPage({ searchParams }) {
               max="2099"
               defaultValue={tahun ?? tahunAktif}
               required
-              className="w-24 rounded-lg border border-line bg-bg px-2.5 py-1.5 text-sm"
+              className={inputCls}
+              style={{ width: "96px" }}
             />
           </label>
         </FormAction>
@@ -93,12 +98,11 @@ export default async function HariLiburPage({ searchParams }) {
       <FilterBar fields={[{ name: "tahun", label: "Tahun", type: "number", placeholder: String(tahunAktif) }]} values={sp} resetHref="/admin/hari-libur" />
       <DataTable kolom={kolom} rows={rows} kosong="Belum ada hari libur." />
 
-      <section className="max-w-xl space-y-4 border-t border-line pt-6">
-        <h2 className="text-xl font-semibold">Tambah hari libur manual</h2>
+      <Section title="Tambah hari libur manual" className="max-w-xl border-t border-line pt-6">
         <FormAction action="/api/admin/hari-libur" redirectTo="/admin/hari-libur" label="Tambah">
           <FormLibur />
         </FormAction>
-      </section>
+      </Section>
     </div>
   );
 }

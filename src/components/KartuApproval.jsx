@@ -4,7 +4,8 @@ import Link from "next/link";
 import Modal from "./Modal";
 import FormAction from "./FormAction";
 import AutoTextarea from "./AutoTextarea";
-import { inputCls, btnPrimary, btnGhost } from "./ui";
+import Panah from "./Panah";
+import { btnDanger, inputCls, btnPrimary, btnGhost, labelCls } from "./ui";
 import { formatRentang, formatHari, formatTanggal } from "../lib/format";
 
 const inisial = (n) => n.split(/\s+/).slice(0, 2).map((x) => x[0]).join("").toUpperCase();
@@ -14,18 +15,18 @@ export default function KartuApproval({ p, action, children, pilih, fromHref }) 
   const tolak = mode === "reject";
   const detailHref = fromHref ? `/cuti/${p.id}?from=${encodeURIComponent(fromHref)}` : `/cuti/${p.id}`;
   return (
-    <article className="flex flex-col gap-4 rounded-2xl border border-line bg-surface p-5">
+    <article className="flex flex-col gap-4 rounded-2xl border border-line bg-surface p-5 transition hover:border-ink/20 hover:shadow-lg hover:shadow-black/20">
       <header className="flex items-start gap-3">
         {pilih}
         <span aria-hidden className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent/10 font-display text-sm font-semibold text-accent">{inisial(p.pengaju_nama)}</span>
         <div className="min-w-0 flex-1">
-          <p className="truncate font-medium">{p.pengaju_nama}</p>
+          <p className="truncate font-medium text-ink">{p.pengaju_nama}</p>
           <p className="text-xs text-muted">{p.divisi_nama ?? "Tanpa divisi"} · diajukan {formatTanggal(p.tanggal_pengajuan)}</p>
         </div>
       </header>
       <div>
-        <p className="font-display text-xl font-semibold">{p.jenis_nama}</p>
-        <p className="text-sm">{formatRentang(p.tanggal_mulai, p.tanggal_selesai)} · {formatHari(p.total_hari)} hari kerja{p.setengah_hari ? " (setengah hari)" : ""}</p>
+        <p className="font-display text-xl font-semibold text-ink">{p.jenis_nama}</p>
+        <p className="mt-0.5 text-sm text-muted">{formatRentang(p.tanggal_mulai, p.tanggal_selesai)} · {formatHari(p.total_hari)} hari kerja{p.setengah_hari ? " (setengah hari)" : ""}</p>
       </div>
       <dl className="space-y-2 text-sm">
         <div><dt className="text-xs text-muted">Alasan</dt><dd>{p.alasan}</dd></div>
@@ -38,10 +39,12 @@ export default function KartuApproval({ p, action, children, pilih, fromHref }) 
         </p>
       )}
       {children}
-      <footer className="mt-auto flex flex-wrap items-center gap-2 pt-1">
+      <footer className="mt-auto flex flex-wrap items-center gap-2 pt-2 border-t border-line/50">
         <button onClick={() => setMode("approve")} className={btnPrimary}>Setujui</button>
-        <button onClick={() => setMode("reject")} className="rounded-lg border border-bad px-4 py-2 text-sm text-bad transition hover:bg-bad/10">Tolak</button>
-        <Link href={detailHref} className="ml-auto text-sm text-muted hover:underline">Detail</Link>
+        <button onClick={() => setMode("reject")} className={btnDanger}>Tolak</button>
+        <Link href={detailHref} className="ml-auto inline-flex items-center gap-1 text-xs font-medium text-accent transition hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
+          Detail <Panah arah="kanan" />
+        </Link>
       </footer>
 
       <Modal buka={mode !== null} onTutup={() => setMode(null)} judul={tolak ? "Tolak pengajuan?" : "Setujui pengajuan?"}>
@@ -50,8 +53,8 @@ export default function KartuApproval({ p, action, children, pilih, fromHref }) 
           <input type="hidden" name="id" value={p.id} />
           <input type="hidden" name="keputusan" value={mode ?? "approve"} />
           <label className="block text-sm">
-            {tolak ? "Catatan penolakan (wajib)" : "Catatan (opsional)"}
-            <AutoTextarea name="catatan" rows={2} required={tolak} className={`${inputCls} mt-1`} />
+            <span className={labelCls}>{tolak ? "Catatan penolakan (wajib)" : "Catatan (opsional)"}</span>
+            <AutoTextarea name="catatan" rows={2} required={tolak} className={inputCls} />
           </label>
         </FormAction>
         <button type="button" onClick={() => setMode(null)} className={`${btnGhost} mt-3 w-full`}>Kembali</button>

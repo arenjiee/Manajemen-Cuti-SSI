@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
-import { LogOut, Menu, PanelLeft, X } from "lucide-react";
+import { Bell, CalendarRange, ChevronRight, ClipboardCheck, LogOut, Menu, PanelLeft, ShieldCheck, Users, X } from "lucide-react";
 import TabBar from "./TabBar";
 import { IkonMenu } from "./nav-icons";
 import { bersihkanTabs, cocokkanMenu, sinkronkanHref, tambahTab, tutupKanan, tutupKiri, tutupLain, tutupSemua, tutupTab } from "@/lib/tabs";
@@ -17,6 +17,61 @@ function Brand({ ciut }) {
       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent font-display text-sm font-semibold text-accent-ink">S</span>
       {!ciut && <span className="truncate font-display text-lg font-semibold">SMCK</span>}
     </div>
+  );
+}
+
+function RingkasanTopbar({ ringkasan }) {
+  if (!ringkasan) return null;
+
+  const data = {
+    admin: [
+      { href: "/riwayat", ikon: ClipboardCheck, label: "Menunggu", nilai: ringkasan.pengajuanMenunggu },
+      { href: "/admin/users", ikon: Users, label: "Pengguna aktif", nilai: ringkasan.totalAktif },
+    ],
+    hrd: [
+      { href: "/persetujuan", ikon: ShieldCheck, label: "Persetujuan", nilai: ringkasan.menungguFinal },
+      { href: "/kapasitas", ikon: CalendarRange, label: "Cuti bulan ini", nilai: ringkasan.jumlahOrangCuti },
+    ],
+    ketua_divisi: [
+      { href: "/verifikasi", ikon: ClipboardCheck, label: "Perlu verifikasi", nilai: ringkasan.menungguVerifikasi },
+      { href: "/dashboard", ikon: CalendarRange, label: "Cuti minggu ini", nilai: ringkasan.anggotaCutiMingguIni },
+    ],
+  }[ringkasan.role];
+
+  if (!data) return null;
+
+  return (
+    <div className="hidden items-center gap-2 lg:flex">
+      {ringkasan.divisiNama && <span className="max-w-40 truncate text-xs text-muted">{ringkasan.divisiNama}</span>}
+      {data.map(({ href, ikon: Ikon, label, nilai }) => (
+        <Link key={label} href={href} className="group flex h-9 items-center gap-2 rounded-lg border border-line bg-bg/50 px-2.5 text-xs text-muted transition hover:border-ink/30 hover:bg-ink/5 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
+          <Ikon className="h-3.5 w-3.5" aria-hidden />
+          <span className="whitespace-nowrap">{label}</span>
+          <span className="min-w-5 rounded bg-ink/10 px-1.5 py-0.5 text-center font-mono text-[11px] font-semibold text-ink">{nilai}</span>
+          <ChevronRight className="h-3 w-3 opacity-0 transition group-hover:opacity-100" aria-hidden />
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+function TopBar({ menu, pathname, user, ringkasan, notifikasi, drawer, onBukaMenu }) {
+  const halaman = cocokkanMenu(menu, pathname)?.label ?? "SMCK";
+  return (
+    <header className="flex h-14 shrink-0 items-center gap-3 border-b border-line bg-chrome px-3 md:px-5">
+      <button type="button" aria-label="Buka menu" aria-expanded={drawer} onClick={onBukaMenu} className={`${tombolIkon} md:hidden`}>
+        <Menu className="h-5 w-5" />
+      </button>
+      <div className="min-w-0 flex-1">
+        <p className="hidden text-[11px] font-medium tracking-[0.16em] text-muted uppercase sm:block">{user.peran}</p>
+        <h1 className="truncate font-display text-base font-semibold">{halaman}</h1>
+      </div>
+      <RingkasanTopbar ringkasan={ringkasan} />
+      <Link href="/notifikasi" aria-label={notifikasi > 0 ? `${notifikasi} notifikasi belum dibaca` : "Notifikasi"} className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted transition hover:bg-ink/5 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
+        <Bell className="h-4 w-4" aria-hidden />
+        {notifikasi > 0 && <span className="absolute top-1 right-1 flex min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] leading-4 font-bold text-accent-ink">{notifikasi > 9 ? "9+" : notifikasi}</span>}
+      </Link>
+    </header>
   );
 }
 
@@ -95,7 +150,7 @@ function KartuUser({ user, ciut, onKeluar }) {
   );
 }
 
-export default function AppShell({ menu, user, children }) {
+export default function AppShell({ menu, user, children, ringkasan, notifikasi }) {
   const router = useRouter();
   const pathname = usePathname();
   const qs = useSearchParams().toString();
@@ -185,7 +240,7 @@ export default function AppShell({ menu, user, children }) {
     <MotionConfig reducedMotion="user">
       <div className="flex h-dvh w-full overflow-hidden bg-chrome">
         <motion.aside initial={false} animate={{ width: ciut ? 64 : 240 }} transition={PEGAS} className="hidden shrink-0 flex-col overflow-hidden bg-chrome md:flex">
-          <div className={`flex h-[52px] shrink-0 items-center border-b border-line px-4 ${ciut ? "justify-center" : "justify-between"}`}>
+          <div className={`flex h-14 shrink-0 items-center border-b border-line px-4 ${ciut ? "justify-center" : "justify-between"}`}>
             <Brand ciut={ciut} />
             {!ciut && (
               <button type="button" aria-label="Ciutkan sidebar" onClick={toggleCiut} className={tombolIkon}><PanelLeft className="h-4 w-4" /></button>
@@ -205,15 +260,19 @@ export default function AppShell({ menu, user, children }) {
         </motion.aside>
 
         <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
+          <TopBar
+            menu={menu}
+            pathname={pathname}
+            user={user}
+            ringkasan={ringkasan}
+            notifikasi={notifikasi}
+            drawer={drawer}
+            onBukaMenu={() => setDrawer(true)}
+          />
           <TabBar
             tabs={tabs}
             activeId={activeId}
             menu={menu}
-            awal={
-              <button type="button" aria-label="Buka menu" aria-expanded={drawer} onClick={() => setDrawer(true)} className={`${tombolIkon} mr-1 ml-2 self-center md:hidden`}>
-                <Menu className="h-5 w-5" />
-              </button>
-            }
             onActivate={aktifkan}
             onClose={(id) => terapkan(tutupTab(tabs, activeId, id))}
             onCloseOthers={(id) => terapkan(tutupLain(tabs, activeId, id))}
@@ -234,7 +293,7 @@ export default function AppShell({ menu, user, children }) {
           <div className="md:hidden">
             <button type="button" aria-label="Tutup menu" onClick={() => setDrawer(false)} className="fixed inset-0 z-40 bg-ink/40" />
             <aside role="dialog" aria-modal="true" aria-label="Menu" className="fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-chrome shadow-xl">
-              <div className="flex h-[52px] shrink-0 items-center justify-between border-b border-line px-4">
+              <div className="flex h-14 shrink-0 items-center justify-between border-b border-line px-4">
                 <Brand />
                 <button type="button" aria-label="Tutup menu" onClick={() => setDrawer(false)} className={tombolIkon}><X className="h-5 w-5" /></button>
               </div>

@@ -5,6 +5,8 @@ import { daftarDivisi } from "@/lib/queries/divisi";
 import { formatTanggal } from "@/lib/format";
 import DataTable from "@/components/DataTable";
 import FilterBar from "@/components/FilterBar";
+import PageHeader from "@/components/PageHeader";
+import TautanDetail from "@/components/TautanDetail";
 import { btnPrimary } from "@/components/ui";
 
 export const metadata = { title: "Divisi | SMCK" };
@@ -31,17 +33,15 @@ export default async function DivisiPage({ searchParams }) {
     { label: "Anggota", key: "jumlah_anggota" },
     { label: "Batas cuti", render: (d) => `${d.max_persen_cuti}% · ${d.batas_harian} orang/hari` },
     { label: "Dibentuk", render: (d) => formatTanggal(String(d.created_at.toISOString?.() ?? d.created_at).slice(0, 10)) },
-    { label: "Aksi", render: (d) => <Link href={`/admin/divisi/${d.id}`} className="text-sm text-accent hover:underline">Detail</Link> },
+    { label: "Aksi", render: (d) => <TautanDetail href={`/admin/divisi/${d.id}`} /> },
   ];
   return (
     <div className="space-y-6">
-      <header className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold">Divisi</h1>
-          <p className="text-sm text-muted">Struktur divisi, ketua, dan jumlah anggota.</p>
-        </div>
-        <Link href="/admin/divisi/baru" className={btnPrimary}>Tambah divisi</Link>
-      </header>
+      <PageHeader
+        title="Divisi"
+        description="Kelola struktur organisasi, ketua, anggota, dan batas cuti tim."
+        action={<Link href="/admin/divisi/baru" className={btnPrimary}>Tambah divisi baru</Link>}
+      />
       <FilterBar fields={fields} values={sp} resetHref="/admin/divisi" />
       <DataTable kolom={kolom} rows={rows} kosong="Belum ada divisi." />
     </div>

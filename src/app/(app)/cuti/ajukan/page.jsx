@@ -10,6 +10,7 @@ import { okupansiDivisi } from "@/lib/queries/kapasitas";
 import { hitungBatasHarian } from "@/lib/leave/kapasitas";
 import { bangunKalender } from "@/lib/leave/kalender";
 import TombolKembali from "@/components/TombolKembali";
+import PageHeader from "@/components/PageHeader";
 import FormPengajuan from "./FormPengajuan";
 
 export const metadata = { title: "Ajukan Cuti | SMCK" };
@@ -20,8 +21,11 @@ export default async function AjukanPage() {
     return (
       <div className="max-w-xl space-y-4">
         <TombolKembali href="/cuti" label="Kembali ke Cuti Saya" />
-        <h1 className="text-3xl font-semibold">Ajukan cuti</h1>
-        <p className="rounded-lg bg-warn/15 px-4 py-3 text-sm">Anda belum tergabung di divisi mana pun, sehingga belum dapat mengajukan cuti. Hubungi Admin.</p>
+        <PageHeader
+          title="Ajukan Cuti"
+          description="Pengajuan cuti memerlukan keanggotaan divisi."
+        />
+        <p className="rounded-2xl border border-warn/30 bg-warn/10 px-4 py-3 text-sm text-warn">Anda belum tergabung di divisi mana pun, sehingga belum dapat mengajukan cuti. Hubungi Admin.</p>
       </div>
     );
   }
@@ -55,10 +59,10 @@ export default async function AjukanPage() {
   return (
     <div className="space-y-6">
       <TombolKembali href="/cuti" label="Kembali ke Cuti Saya" />
-      <header>
-        <h1 className="text-3xl font-semibold">Ajukan cuti</h1>
-        <p className="text-sm text-muted">Pengajuan akan diteruskan ke {user.role === "ketua_divisi" ? "HRD" : "Ketua Divisi lalu HRD"}.</p>
-      </header>
+      <PageHeader
+        title="Ajukan Cuti"
+        description={`Pengajuan akan diteruskan ke ${user.role === "ketua_divisi" ? "HRD" : "Ketua Divisi lalu HRD"}.`}
+      />
       <FormPengajuan
         jenis={jenis.map((j) => ({ id: j.id, nama: j.nama, kode: j.kode, batas: j.batasPengajuanHari, lampiran: j.wajibLampiran, potong: j.potongKuota, kuotaHari: j.kuotaHari }))}
         rekan={rekan.rows}

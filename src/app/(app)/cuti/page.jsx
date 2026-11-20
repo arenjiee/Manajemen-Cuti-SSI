@@ -9,7 +9,9 @@ import { formatRentang, formatHari, formatTanggal } from "@/lib/format";
 import { labelStatus } from "@/components/StatusBadge";
 import DataTable from "@/components/DataTable";
 import FilterBar from "@/components/FilterBar";
-import StatCard from "@/components/StatCard";
+import PageHeader from "@/components/PageHeader";
+import GlowCard from "@/components/GlowCard";
+import TautanDetail from "@/components/TautanDetail";
 import StatusBadge from "@/components/StatusBadge";
 import { btnPrimary } from "@/components/ui";
 
@@ -32,19 +34,26 @@ export default async function CutiSayaPage({ searchParams }) {
     { label: "Hari", render: (r) => formatHari(r.total_hari) },
     { label: "Status", render: (r) => <StatusBadge status={r.status} tahap={r.tahap} /> },
     { label: "Diajukan", render: (r) => formatTanggal(r.tanggal_pengajuan) },
-    { label: "Aksi", render: (r) => <Link href={`/cuti/${r.id}`} className="text-sm text-accent hover:underline">Detail</Link> },
+    { label: "Aksi", render: (r) => <TautanDetail href={`/cuti/${r.id}`} /> },
   ];
   return (
     <div className="space-y-6">
-      <header className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold">Cuti Saya</h1>
-          <p className="text-sm text-muted">Daftar pengajuan cuti Anda beserta statusnya.</p>
-        </div>
-        <Link href="/cuti/ajukan" className={btnPrimary}>Ajukan cuti</Link>
-      </header>
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label={`Sisa kuota tahunan ${tahun}`} nilai={formatHari(sisa)} catatan={`dari ${formatHari(user.kuota_awal)} hari`} tone={sisa <= 2 ? "warn" : undefined} />
+      <PageHeader
+        title="Cuti Saya"
+        description="Daftar riwayat dan status pengajuan cuti Anda."
+        action={
+          <Link href="/cuti/ajukan" className={btnPrimary}>
+            Ajukan cuti baru
+          </Link>
+        }
+      />
+      <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <GlowCard
+          label={`Sisa kuota tahunan ${tahun}`}
+          value={formatHari(sisa)}
+          description={`dari ${formatHari(user.kuota_awal)} hari total`}
+          tone={sisa <= 2 ? "warn" : undefined}
+        />
       </div>
       <FilterBar fields={fields} values={sp} resetHref="/cuti" />
       <DataTable

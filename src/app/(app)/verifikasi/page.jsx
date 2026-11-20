@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/guard";
 import pool from "@/lib/db";
 import { antreanLeader } from "@/lib/queries/approval";
 import KartuApproval from "@/components/KartuApproval";
+import PageHeader from "@/components/PageHeader";
 
 export const metadata = { title: "Verifikasi Cuti | SMCK" };
 
@@ -11,17 +12,17 @@ export default async function VerifikasiPage() {
   const antre = await antreanLeader(pool, user);
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-3xl font-semibold">Verifikasi pengajuan</h1>
-        <p className="text-sm text-muted">Pengajuan cuti dari anggota divisi Anda yang menunggu persetujuan pertama.</p>
-      </header>
+      <PageHeader
+        title="Verifikasi Pengajuan"
+        description="Pengajuan cuti dari anggota divisi Anda yang menunggu verifikasi pertama."
+      />
       {antre.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-line p-10 text-center space-y-3">
-          <p className="text-sm text-muted">Tidak ada pengajuan yang menunggu verifikasi.</p>
-          <div className="flex justify-center gap-3">
-            <Link href="/dashboard" className="text-sm text-accent hover:underline">Ke Dashboard</Link>
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-line bg-surface/40 p-12 text-center">
+          <p className="text-sm text-muted">Tidak ada pengajuan yang menunggu verifikasi saat ini.</p>
+          <div className="mt-3 flex items-center justify-center gap-3 text-xs">
+            <Link href="/dashboard" className="text-accent hover:underline">Ke Dashboard</Link>
             <span className="text-muted">·</span>
-            <Link href="/riwayat" className="text-sm text-accent hover:underline">Lihat Riwayat</Link>
+            <Link href="/riwayat" className="text-accent hover:underline">Lihat Riwayat</Link>
           </div>
         </div>
       ) : (

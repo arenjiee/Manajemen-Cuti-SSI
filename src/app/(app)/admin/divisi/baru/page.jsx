@@ -4,7 +4,8 @@ import { calonKetua } from "@/lib/queries/divisi";
 import FormAction from "@/components/FormAction";
 import TombolKembali from "@/components/TombolKembali";
 import AutoTextarea from "@/components/AutoTextarea";
-import { inputCls } from "@/components/ui";
+import PageHeader from "@/components/PageHeader";
+import { inputCls, labelCls, selectCls } from "@/components/ui";
 
 export default async function BaruDivisiPage() {
   await requireRole(["admin"]);
@@ -12,12 +13,15 @@ export default async function BaruDivisiPage() {
   return (
     <div className="max-w-xl space-y-6">
       <TombolKembali href="/admin/divisi" label="Kembali ke Divisi" />
-      <h1 className="text-3xl font-semibold">Tambah divisi</h1>
-      <FormAction action="/api/admin/divisi" redirectTo="/admin/divisi" batalHref="/admin/divisi" label="Buat divisi">
-        <label className="block text-sm">Nama divisi<input name="nama" required className={`${inputCls} mt-1`} /></label>
-        <label className="block text-sm">Deskripsi (opsional)<AutoTextarea name="deskripsi" rows={2} className={`${inputCls} mt-1`} /></label>
-        <label className="block text-sm">Ketua divisi
-          <select name="ketuaId" required className={`${inputCls} mt-1`} defaultValue="">
+      <PageHeader
+        title="Tambah Divisi"
+        description="Buat unit organisasi dan tetapkan ketua divisi."
+      />
+      <FormAction action="/api/admin/divisi" redirectTo="/admin/divisi" batalHref="/admin/divisi" label="Buat divisi" className="space-y-4 rounded-2xl border border-line bg-surface p-6">
+        <label className="block"><span className={labelCls}>Nama divisi</span><input name="nama" required className={inputCls} /></label>
+        <label className="block"><span className={labelCls}>Deskripsi (opsional)</span><AutoTextarea name="deskripsi" rows={2} className={inputCls} /></label>
+        <label className="block"><span className={labelCls}>Ketua divisi</span>
+          <select name="ketuaId" required className={selectCls} defaultValue="">
             <option value="" disabled>Pilih ketua</option>
             {calon.map((k) => <option key={k.id} value={k.id}>{k.nama_lengkap}</option>)}
           </select>

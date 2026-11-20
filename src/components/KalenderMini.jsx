@@ -3,12 +3,18 @@
 import { formatTanggal } from "@/lib/format";
 
 const WARNA = {
-  ok: "bg-ok/10 text-ink",
-  hampir: "bg-warn/20 text-ink",
-  penuh: "bg-bad/20 text-bad",
-  libur: "bg-bad/15 text-bad font-semibold",
-  cuti_bersama: "bg-warn/25 text-ink font-semibold",
-  akhir_pekan: "bg-ink/5 text-muted",
+  // Tersedia: emerald jelas dan kontras
+  ok: "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30",
+  // Hampir penuh: amber tebal dengan ring kuning
+  hampir: "bg-amber-500/25 text-amber-300 ring-1 ring-amber-500/40 font-medium",
+  // Penuh: rose mencolok dengan ring merah
+  penuh: "bg-rose-500/30 text-rose-300 ring-1 ring-rose-500/50 font-bold",
+  // Libur Nasional: biru sky
+  libur: "bg-sky-500/25 text-sky-300 ring-1 ring-sky-500/40 font-semibold",
+  // Cuti Bersama: ungu purple
+  cuti_bersama: "bg-purple-500/25 text-purple-300 ring-1 ring-purple-500/40 font-semibold",
+  // Akhir pekan: netral abu-abu
+  akhir_pekan: "bg-white/[0.04] text-muted ring-1 ring-white/5",
 };
 
 const KET = {
@@ -21,11 +27,12 @@ const KET = {
 };
 
 const LEGENDA = [
-  ["ok", "Tersedia"],
-  ["hampir", "Hampir penuh"],
-  ["penuh", "Penuh"],
-  ["libur", "Libur Nasional"],
-  ["cuti_bersama", "Cuti Bersama"],
+  ["ok", "Tersedia", "bg-emerald-500/30 ring-1 ring-emerald-500/50"],
+  ["hampir", "Hampir penuh", "bg-amber-500/30 ring-1 ring-amber-500/50"],
+  ["penuh", "Penuh", "bg-rose-500/35 ring-1 ring-rose-500/60"],
+  ["libur", "Libur Nasional", "bg-sky-500/30 ring-1 ring-sky-500/50"],
+  ["cuti_bersama", "Cuti Bersama", "bg-purple-500/30 ring-1 ring-purple-500/50"],
+  ["akhir_pekan", "Akhir pekan", "bg-white/10 ring-1 ring-white/15"],
 ];
 
 export default function KalenderMini({ kalender, mulai, selesai, onPilihTanggal }) {
@@ -74,11 +81,11 @@ export default function KalenderMini({ kalender, mulai, selesai, onPilihTanggal 
           </div>
         );
       })}
-      <ul className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted">
-        {LEGENDA.map(([s, l]) => (
-          <li key={s} className="flex items-center gap-1">
-            <span className={`inline-block h-2.5 w-2.5 rounded-sm ${WARNA[s].split(" ")[0]}`} />
-            {l}
+      <ul className="flex flex-wrap gap-x-3 gap-y-1.5 text-[11px] text-muted pt-1">
+        {LEGENDA.map(([s, l, kotakCls]) => (
+          <li key={s} className="flex items-center gap-1.5">
+            <span className={`inline-block h-2.5 w-2.5 rounded-sm ${kotakCls}`} />
+            <span>{l}</span>
           </li>
         ))}
       </ul>

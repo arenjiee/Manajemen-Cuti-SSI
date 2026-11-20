@@ -4,6 +4,7 @@ import pool from "@/lib/db";
 import FormAction from "@/components/FormAction";
 import FormLibur from "@/components/FormLibur";
 import TombolKembali from "@/components/TombolKembali";
+import PageHeader from "@/components/PageHeader";
 
 export default async function EditLiburPage({ params }) {
   await requireRole(["admin"]);
@@ -14,8 +15,11 @@ export default async function EditLiburPage({ params }) {
   return (
     <div className="max-w-xl space-y-6">
       <TombolKembali href="/admin/hari-libur" label="Kembali ke Hari Libur" />
-      <h1 className="text-3xl font-semibold">Edit hari libur</h1>
-      <FormAction action={`/api/admin/hari-libur/${h.id}`} redirectTo="/admin/hari-libur" batalHref="/admin/hari-libur" label="Simpan perubahan">
+      <PageHeader
+        title="Edit Hari Libur"
+        description="Tanggal ini dikecualikan dari perhitungan hari cuti."
+      />
+      <FormAction action={`/api/admin/hari-libur/${h.id}`} redirectTo="/admin/hari-libur" batalHref="/admin/hari-libur" label="Simpan perubahan" className="space-y-4 rounded-2xl border border-line bg-surface p-6">
         <FormLibur h={h} />
       </FormAction>
     </div>

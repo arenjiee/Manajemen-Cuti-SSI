@@ -1,4 +1,5 @@
 import { HARI_INI_SQL } from "./tx.js";
+import { KUOTA_TAHUNAN_DEFAULT, KUOTA_TAHUNAN_MIN, KUOTA_TAHUNAN_MAX } from "../leave/kuota.js";
 export const USER_KOLOM =
   "id, username, email, nama_lengkap, telepon, alamat, foto_key, role, divisi_id, tanggal_bergabung, kuota_awal";
 
@@ -29,7 +30,10 @@ export async function ambilUserAktif(db, id) {
 // ---------- Admin: CRUD pengguna ----------
 
 export const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const USERNAME = /^[A-Za-z0-9._-]{3,50}$/;
 export const ROLES = ["admin", "karyawan", "ketua_divisi", "hrd"];
+// Admin sengaja tidak ada: sistem hanya boleh punya satu akun Admin (hasil seed).
+export const ROLES_DAPAT_DIBERIKAN = ["karyawan", "ketua_divisi", "hrd"];
 const gagal = (pesan) => ({ ok: false, pesan });
 
 export function pesanUnik(e) {
@@ -39,18 +43,33 @@ export function pesanUnik(e) {
   throw e;
 }
 
-function cekUser(d) {
-  if (!d.username?.trim() || !d.email?.trim() || !d.nama_lengkap?.trim()) return "Username, email, dan nama lengkap wajib diisi.";
+export function cekUsername(v) {
+  const s = String(v ?? "").trim();
+  if (!s) return "Username wajib diisi.";
+  if (!USERNAME.test(s)) return "Username 3–50 karakter dan hanya boleh berisi huruf, angka, titik, garis bawah, atau tanda hubung.";
+  return null;
+}
+
+function cekUser(d, { periksaUsername = true } = {}) {
+  if (periksaUsername) {
+    const errUsername = cekUsername(d.username);
+    if (errUsername) return errUsername;
+  }
+  if (!d.nama_lengkap?.trim()) return "Nama lengkap wajib diisi.";
+  if (!d.email?.trim()) return "Email wajib diisi.";
   if (!EMAIL.test(d.email.trim())) return "Format email tidak valid.";
   if (!ROLES.includes(d.role)) return "Role tidak valid.";
   return null;
 }
 
 export async function buatUser(db, d) {
+  if (d.role === "admin") return gagal("Role Admin tidak dapat dibuat. Sistem hanya memiliki satu akun Admin.");
   const err = cekUser(d) ?? (!d.password_hash ? "Password wajib diisi." : null) ?? (!d.tanggal_bergabung ? "Tanggal bergabung wajib diisi." : null);
   if (err) return gagal(err);
-  const kuota = d.kuota_awal ?? 12;
-  if (!(Number(kuota) >= 0)) return gagal("Kuota awal tidak valid.");
+  const kuota = d.kuota_awal ?? KUOTA_TAHUNAN_DEFAULT;
+  if (!(Number(kuota) >= KUOTA_TAHUNAN_MIN && Number(kuota) <= KUOTA_TAHUNAN_MAX)) {
+    return gagal(`Kuota cuti tahunan minimal ${KUOTA_TAHUNAN_MIN} hari dan maksimal ${KUOTA_TAHUNAN_MAX} hari.`);
+  }
   try {
     const r = await db.query(
       `INSERT INTO users (username,email,password_hash,nama_lengkap,telepon,alamat,role,tanggal_bergabung,kuota_awal)
@@ -64,16 +83,22 @@ export async function buatUser(db, d) {
 }
 
 export async function ubahUser(db, id, d) {
-  const err = cekUser(d);
-  if (err) return gagal(err);
-  const lama = (await db.query("SELECT role FROM users WHERE id=$1 AND deleted_at IS NULL", [id])).rows[0];
+  const lama = (await db.query("SELECT role, username FROM users WHERE id=$1 AND deleted_at IS NULL", [id])).rows[0];
   if (!lama) return gagal("Pengguna tidak ditemukan.");
+  if (d.role === "admin" && lama.role !== "admin") return gagal("Role Admin tidak dapat diberikan. Sistem hanya memiliki satu akun Admin.");
+  if (lama.role === "admin" && d.role !== "admin") return gagal("Akun Admin utama tidak dapat diubah role-nya.");
+  if (lama.role === "admin" && !d.aktif) return gagal("Akun Admin utama harus tetap aktif.");
+  const usernameBerubah = String(d.username ?? "").trim() !== lama.username;
+  const err = cekUser(d, { periksaUsername: usernameBerubah });
+  if (err) return gagal(err);
   if (d.role !== "ketua_divisi" || !d.aktif) {
     const memimpin = await db.query("SELECT nama FROM divisi WHERE ketua_id=$1 AND deleted_at IS NULL", [id]);
     if (memimpin.rows[0]) return gagal(`Pengguna masih memimpin divisi ${memimpin.rows[0].nama}. Ganti ketua divisi terlebih dahulu.`);
   }
   const kuota = d.kuota_awal === undefined || d.kuota_awal === null || d.kuota_awal === "" ? null : Number(d.kuota_awal);
-  if (kuota !== null && !(Number.isFinite(kuota) && kuota >= 0 && kuota <= 365)) return gagal("Kuota cuti harus antara 0 dan 365 hari.");
+  if (kuota !== null && !(Number.isFinite(kuota) && kuota >= KUOTA_TAHUNAN_MIN && kuota <= KUOTA_TAHUNAN_MAX)) {
+    return gagal(`Kuota cuti tahunan minimal ${KUOTA_TAHUNAN_MIN} hari dan maksimal ${KUOTA_TAHUNAN_MAX} hari.`);
+  }
   try {
     await db.query(
       "UPDATE users SET username=$2,email=$3,nama_lengkap=$4,role=$5,aktif=$6,kuota_awal=COALESCE($7,kuota_awal) WHERE id=$1",
@@ -88,7 +113,12 @@ export async function ubahUser(db, id, d) {
 export async function hapusUser(db, id) {
   const u = (await db.query("SELECT role FROM users WHERE id=$1 AND deleted_at IS NULL", [id])).rows[0];
   if (!u) return gagal("Pengguna tidak ditemukan.");
-  if (!["karyawan", "ketua_divisi"].includes(u.role)) return gagal("Hanya Karyawan dan Ketua Divisi yang dapat dihapus.");
+  if (u.role === "admin") return gagal("Akun Admin tidak dapat dihapus.");
+  if (!ROLES_DAPAT_DIBERIKAN.includes(u.role)) return gagal("Role pengguna tersebut tidak dapat dihapus.");
+  if (u.role === "hrd") {
+    const lain = (await db.query("SELECT count(*)::int n FROM users WHERE role='hrd' AND aktif AND deleted_at IS NULL AND id<>$1", [id])).rows[0].n;
+    if (lain === 0) return gagal("HRD terakhir tidak dapat dihapus. Tambahkan HRD pengganti terlebih dahulu.");
+  }
   const memimpin = (await db.query("SELECT nama FROM divisi WHERE ketua_id=$1 AND deleted_at IS NULL", [id])).rows[0];
   if (memimpin) return gagal(`Pengguna masih memimpin divisi ${memimpin.nama}. Ganti ketua divisi terlebih dahulu.`);
   const berjalan = (await db.query(

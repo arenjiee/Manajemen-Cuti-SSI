@@ -9,7 +9,9 @@ import { bolehUnduhSurat } from "@/lib/surat-akses";
 import { formatRentang, formatHari, formatTanggal, formatWaktu } from "@/lib/format";
 import StatusBadge from "@/components/StatusBadge";
 import Timeline from "@/components/Timeline";
+import Section from "@/components/Section";
 import TombolKembali from "@/components/TombolKembali";
+import PageHeader from "@/components/PageHeader";
 import BatalkanCuti from "./BatalkanCuti";
 import { btnPrimary } from "@/components/ui";
 
@@ -53,29 +55,33 @@ export default async function DetailCutiPage({ params, searchParams }) {
   }
 
   return (
-    <div className="max-w-3xl space-y-8">
+    <div className="max-w-4xl space-y-8">
       <TombolKembali href={hrefKembali} label={labelKembali} />
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold">{p.jenis_nama}</h1>
-          <p className="mt-1 text-sm text-muted">{p.pengaju_nama}{p.divisi_nama ? ` · ${p.divisi_nama}` : ""}</p>
-        </div>
-        <div className="flex flex-col items-end gap-3">
-          <StatusBadge status={p.status} tahap={p.tahap} />
-          {bolehUnduhSurat(user, p) && <a href={`/api/surat/${p.id}`} className={btnPrimary}>Unduh surat cuti (PDF)</a>}
-        </div>
-      </header>
+      <PageHeader
+        eyebrow="Detail Pengajuan Cuti"
+        title={p.jenis_nama}
+        description={`${p.pengaju_nama}${p.divisi_nama ? ` · ${p.divisi_nama}` : ""}`}
+        action={
+          <div className="flex flex-col items-end gap-3">
+            <StatusBadge status={p.status} tahap={p.tahap} />
+            {bolehUnduhSurat(user, p) && (
+              <a href={`/api/surat/${p.id}`} className={btnPrimary}>
+                Unduh surat cuti (PDF)
+              </a>
+            )}
+          </div>
+        }
+      />
 
       {tolak?.catatan && p.status === "Rejected" && (
-        <div role="note" className="rounded-xl border border-bad/30 bg-bad/5 p-4 text-sm">
-          <p className="font-medium text-bad">Catatan penolakan ({peran(tolak.tahap)})</p>
-          <p className="mt-1">{tolak.catatan}</p>
+        <div role="note" className="rounded-2xl border border-bad/30 bg-bad/10 p-5 text-sm">
+          <p className="font-semibold text-bad">Catatan penolakan ({peran(tolak.tahap)})</p>
+          <p className="mt-1 text-bad/90">{tolak.catatan}</p>
         </div>
       )}
 
-      <section>
-        <h2 className="mb-2 text-xl font-semibold">Rincian</h2>
-        <dl className="rounded-xl border border-line bg-surface px-5 py-2">
+      <Section title="Rincian">
+        <dl className="rounded-2xl border border-line bg-surface px-5 py-2">
           <Baris t="Periode">{formatRentang(p.tanggal_mulai, p.tanggal_selesai)}</Baris>
           <Baris t="Total hari kerja">{formatHari(p.total_hari)}{p.setengah_hari ? " (setengah hari)" : ""}</Baris>
           <Baris t="Tanggal pengajuan">{formatTanggal(p.tanggal_pengajuan)}</Baris>
@@ -83,34 +89,34 @@ export default async function DetailCutiPage({ params, searchParams }) {
           <Baris t="Alamat selama cuti">{p.alamat_cuti}</Baris>
           <Baris t="Nomor darurat">{p.nomor_darurat}</Baris>
         </dl>
-      </section>
+      </Section>
 
-      <section>
-        <h2 className="mb-2 text-xl font-semibold">Serah terima (handover)</h2>
-        <dl className="rounded-xl border border-line bg-surface px-5 py-2">
+      <Section title="Serah terima (handover)">
+        <dl className="rounded-2xl border border-line bg-surface px-5 py-2">
           <Baris t="Rekan pengganti">{p.handover_nama}</Baris>
           <Baris t="Catatan tugas">{p.catatan_tugas}</Baris>
         </dl>
-      </section>
+      </Section>
 
       {p.lampiran.length > 0 && (
-        <section>
-          <h2 className="mb-2 text-xl font-semibold">Lampiran</h2>
+        <Section title="Lampiran">
           <div className="space-y-3">
             {p.lampiran.map((l) => (
-              <div key={l.id} className="rounded-xl border border-line bg-surface p-4 text-sm">
+              <div key={l.id} className="rounded-2xl border border-line bg-surface p-4 text-sm">
                 <a href={`/api/lampiran/${l.id}`} target="_blank" rel="noreferrer" className="text-accent hover:underline">{l.nama_asli}</a>
-                {l.mime.startsWith("image/") && <img src={`/api/lampiran/${l.id}`} alt={`Lampiran ${l.nama_asli}`} className="mt-3 max-h-72 rounded-lg border border-line" />}
+                {l.mime.startsWith("image/") && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={`/api/lampiran/${l.id}`} alt={`Lampiran ${l.nama_asli}`} className="mt-3 max-h-72 rounded-lg border border-line" />
+                )}
               </div>
             ))}
           </div>
-        </section>
+        </Section>
       )}
 
-      <section>
-        <h2 className="mb-3 text-xl font-semibold">Timeline persetujuan</h2>
+      <Section title="Timeline persetujuan">
         <Timeline items={items} />
-      </section>
+      </Section>
 
       {milikSendiri && p.status === "Pending" && <BatalkanCuti id={p.id} />}
     </div>

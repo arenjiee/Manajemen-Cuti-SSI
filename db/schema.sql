@@ -17,6 +17,7 @@ CREATE TABLE users (
 );
 CREATE UNIQUE INDEX users_email_aktif ON users (lower(email)) WHERE deleted_at IS NULL;
 CREATE UNIQUE INDEX users_username_aktif ON users (lower(username)) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX users_satu_admin_aktif ON users (role) WHERE role = 'admin' AND deleted_at IS NULL;
 
 CREATE TABLE divisi (
   id SERIAL PRIMARY KEY,

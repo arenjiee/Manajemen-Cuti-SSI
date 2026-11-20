@@ -1,10 +1,29 @@
-export default function StatCard({ label, nilai, catatan, tone }) {
-  const warna = tone === "warn" ? "text-warn" : tone === "bad" ? "text-bad" : tone === "ok" ? "text-ok" : "text-ink";
+import GlowCard from "./GlowCard";
+
+/**
+ * Adapter backward-compatible untuk GlowCard.
+ * Gunakan GlowCard langsung pada kode baru.
+ */
+export default function StatCard({
+  label,
+  nilai,
+  catatan,
+  tone,
+  icon,
+  badge,
+  href,
+  className = "",
+}) {
   return (
-    <div className="rounded-xl border border-line bg-surface p-5">
-      <p className="font-mono text-[11px] tracking-wider text-muted uppercase">{label}</p>
-      <p className={`mt-2 font-display text-4xl font-semibold tabular-nums ${warna}`}>{nilai}</p>
-      {catatan && <p className="mt-1 text-xs text-muted">{catatan}</p>}
-    </div>
+    <GlowCard
+      label={label}
+      value={nilai}
+      description={catatan}
+      tone={tone}
+      icon={icon}
+      badge={badge}
+      href={href}
+      className={className}
+    />
   );
 }
