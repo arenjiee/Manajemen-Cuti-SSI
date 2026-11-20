@@ -3,8 +3,9 @@ import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/guard";
 import pool from "@/lib/db";
 import { ambilUser } from "@/lib/queries/users";
+import { kuotaTahunan } from "@/lib/queries/jenis-cuti";
 import { ROLE_DAPAT_DIPILIH } from "@/lib/nav";
-import { KUOTA_TAHUNAN_MIN, KUOTA_TAHUNAN_MAX } from "@/lib/leave/kuota";
+import { formatHari } from "@/lib/format";
 import FormAction from "@/components/FormAction";
 import TombolKembali from "@/components/TombolKembali";
 import Panah from "@/components/Panah";
@@ -19,6 +20,7 @@ export default async function EditUserPage({ params }) {
   if (!/^\d+$/.test(id)) notFound();
   const u = await ambilUser(pool, Number(id));
   if (!u) notFound();
+  const kuotaGlobal = await kuotaTahunan(pool);
   return (
     <div className="max-w-xl space-y-6">
       <TombolKembali href="/admin/users" label="Kembali ke Pengguna" />
@@ -49,9 +51,13 @@ export default async function EditUserPage({ params }) {
             </select>
           </L>
         )}
-        <L t={`Kuota cuti tahunan (hari, min. ${KUOTA_TAHUNAN_MIN})`}>
-          <input name="kuota_awal" type="number" step="0.5" min={KUOTA_TAHUNAN_MIN} max={KUOTA_TAHUNAN_MAX} defaultValue={u.kuota_awal} className={inputCls} />
-        </L>
+        <div className="block">
+          <span className={labelCls}>Kuota cuti tahunan</span>
+          <p className="mt-1 text-sm font-medium text-ink">
+            {formatHari(kuotaGlobal)} hari{" "}
+            <span className="text-xs text-muted">(mengikuti jenis Cuti Tahunan)</span>
+          </p>
+        </div>
         {u.role === "admin" ? (
           <label className="flex items-center gap-2 text-sm text-muted">
             <input type="checkbox" defaultChecked disabled /> Akun aktif (akun Admin selalu aktif)

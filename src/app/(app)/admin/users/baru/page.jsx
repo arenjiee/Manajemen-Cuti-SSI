@@ -1,6 +1,8 @@
 import { requireRole } from "@/lib/guard";
+import pool from "@/lib/db";
 import { ROLE_DAPAT_DIPILIH } from "@/lib/nav";
-import { KUOTA_TAHUNAN_DEFAULT, KUOTA_TAHUNAN_MIN, KUOTA_TAHUNAN_MAX } from "@/lib/leave/kuota";
+import { kuotaTahunan } from "@/lib/queries/jenis-cuti";
+import { formatHari } from "@/lib/format";
 import FormAction from "@/components/FormAction";
 import TombolKembali from "@/components/TombolKembali";
 import PageHeader from "@/components/PageHeader";
@@ -12,6 +14,7 @@ const L = ({ t, children }) => <label className="block"><span className={labelCl
 
 export default async function BaruUserPage() {
   await requireRole(["admin"]);
+  const kuotaGlobal = await kuotaTahunan(pool);
   return (
     <div className="max-w-xl space-y-6">
       <TombolKembali href="/admin/users" label="Kembali ke Pengguna" />
@@ -35,9 +38,13 @@ export default async function BaruUserPage() {
           <L t="Tanggal bergabung"><input name="tanggal_bergabung" type="date" required className={inputCls} /></L>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          <L t={`Kuota cuti tahunan (hari, min. ${KUOTA_TAHUNAN_MIN})`}>
-            <input name="kuota_awal" type="number" step="0.5" min={KUOTA_TAHUNAN_MIN} max={KUOTA_TAHUNAN_MAX} defaultValue={KUOTA_TAHUNAN_DEFAULT} className={inputCls} />
-          </L>
+          <div className="block">
+            <span className={labelCls}>Kuota cuti awal</span>
+            <p className="mt-1 text-sm font-medium text-ink">
+              {formatHari(kuotaGlobal)} hari{" "}
+              <span className="text-xs text-muted">(mengikuti jenis Cuti Tahunan)</span>
+            </p>
+          </div>
           <L t="Telepon"><input name="telepon" className={inputCls} /></L>
         </div>
       </FormAction>

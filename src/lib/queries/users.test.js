@@ -40,8 +40,16 @@ test("buatUser: tolak role admin", async () => {
   assert.match(r.pesan, /Role Admin tidak dapat dibuat/);
 });
 
-test("buatUser: tolak kuota di bawah 12 hari", async () => {
-  const db = buatMockDb([]);
+test("buatUser: kuota mengikuti jenis Cuti Tahunan, input per akun diabaikan", async () => {
+  const dipanggil = [];
+  const db = {
+    query: async (sql, params) => {
+      dipanggil.push({ sql, params });
+      if (sql.includes("FROM jenis_cuti")) return { rows: [{ kuota_hari: "15.0" }] };
+      if (sql.includes("INSERT INTO users")) return { rows: [{ id: 9 }] };
+      throw new Error(`Query tak terduga: ${sql}`);
+    },
+  };
   const r = await buatUser(db, {
     username: "karyawan.baru",
     email: "baru@ssi.co.id",
@@ -49,10 +57,11 @@ test("buatUser: tolak kuota di bawah 12 hari", async () => {
     nama_lengkap: "Karyawan Baru",
     role: "karyawan",
     tanggal_bergabung: "2026-01-01",
-    kuota_awal: 11.5,
+    kuota_awal: 99,
   });
-  assert.equal(r.ok, false);
-  assert.match(r.pesan, /minimal 12 hari/);
+  assert.equal(r.ok, true);
+  const ins = dipanggil.find((x) => x.sql.includes("INSERT INTO users"));
+  assert.equal(Number(ins.params[8]), 15);
 });
 
 test("ubahUser: tolak promosi ke admin dan demosi admin utama", async () => {

@@ -1,5 +1,5 @@
 import { HARI_INI_SQL } from "./tx.js";
-import { KUOTA_TAHUNAN_DEFAULT, KUOTA_TAHUNAN_MIN, KUOTA_TAHUNAN_MAX } from "../leave/kuota.js";
+import { kuotaTahunan } from "./jenis-cuti.js";
 export const USER_KOLOM =
   "id, username, email, nama_lengkap, telepon, alamat, foto_key, role, divisi_id, tanggal_bergabung, kuota_awal";
 
@@ -66,10 +66,8 @@ export async function buatUser(db, d) {
   if (d.role === "admin") return gagal("Role Admin tidak dapat dibuat. Sistem hanya memiliki satu akun Admin.");
   const err = cekUser(d) ?? (!d.password_hash ? "Password wajib diisi." : null) ?? (!d.tanggal_bergabung ? "Tanggal bergabung wajib diisi." : null);
   if (err) return gagal(err);
-  const kuota = d.kuota_awal ?? KUOTA_TAHUNAN_DEFAULT;
-  if (!(Number(kuota) >= KUOTA_TAHUNAN_MIN && Number(kuota) <= KUOTA_TAHUNAN_MAX)) {
-    return gagal(`Kuota cuti tahunan minimal ${KUOTA_TAHUNAN_MIN} hari dan maksimal ${KUOTA_TAHUNAN_MAX} hari.`);
-  }
+  // Kuota cuti tahunan mengikuti angka global di jenis cuti (bukan input per akun).
+  const kuota = await kuotaTahunan(db);
   try {
     const r = await db.query(
       `INSERT INTO users (username,email,password_hash,nama_lengkap,telepon,alamat,role,tanggal_bergabung,kuota_awal)
@@ -95,14 +93,10 @@ export async function ubahUser(db, id, d) {
     const memimpin = await db.query("SELECT nama FROM divisi WHERE ketua_id=$1 AND deleted_at IS NULL", [id]);
     if (memimpin.rows[0]) return gagal(`Pengguna masih memimpin divisi ${memimpin.rows[0].nama}. Ganti ketua divisi terlebih dahulu.`);
   }
-  const kuota = d.kuota_awal === undefined || d.kuota_awal === null || d.kuota_awal === "" ? null : Number(d.kuota_awal);
-  if (kuota !== null && !(Number.isFinite(kuota) && kuota >= KUOTA_TAHUNAN_MIN && kuota <= KUOTA_TAHUNAN_MAX)) {
-    return gagal(`Kuota cuti tahunan minimal ${KUOTA_TAHUNAN_MIN} hari dan maksimal ${KUOTA_TAHUNAN_MAX} hari.`);
-  }
   try {
     await db.query(
-      "UPDATE users SET username=$2,email=$3,nama_lengkap=$4,role=$5,aktif=$6,kuota_awal=COALESCE($7,kuota_awal) WHERE id=$1",
-      [id, d.username.trim(), d.email.trim(), d.nama_lengkap.trim(), d.role, Boolean(d.aktif), kuota]
+      "UPDATE users SET username=$2,email=$3,nama_lengkap=$4,role=$5,aktif=$6 WHERE id=$1",
+      [id, d.username.trim(), d.email.trim(), d.nama_lengkap.trim(), d.role, Boolean(d.aktif)]
     );
     return { ok: true };
   } catch (e) {

@@ -24,11 +24,9 @@ export default async function JenisCutiPage({ searchParams }) {
     {
       label: "Kuota/tahun",
       render: (j) =>
-        j.kode === "tahunan"
-          ? "Sesuai profil (min. 12 hari)"
-          : j.kuotaHari == null
-            ? "Tak terbatas"
-            : `${formatHari(j.kuotaHari)} hari`,
+        j.kuotaHari == null
+          ? "Tak terbatas"
+          : `${formatHari(j.kuotaHari)} hari`,
     },
     {
       label: "Batas pengajuan",

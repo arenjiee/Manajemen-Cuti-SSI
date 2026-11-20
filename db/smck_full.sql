@@ -437,7 +437,7 @@ INSERT INTO public.hari_libur (id, tanggal, keterangan, jenis) VALUES (6, '2026-
 -- Data for Name: jenis_cuti; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-INSERT INTO public.jenis_cuti (id, nama, kode, is_system, kuota_hari, batas_pengajuan_hari, wajib_lampiran, potong_kuota, aktif) VALUES (1, 'Cuti Tahunan', 'tahunan', true, NULL, 3, false, true, true);
+INSERT INTO public.jenis_cuti (id, nama, kode, is_system, kuota_hari, batas_pengajuan_hari, wajib_lampiran, potong_kuota, aktif) VALUES (1, 'Cuti Tahunan', 'tahunan', true, 12.0, 3, false, true, true);
 INSERT INTO public.jenis_cuti (id, nama, kode, is_system, kuota_hari, batas_pengajuan_hari, wajib_lampiran, potong_kuota, aktif) VALUES (2, 'Cuti Sakit', 'sakit', true, NULL, -3, true, false, true);
 INSERT INTO public.jenis_cuti (id, nama, kode, is_system, kuota_hari, batas_pengajuan_hari, wajib_lampiran, potong_kuota, aktif) VALUES (3, 'Cuti Menikah', NULL, false, 3.0, 7, true, false, true);
 INSERT INTO public.jenis_cuti (id, nama, kode, is_system, kuota_hari, batas_pengajuan_hari, wajib_lampiran, potong_kuota, aktif) VALUES (4, 'Cuti Duka', NULL, false, 2.0, 0, false, false, true);

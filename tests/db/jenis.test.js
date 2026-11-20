@@ -10,14 +10,14 @@ before(() => {});
 beforeEach(async () => {
   await resetDb(pool);
   await pool.query(`INSERT INTO jenis_cuti (nama,kode,is_system,kuota_hari,batas_pengajuan_hari,wajib_lampiran,potong_kuota) VALUES
-    ('Cuti Tahunan','tahunan',true,NULL,3,false,true),('Cuti Sakit','sakit',true,NULL,-3,true,false)`);
+    ('Cuti Tahunan','tahunan',true,12,3,false,true),('Cuti Sakit','sakit',true,NULL,-3,true,false)`);
 });
 
 test("daftarJenisAktif mengembalikan bentuk camelCase yang dipakai validasi", async () => {
   const [t] = await daftarJenisAktif(pool);
   assert.deepEqual(
     { kode: t.kode, kuotaHari: t.kuotaHari, batasPengajuanHari: t.batasPengajuanHari, wajibLampiran: t.wajibLampiran, potongKuota: t.potongKuota, isSystem: t.isSystem },
-    { kode: "tahunan", kuotaHari: null, batasPengajuanHari: 3, wajibLampiran: false, potongKuota: true, isSystem: true }
+    { kode: "tahunan", kuotaHari: 12, batasPengajuanHari: 3, wajibLampiran: false, potongKuota: true, isSystem: true }
   );
 });
 
@@ -36,11 +36,21 @@ test("buatJenis: nama wajib dan unik; kuota negatif ditolak", async () => {
 
 test("jenis sistem: aturan boleh diubah, tidak boleh dihapus; Tahunan wajib tetap potong kuota", async () => {
   const [t, s] = await daftarJenisAktif(pool);
-  assert.equal((await ubahJenis(pool, t.id, { nama: "Cuti Tahunan", kuotaHari: null, batasPengajuanHari: 5, wajibLampiran: false, potongKuota: true, aktif: true })).ok, true);
+  assert.equal((await ubahJenis(pool, t.id, { nama: "Cuti Tahunan", kuotaHari: 12, batasPengajuanHari: 5, wajibLampiran: false, potongKuota: true, aktif: true })).ok, true);
   assert.equal((await daftarJenisAktif(pool))[0].batasPengajuanHari, 5);
-  assert.equal((await ubahJenis(pool, t.id, { nama: "Cuti Tahunan", kuotaHari: null, batasPengajuanHari: 5, wajibLampiran: false, potongKuota: false, aktif: true })).ok, false);
+  assert.equal((await ubahJenis(pool, t.id, { nama: "Cuti Tahunan", kuotaHari: 11, batasPengajuanHari: 5, wajibLampiran: false, potongKuota: true, aktif: true })).ok, false);
+  assert.equal((await ubahJenis(pool, t.id, { nama: "Cuti Tahunan", kuotaHari: 12, batasPengajuanHari: 5, wajibLampiran: false, potongKuota: false, aktif: true })).ok, false);
   assert.equal((await ubahJenis(pool, s.id, { nama: "Cuti Sakit", kuotaHari: null, batasPengajuanHari: -3, wajibLampiran: true, potongKuota: false, aktif: false })).ok, false);
   assert.equal((await hapusJenis(pool, s.id)).ok, false);
+});
+
+test("kuota Tahunan: minimal 12 dan perubahan menyamakan kuota semua pengguna", async () => {
+  await pool.query(`INSERT INTO users (username,email,password_hash,nama_lengkap,role,tanggal_bergabung,kuota_awal) VALUES
+    ('satu','satu@x.id','x','Satu','karyawan','2022-01-01',12),('dua','dua@x.id','x','Dua','karyawan','2022-01-01',12)`);
+  const t = (await daftarJenisAktif(pool)).find((x) => x.kode === "tahunan");
+  assert.equal((await ubahJenis(pool, t.id, { nama: "Cuti Tahunan", kuotaHari: 15, batasPengajuanHari: 3, wajibLampiran: false, potongKuota: true, aktif: true })).ok, true);
+  const kuota = (await pool.query("SELECT kuota_awal FROM users ORDER BY id")).rows.map((r) => Number(r.kuota_awal));
+  assert.deepEqual(kuota, [15, 15]);
 });
 
 test("hapusJenis: jenis kustom tanpa pengajuan dihapus; yang sudah dipakai dinonaktifkan", async () => {
