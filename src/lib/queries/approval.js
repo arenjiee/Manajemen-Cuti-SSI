@@ -6,7 +6,6 @@ import { okupansiDivisi } from "./kapasitas.js";
 import { hariKerjaDalamRentang } from "../leave/hitung-hari.js";
 import { cekKapasitas } from "../leave/kapasitas.js";
 import { hitungBatasHarian } from "../leave/kapasitas.js";
-import { sisaKuota } from "../leave/kuota.js";
 
 const gagal = (pesan) => ({ ok: false, pesan });
 const PERAN = { leader: "Ketua Divisi", hrd: "HRD" };
@@ -96,7 +95,9 @@ export async function muatPeringatanHrd(db, pengajuanId) {
   if (!p) return kosong;
 
   const tahun = Number(p.tanggal_mulai.slice(0, 4));
-  const hasil = { kuotaKurang: Boolean(p.potong_kuota) && sisaKuota(p.kuota_awal, await terpakaiPotongKuota(db, p.pengaju_id, tahun)) < 0 };
+  // Sengaja pakai selisih mentah (bukan sisaKuota yang sudah dibatasi 0) agar kondisi kurang tetap terdeteksi.
+  const mentah = Math.round((Number(p.kuota_awal) - (await terpakaiPotongKuota(db, p.pengaju_id, tahun))) * 10) / 10;
+  const hasil = { kuotaKurang: Boolean(p.potong_kuota) && mentah < 0 };
 
   if (p.kode !== "sakit" && p.divisi_id) {
     const dv = (await db.query(
