@@ -42,3 +42,5 @@ yarn-error.log*
 next-env.d.ts
 uploads/
 .superpowers/
+# tooling lokal (skill OpenCode) — bukan bagian kode proyek
+.opencode/
