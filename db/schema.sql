@@ -1,3 +1,13 @@
+CREATE TABLE file_storage (
+  id SERIAL PRIMARY KEY,
+  nama_asli VARCHAR(200) NOT NULL,
+  mime VARCHAR(50) NOT NULL,
+  ukuran INTEGER NOT NULL,
+  data BYTEA NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX file_storage_mime_idx ON file_storage (mime);
+
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
   username VARCHAR(50) NOT NULL,
@@ -7,6 +17,7 @@ CREATE TABLE users (
   telepon VARCHAR(30),
   alamat TEXT,
   foto_key VARCHAR(100),
+  foto_id INTEGER REFERENCES file_storage(id) ON DELETE SET NULL,
   role VARCHAR(20) NOT NULL CHECK (role IN ('admin','karyawan','ketua_divisi','hrd')),
   divisi_id INTEGER,
   tanggal_bergabung DATE NOT NULL,
@@ -89,6 +100,7 @@ CREATE TABLE lampiran (
   mime VARCHAR(50) NOT NULL,
   ukuran INTEGER NOT NULL,
   storage_key VARCHAR(100) NOT NULL UNIQUE,
+  file_id INTEGER REFERENCES file_storage(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 

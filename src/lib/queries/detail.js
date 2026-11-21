@@ -30,7 +30,12 @@ export async function detailPengajuan(db, id, user) {
 export async function ambilLampiranUntuk(db, id, user) {
   const n = parseId(id);
   if (n == null) return null;
-  const l = (await db.query("SELECT * FROM lampiran WHERE id = $1", [n])).rows[0];
+  const l = (await db.query(`
+    SELECT l.*, fs.data AS binary_data, fs.mime AS file_mime
+    FROM lampiran l
+    LEFT JOIN file_storage fs ON fs.id = l.file_id
+    WHERE l.id = $1
+  `, [n])).rows[0];
   if (!l) return null;
   if (l.pengajuan_id == null) return l.diunggah_oleh === user.id ? l : null;
   const p = (await db.query("SELECT pengaju_id, divisi_id FROM pengajuan_cuti WHERE id = $1", [l.pengajuan_id])).rows[0];

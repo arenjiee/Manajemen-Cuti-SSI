@@ -101,15 +101,31 @@ export async function ubahProfil(db, actor, targetId, d) {
 }
 
 // storageKey null = hapus foto. Mengembalikan kunci lama agar pemanggil bisa menghapus berkasnya.
-export async function ubahFoto(db, actor, targetId, storageKey) {
+// fileMeta opsional { nama_asli, mime, ukuran, data } untuk menyimpan bytea ke file_storage.
+export async function ubahFoto(db, actor, targetId, storageKey, fileMeta = null) {
   const id = parseId(targetId);
   if (id == null) return gagal("Pengguna tidak ditemukan.");
   if (!bolehUbahProfil(actor, id)) return gagal("Anda hanya dapat mengubah foto profil Anda sendiri.");
   // Satu transaksi: dua unggahan bersamaan tidak boleh sama-sama membaca kunci lama yang sama (berkas yatim).
   return denganTransaksi(db, async (c) => {
-    const lama = (await c.query("SELECT foto_key FROM users WHERE id=$1 AND deleted_at IS NULL FOR UPDATE", [id])).rows[0];
+    const lama = (await c.query("SELECT foto_key, foto_id FROM users WHERE id=$1 AND deleted_at IS NULL FOR UPDATE", [id])).rows[0];
     if (!lama) return gagal("Pengguna tidak ditemukan.");
-    await c.query("UPDATE users SET foto_key=$2 WHERE id=$1", [id, storageKey]);
+
+    let fotoId = null;
+    if (fileMeta && fileMeta.data) {
+      const ins = await c.query(
+        "INSERT INTO file_storage (nama_asli, mime, ukuran, data) VALUES ($1, $2, $3, $4) RETURNING id",
+        [fileMeta.nama_asli ?? "foto.jpg", fileMeta.mime, fileMeta.ukuran ?? fileMeta.data.length, fileMeta.data]
+      );
+      fotoId = ins.rows[0].id;
+    }
+
+    await c.query("UPDATE users SET foto_key=$2, foto_id=$3 WHERE id=$1", [id, storageKey, fotoId]);
+
+    if (lama.foto_id && (!fotoId || lama.foto_id !== fotoId)) {
+      await c.query("DELETE FROM file_storage WHERE id=$1", [lama.foto_id]);
+    }
+
     return { ok: true, lama: lama.foto_key };
   });
 }
@@ -117,8 +133,16 @@ export async function ubahFoto(db, actor, targetId, storageKey) {
 export async function ambilFotoUntuk(db, viewer, targetId) {
   const id = parseId(targetId);
   if (id == null) return null;
-  const t = (await db.query("SELECT id, divisi_id, foto_key FROM users WHERE id=$1 AND deleted_at IS NULL", [id])).rows[0];
+  const t = (await db.query(`
+    SELECT u.id, u.divisi_id, u.foto_key, u.foto_id, fs.mime AS file_mime, fs.data
+    FROM users u
+    LEFT JOIN file_storage fs ON fs.id = u.foto_id
+    WHERE u.id=$1 AND u.deleted_at IS NULL
+  `, [id])).rows[0];
   if (!t || !t.foto_key || !bolehLihatFoto(viewer, t)) return null;
-  const mime = mimeDariKunci(t.foto_key);
-  return mime ? { storage_key: t.foto_key, mime } : null;
+  const mime = t.file_mime || mimeDariKunci(t.foto_key);
+  if (!mime) return null;
+  const hasil = { storage_key: t.foto_key, mime };
+  if (t.data) hasil.data = t.data;
+  return hasil;
 }

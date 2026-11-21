@@ -39,9 +39,17 @@ export default async function JenisCutiPage({ searchParams }) {
     { label: "Lampiran", render: (j) => (j.wajibLampiran ? "Wajib" : "Tidak") },
     { label: "Potong kuota", render: (j) => (j.potongKuota ? "Ya" : "Tidak") },
     { label: "Aksi", render: (j) => (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-4 pl-2">
         <TautanDetail href={`/admin/jenis-cuti/${j.id}`} label="Edit" />
-        {!j.isSystem && <TombolKonfirmasi action="/api/admin/jenis-cuti/hapus" fields={{ id: j.id }} label="Hapus" pesan={`Hapus jenis cuti ${j.nama}?`} className={btnDanger} />}
+        {!j.isSystem && (
+          <TombolKonfirmasi
+            action="/api/admin/jenis-cuti/hapus"
+            fields={{ id: j.id }}
+            label="Hapus"
+            pesan={`Hapus jenis cuti ${j.nama}?`}
+            className={`${btnDanger} ml-1`}
+          />
+        )}
       </div>
     ) },
   ];

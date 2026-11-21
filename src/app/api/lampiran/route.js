@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
 import pool from "@/lib/db";
 import { guardApi } from "@/lib/guard";
 import { LAMPIRAN_MAKS } from "@/lib/leave/validasi";
@@ -22,15 +20,13 @@ export async function POST(request) {
   if (!mime) return NextResponse.json({ message: "Berkas harus PDF, JPG, atau PNG." }, { status: 415 });
 
   const storageKey = `${randomUUID()}${ekstensiDari(mime)}`;
-  const dir = path.join(process.cwd(), "uploads");
-  await mkdir(dir, { recursive: true });
-  await writeFile(path.join(dir, storageKey), buf);
 
   const id = await simpanMetaLampiran(pool, g.user.id, {
     nama_asli: String(berkas.name ?? "lampiran").slice(0, 200),
     mime,
     ukuran: buf.length,
     storage_key: storageKey,
+    data: buf,
   });
   return NextResponse.json({ id, nama: berkas.name, mime, ukuran: buf.length }, { status: 201 });
 }

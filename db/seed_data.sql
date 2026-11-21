@@ -5,8 +5,8 @@
 -- PRASYARAT
 --   1. Tabel sudah dibuat. Jika database masih kosong, jalankan db/schema.sql
 --      sekali terlebih dahulu.
---   2. Salin seed/lampiran/surat-dokter-contoh.pdf ke folder uploads/ agar
---      lampiran Cuti Sakit bisa dibuka dari aplikasi.
+--   2. Berkas contoh lampiran sudah disimpan langsung ke tabel file_storage
+--      (kolom BYTEA), tidak perlu menyalin ke folder uploads.
 --
 -- PERINGATAN: skrip ini mengosongkan seluruh tabel lalu mengisi data baru.
 -- Password semua akun: password123
@@ -24,7 +24,8 @@ TRUNCATE TABLE
   divisi,
   jenis_cuti,
   hari_libur,
-  pengaturan
+  pengaturan,
+  file_storage
 RESTART IDENTITY CASCADE;
 
 -- 2. Pengguna (20 akun)
@@ -213,11 +214,15 @@ INSERT INTO persetujuan (pengajuan_id, tahap, approver_id, keputusan, catatan, c
   (16, 'hrd',    2, 'approve', 'Disetujui HRD.',                                  '2026-11-16 09:00:00+08'),
   (17, 'hrd',    2, 'approve', 'Disetujui HRD.',                                  '2026-08-04 09:10:00+08');
 
--- 10. Lampiran surat dokter (file harus ada di folder uploads/)
-INSERT INTO lampiran (pengajuan_id, diunggah_oleh, nama_asli, mime, ukuran, storage_key) VALUES
-  (7, 13, 'surat-dokter-contoh.pdf', 'application/pdf', 417, 'surat-dokter-contoh.pdf');
+-- 10. Penyimpanan berkas lampiran (disimpan langsung di database dalam kolom BYTEA)
+INSERT INTO file_storage (id, nama_asli, mime, ukuran, data) VALUES
+  (1, 'surat-dokter-contoh.pdf', 'application/pdf', 417, '\x255044462d312e340a312030206f626a3c3c2f547970652f436174616c6f672f50616765732032203020523e3e656e646f626a0a322030206f626a3c3c2f547970652f50616765732f4b6964735b33203020525d2f436f756e7420313e3e656e646f626a0a332030206f626a3c3c2f547970652f506167652f506172656e742032203020522f4d65646961426f785b30203020333030203230305d2f436f6e74656e74732034203020522f5265736f75726365733c3c2f466f6e743c3c2f46312035203020523e3e3e3e3e3e656e646f626a0a342030206f626a3c3c2f4c656e6774682036323e3e73747265616d0a4254202f46312031342054662032302031303020546420285375726174204b65746572616e67616e20446f6b746572202d20636f6e746f682920546a2045540a656e6473747265616d20656e646f626a0a352030206f626a3c3c2f547970652f466f6e742f537562747970652f54797065312f42617365466f6e742f48656c7665746963613e3e656e646f626a0a747261696c65723c3c2f526f6f742031203020522f53697a6520363e3e0a2525454f460a'::bytea);
 
--- 11. Notifikasi
+-- 11. Lampiran pengajuan cuti (terhubung ke file_storage)
+INSERT INTO lampiran (pengajuan_id, diunggah_oleh, nama_asli, mime, ukuran, storage_key, file_id) VALUES
+  (7, 13, 'surat-dokter-contoh.pdf', 'application/pdf', 417, 'surat-dokter-contoh.pdf', 1);
+
+-- 12. Notifikasi
 INSERT INTO notifications (user_id, tipe, pesan, link, dibaca, created_at) VALUES
   (2, 'pengajuan', 'Pengajuan cuti Diva Puspita menunggu persetujuan final.',        '/persetujuan', false, now() - interval '2 hours'),
   (2, 'pengajuan', 'Pengajuan cuti Muhammad Syahdan menunggu persetujuan final.',    '/persetujuan', false, now() - interval '1 hour'),
@@ -229,12 +234,13 @@ INSERT INTO notifications (user_id, tipe, pesan, link, dibaca, created_at) VALUE
   (13,'pengingat', 'Sisa Cuti Tahunan Anda 10 hari dan akan hangus pada 31 Desember 2026. Segera ajukan cuti.', '/cuti/ajukan', false, now() - interval '1 day'),
   (1, 'pengajuan', '7 pengajuan cuti masih menunggu proses persetujuan.',            '/riwayat',     false, now() - interval '30 minutes');
 
--- 12. Sinkronkan sequence agar insert berikutnya tidak bentrok
+-- 13. Sinkronkan sequence agar insert berikutnya tidak bentrok
 SELECT setval(pg_get_serial_sequence('users', 'id'),         (SELECT max(id) FROM users));
 SELECT setval(pg_get_serial_sequence('divisi', 'id'),        (SELECT max(id) FROM divisi));
 SELECT setval(pg_get_serial_sequence('jenis_cuti', 'id'),    (SELECT max(id) FROM jenis_cuti));
 SELECT setval(pg_get_serial_sequence('pengajuan_cuti', 'id'),(SELECT max(id) FROM pengajuan_cuti));
 SELECT setval(pg_get_serial_sequence('persetujuan', 'id'),   (SELECT max(id) FROM persetujuan));
+SELECT setval(pg_get_serial_sequence('file_storage', 'id'),  (SELECT max(id) FROM file_storage));
 SELECT setval(pg_get_serial_sequence('lampiran', 'id'),      (SELECT max(id) FROM lampiran));
 SELECT setval(pg_get_serial_sequence('notifications', 'id'), (SELECT max(id) FROM notifications));
 SELECT setval(pg_get_serial_sequence('hari_libur', 'id'),    (SELECT max(id) FROM hari_libur));

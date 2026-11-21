@@ -221,6 +221,8 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
               <p className="text-xs font-medium text-ink mb-2">Kalender & Hari Libur</p>
               <KalenderMini
                 kalender={kalenderAwal}
+                mulai={mulai}
+                selesai={selesai}
                 onPilihTanggal={(t) => {
                   setMulai(t);
                   if (set半分 || !selesai || selesai < t) setSelesai(t);

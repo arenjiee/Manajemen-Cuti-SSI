@@ -27,6 +27,7 @@ const KET = {
 };
 
 const LEGENDA = [
+  ["dipilih", "Rentang dipilih", "bg-blue-600 ring-1 ring-blue-300"],
   ["ok", "Tersedia", "bg-emerald-500/30 ring-1 ring-emerald-500/50"],
   ["hampir", "Hampir penuh", "bg-amber-500/30 ring-1 ring-amber-500/50"],
   ["penuh", "Penuh", "bg-rose-500/35 ring-1 ring-rose-500/60"],
@@ -53,7 +54,10 @@ export default function KalenderMini({ kalender, mulai, selesai, onPilihTanggal 
                 <span key={`k${i}`} />
               ))}
               {daftarHari.map((h) => {
-                const dipilih = mulai && selesai && h.tanggal >= mulai && h.tanggal <= selesai;
+                const [dari, sampai] = mulai && selesai
+                  ? (mulai <= selesai ? [mulai, selesai] : [selesai, mulai])
+                  : [mulai, selesai || mulai];
+                const dipilih = Boolean(dari && h.tanggal >= dari && h.tanggal <= sampai);
                 const statusKunci = h.status === "libur" && h.liburInfo?.jenis === "cuti_bersama" ? "cuti_bersama" : h.status;
                 
                 let detailLibur = "";
@@ -61,7 +65,11 @@ export default function KalenderMini({ kalender, mulai, selesai, onPilihTanggal 
                   const jenisLabel = h.liburInfo.jenis === "cuti_bersama" ? "Cuti Bersama" : "Libur Nasional";
                   detailLibur = ` · ${jenisLabel}: ${h.liburInfo.keterangan}`;
                 }
-                const titleText = `${formatTanggal(h.tanggal)}: ${KET[statusKunci] ?? KET[h.status] ?? ""}${detailLibur}${h.terisi ? ` (${h.terisi} orang cuti)` : ""}`;
+                const titleText = `${formatTanggal(h.tanggal)}: ${KET[statusKunci] ?? KET[h.status] ?? ""}${detailLibur}${h.terisi ? ` (${h.terisi} orang cuti)` : ""}${dipilih ? " (Dipilih)" : ""}`;
+
+                const warnaCls = dipilih
+                  ? "bg-blue-600 text-white font-bold ring-2 ring-blue-300 shadow-sm"
+                  : (WARNA[statusKunci] ?? WARNA[h.status] ?? "");
 
                 return (
                   <button
@@ -71,7 +79,7 @@ export default function KalenderMini({ kalender, mulai, selesai, onPilihTanggal 
                     suppressHydrationWarning
                     onClick={() => onPilihTanggal?.(h.tanggal)}
                     disabled={!onPilihTanggal}
-                    className={`rounded py-1 tabular-nums transition-colors ${WARNA[statusKunci] ?? WARNA[h.status] ?? ""} ${dipilih ? "ring-2 ring-accent shadow-sm" : ""} ${onPilihTanggal ? "cursor-pointer hover:opacity-80" : "cursor-default"}`}
+                    className={`rounded py-1 tabular-nums transition-colors ${warnaCls} ${onPilihTanggal ? "cursor-pointer hover:opacity-90" : "cursor-default"}`}
                   >
                     {Number(h.tanggal.slice(8))}
                   </button>

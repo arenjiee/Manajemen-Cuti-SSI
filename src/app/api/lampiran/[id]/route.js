@@ -10,15 +10,17 @@ export async function GET(request, { params }) {
   const { id } = await params;
   const l = await ambilLampiranUntuk(pool, id, g.user);
   if (!l) return Response.json({ message: "Lampiran tidak ditemukan" }, { status: 404 });
-  let data;
-  try {
-    data = await readFile(path.join(process.cwd(), "uploads", path.basename(l.storage_key)));
-  } catch {
-    return Response.json({ message: "Berkas tidak tersedia di server" }, { status: 404 });
+  let data = l.binary_data;
+  if (!data) {
+    try {
+      data = await readFile(path.join(process.cwd(), "uploads", path.basename(l.storage_key)));
+    } catch {
+      return Response.json({ message: "Berkas tidak tersedia di server" }, { status: 404 });
+    }
   }
   return new Response(data, {
     headers: {
-      "Content-Type": l.mime,
+      "Content-Type": l.file_mime || l.mime,
       "Content-Disposition": `inline; filename="${encodeURIComponent(l.nama_asli)}"`,
       "X-Content-Type-Options": "nosniff",
       "Cache-Control": "private, no-store",

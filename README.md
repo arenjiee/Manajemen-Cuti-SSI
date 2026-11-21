@@ -8,15 +8,15 @@ Belum: F (pengerasan, checklist demo).
 
 ## Menjalankan
 1. Buat database di pgAdmin bernama `SSI_manajemen_cuti` (kosong).
-2. Isi struktur + data contoh. Pilihan termudah: buka Query Tool pada database itu, jalankan `db/schema.sql`, lalu jalankan `db/seed_data_baru.sql`.
-   Alternatif lama: jalankan `db/smck_full.sql`, **atau** pakai `npm run db:setup` (langkah 4).
-   Salin `seed/lampiran/surat-dokter-contoh.pdf` ke folder `uploads/` (buat foldernya) agar lampiran contoh bisa dibuka.
+2. Isi struktur + data contoh. Pilihan termudah: buka Query Tool pada database itu, jalankan `db/schema.sql`, lalu jalankan `db/seed_data.sql`.
+   Alternatif: pakai `npm run db:setup` (langkah 4) yang melakukan hal yang sama.
+   Foto dan lampiran kini disimpan langsung di database (`file_storage`).
 3. `cp .env.example .env.local`, isi password PostgreSQL, lalu `npm install`.
 4. (Opsional) `npm run db:setup` — **menghapus seluruh isi schema `public`** pada `DATABASE_URL` lalu mengisinya ulang. Jangan dijalankan di database berisi data penting.
 5. `npm run dev` → http://localhost:3000
 
 ## Akun contoh (password semua: `password123`)
-Login memakai username atau email (`<username>@ssi.co.id`). Data ini berasal dari `db/seed_data_baru.sql`.
+Login memakai username atau email (`<username>@ssi.co.id`). Data ini berasal dari `db/seed_data.sql`.
 
 | Username | Nama | Role | Divisi |
 | --- | --- | --- | --- |

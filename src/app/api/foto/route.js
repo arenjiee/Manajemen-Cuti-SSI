@@ -1,12 +1,10 @@
 import { NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
 import pool from "@/lib/db";
 import { guardApi } from "@/lib/guard";
 import { parseId } from "@/lib/id";
 import { FOTO_MAKS, validasiFoto, kunciFoto } from "@/lib/foto-file";
-import { dirUpload, hapusFotoLama } from "@/lib/upload-fs";
+import { hapusFotoLama } from "@/lib/upload-fs";
 import { bolehUbahProfil, ubahFoto } from "@/lib/queries/profil";
 
 const pesan = (message, status) => NextResponse.json({ message }, { status });
@@ -30,14 +28,14 @@ export async function POST(request) {
   if (!v.ok) return pesan(v.pesan, v.pesan.includes("2 MB") ? 413 : 415);
 
   const key = kunciFoto(randomUUID(), v.mime);
-  await mkdir(dirUpload(), { recursive: true });
-  await writeFile(path.join(dirUpload(), key), buf);
 
-  const r = await ubahFoto(pool, g.user, target, key);
-  if (!r.ok) {
-    await hapusFotoLama(key);   // pengguna tidak ada: jangan tinggalkan berkas yatim
-    return pesan(r.pesan, 404);
-  }
-  await hapusFotoLama(r.lama);
+  const r = await ubahFoto(pool, g.user, target, key, {
+    nama_asli: String(berkas.name ?? "foto").slice(0, 200),
+    mime: v.mime,
+    ukuran: buf.length,
+    data: buf,
+  });
+  if (!r.ok) return pesan(r.pesan, 404);
+  if (r.lama) await hapusFotoLama(r.lama);
   return NextResponse.json({ ok: true, key }, { status: 201 });
 }
