@@ -23,7 +23,7 @@ export default async function KuotaHangusPage({ searchParams }) {
   const pasti = d.rows.filter((r) => r.risiko === "pasti").length;
 
   const kolom = [
-    { label: "", render: (r) => <input type="checkbox" name="ids" value={r.id} form="form-pengingat" defaultChecked aria-label={`Pilih ${r.nama}`} className="h-4 w-4" /> },
+    { label: "", render: (r) => <input type="checkbox" name="ids" value={r.id} form="form-pengingat" defaultChecked aria-label={`Pilih ${r.nama}`} suppressHydrationWarning className="h-4 w-4" /> },
     { label: "Nama", render: (r) => <><p className="font-medium">{r.nama}</p><p className="text-xs text-muted">{NAMA_ROLE[r.role]} · {r.divisiNama ?? "Tanpa divisi"}</p></> },
     { label: "Kuota", render: (r) => `${formatHari(r.kuotaAwal)} hari` },
     { label: "Terpakai", render: (r) => `${formatHari(r.terpakai)} hari` },
@@ -40,8 +40,8 @@ export default async function KuotaHangusPage({ searchParams }) {
         action={
           d.aktif && d.rows.length > 0 && (
             <form id="form-pengingat" action="/api/kuota-hangus/pengingat" method="POST">
-              <input type="hidden" name="ambang" value={d.ambang} />
-              <button className={btnPrimary}>Kirim pengingat ke yang dipilih</button>
+              <input type="hidden" name="ambang" value={d.ambang} suppressHydrationWarning />
+              <button suppressHydrationWarning className={btnPrimary}>Kirim pengingat ke yang dipilih</button>
             </form>
           )
         }

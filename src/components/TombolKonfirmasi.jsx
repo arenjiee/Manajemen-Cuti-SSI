@@ -51,11 +51,11 @@ export default function TombolKonfirmasi({
   }
 
   return (
-    <form action={typeof action === "function" ? action : undefined} onSubmit={handleSubmit}>
+    <form action={typeof action === "function" ? action : undefined} onSubmit={handleSubmit} suppressHydrationWarning>
       {Object.entries(fields).map(([k, v]) => (
-        <input key={k} type="hidden" name={k} value={v} />
+        <input key={k} type="hidden" name={k} value={v} suppressHydrationWarning />
       ))}
-      <button type="submit" disabled={loading} className={className}>
+      <button type="submit" disabled={loading} suppressHydrationWarning className={className}>
         {loading ? "Memproses…" : label}
       </button>
     </form>

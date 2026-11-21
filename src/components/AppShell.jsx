@@ -59,7 +59,7 @@ function TopBar({ menu, pathname, user, ringkasan, notifikasi, drawer, onBukaMen
   const halaman = cocokkanMenu(menu, pathname)?.label ?? "SMCK";
   return (
     <header className="flex h-14 shrink-0 items-center gap-3 border-b border-line bg-chrome px-3 md:px-5">
-      <button type="button" aria-label="Buka menu" aria-expanded={drawer} onClick={onBukaMenu} className={`${tombolIkon} md:hidden`}>
+      <button type="button" aria-label="Buka menu" aria-expanded={drawer} onClick={onBukaMenu} suppressHydrationWarning className={`${tombolIkon} md:hidden`}>
         <Menu className="h-5 w-5" />
       </button>
       <div className="min-w-0 flex-1">
@@ -126,7 +126,7 @@ function KartuUser({ user, ciut, onKeluar }) {
         <Link href="/profil" title={`Profil: ${user.nama}`} className="transition hover:opacity-80">
           {avatar}
         </Link>
-        <button type="button" title="Keluar" aria-label="Keluar" onClick={onKeluar} className="mx-auto flex h-8 w-8 items-center justify-center rounded-lg text-muted transition hover:bg-ink/5 hover:text-ink">
+        <button type="button" title="Keluar" aria-label="Keluar" onClick={onKeluar} suppressHydrationWarning className="mx-auto flex h-8 w-8 items-center justify-center rounded-lg text-muted transition hover:bg-ink/5 hover:text-ink">
           <LogOut className="h-4 w-4" />
         </button>
       </div>
@@ -143,7 +143,7 @@ function KartuUser({ user, ciut, onKeluar }) {
         </Link>
         <p className="truncate text-[11px] text-muted">{user.peran}</p>
       </div>
-      <button type="button" title="Keluar" aria-label="Keluar" onClick={onKeluar} className="rounded-md p-1.5 text-muted transition hover:bg-ink/5 hover:text-ink">
+      <button type="button" title="Keluar" aria-label="Keluar" onClick={onKeluar} suppressHydrationWarning className="rounded-md p-1.5 text-muted transition hover:bg-ink/5 hover:text-ink">
         <LogOut className="h-4 w-4" />
       </button>
     </div>
@@ -243,12 +243,12 @@ export default function AppShell({ menu, user, children, ringkasan, notifikasi }
           <div className={`flex h-14 shrink-0 items-center border-b border-line px-4 ${ciut ? "justify-center" : "justify-between"}`}>
             <Brand ciut={ciut} />
             {!ciut && (
-              <button type="button" aria-label="Ciutkan sidebar" onClick={toggleCiut} className={tombolIkon}><PanelLeft className="h-4 w-4" /></button>
+              <button type="button" aria-label="Ciutkan sidebar" onClick={toggleCiut} suppressHydrationWarning className={tombolIkon}><PanelLeft className="h-4 w-4" /></button>
             )}
           </div>
           {ciut && (
             <div className="flex justify-center border-b border-line py-2">
-              <button type="button" aria-label="Lebarkan sidebar" onClick={toggleCiut} className={tombolIkon}><PanelLeft className="h-4 w-4 rotate-180" /></button>
+              <button type="button" aria-label="Lebarkan sidebar" onClick={toggleCiut} suppressHydrationWarning className={tombolIkon}><PanelLeft className="h-4 w-4 rotate-180" /></button>
             </div>
           )}
           <div className="flex-1 overflow-y-auto py-4">
@@ -291,11 +291,11 @@ export default function AppShell({ menu, user, children, ringkasan, notifikasi }
 
         {drawer && (
           <div className="md:hidden">
-            <button type="button" aria-label="Tutup menu" onClick={() => setDrawer(false)} className="fixed inset-0 z-40 bg-ink/40" />
+            <button type="button" aria-label="Tutup menu" onClick={() => setDrawer(false)} suppressHydrationWarning className="fixed inset-0 z-40 bg-ink/40" />
             <aside role="dialog" aria-modal="true" aria-label="Menu" className="fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-chrome shadow-xl">
               <div className="flex h-14 shrink-0 items-center justify-between border-b border-line px-4">
                 <Brand />
-                <button type="button" aria-label="Tutup menu" onClick={() => setDrawer(false)} className={tombolIkon}><X className="h-5 w-5" /></button>
+                <button type="button" aria-label="Tutup menu" onClick={() => setDrawer(false)} suppressHydrationWarning className={tombolIkon}><X className="h-5 w-5" /></button>
               </div>
               <div className="flex-1 overflow-y-auto py-4">
                 <NavList menu={menu} aktifHref={aktifHref} onPilih={() => setDrawer(false)} idIndikator="nav-aktif-drawer" />
