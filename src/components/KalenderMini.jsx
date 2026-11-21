@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { formatTanggal } from "@/lib/format";
 
 const WARNA = {
@@ -37,7 +38,54 @@ const LEGENDA = [
 ];
 
 export default function KalenderMini({ kalender, mulai, selesai, onPilihTanggal }) {
+  // State internal untuk toggle rentang (mulai/selesai).
+  // Nilai awal diisi dari prop mulai/selesai agar ikut sinkron saat komponen mount.
+  // Hook dipanggil di sini sebelum return null agar urutan selalu konsisten.
+  const [internalMulai, setInternalMulai] = useState(mulai ?? "");
+  const [internalSelesai, setInternalSelesai] = useState(selesai ?? "");
+
   if (!kalender?.length) return null;
+
+  // Toggle: klik hari ini mengubah rentang.
+  const handleKlik = (tanggal) => {
+    const t = tanggal;
+    if (!internalMulai && !internalSelesai) {
+      // Belum ada rentang → jadi mulai
+      setInternalMulai(t);
+      setInternalSelesai("");
+    } else if (internalMulai && !internalSelesai) {
+      // Sudah ada mulai, cari selesai
+      if (t >= internalMulai) {
+        setInternalSelesai(t);
+      } else {
+        // Klik sebelum mulai → geser mulai ke klikan, selesai tetap
+        setInternalMulai(t);
+        setInternalSelesai("");
+      }
+    } else if (internalMulai && internalSelesai) {
+      // Sudah ada keduanya → cek apakah klik tersebut salah satu ujung rentang
+      if (t === internalMulai || t === internalSelesai) {
+        // Klik ujung → reset semuanya
+        setInternalMulai("");
+        setInternalSelesai("");
+      } else if (t > internalMulai && t < internalSelesai) {
+        // Klik di dalam rentang → reset semuanya
+        setInternalMulai("");
+        setInternalSelesai("");
+      } else if (t < internalMulai) {
+        // Klik sebelum mulai → geser mulai, geser selesai juga ke klikan (atau kosong)
+        setInternalMulai(t);
+        setInternalSelesai("");
+      } else if (t > internalSelesai) {
+        // Klik setelah selesai → geser mulai dan selesai
+        setInternalMulai(internalSelesai);
+        setInternalSelesai(t);
+      }
+    }
+    // Kirim ke parent
+    onPilihTanggal?.(internalMulai, internalSelesai);
+  };
+
   return (
     <div className="space-y-4">
       {kalender.map((b, bIdx) => {
@@ -54,10 +102,9 @@ export default function KalenderMini({ kalender, mulai, selesai, onPilihTanggal 
                 <span key={`k${i}`} />
               ))}
               {daftarHari.map((h) => {
-                const [dari, sampai] = mulai && selesai
-                  ? (mulai <= selesai ? [mulai, selesai] : [selesai, mulai])
-                  : [mulai, selesai || mulai];
-                const dipilih = Boolean(dari && h.tanggal >= dari && h.tanggal <= sampai);
+                const dipilih = internalMulai && internalSelesai
+                  ? h.tanggal >= internalMulai && h.tanggal <= internalSelesai
+                  : false;
                 const statusKunci = h.status === "libur" && h.liburInfo?.jenis === "cuti_bersama" ? "cuti_bersama" : h.status;
                 
                 let detailLibur = "";
@@ -77,7 +124,7 @@ export default function KalenderMini({ kalender, mulai, selesai, onPilihTanggal 
                     key={h.tanggal}
                     title={titleText}
                     suppressHydrationWarning
-                    onClick={() => onPilihTanggal?.(h.tanggal)}
+                    onClick={() => handleKlik(h.tanggal)}
                     disabled={!onPilihTanggal}
                     className={`rounded py-1 tabular-nums transition-colors ${warnaCls} ${onPilihTanggal ? "cursor-pointer hover:opacity-90" : "cursor-default"}`}
                   >

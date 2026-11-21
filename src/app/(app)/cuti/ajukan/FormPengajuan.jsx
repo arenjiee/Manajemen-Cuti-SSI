@@ -208,9 +208,9 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
             kalender={sim.kalender}
             mulai={mulai}
             selesai={selesai}
-            onPilihTanggal={(t) => {
-              setMulai(t);
-              if (set半分 || !selesai || selesai < t) setSelesai(t);
+            onPilihTanggal={({ mulai: m, selesai: s }) => {
+              setMulai(m);
+              setSelesai(s);
             }}
           />
         )}
@@ -223,9 +223,9 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
                 kalender={kalenderAwal}
                 mulai={mulai}
                 selesai={selesai}
-                onPilihTanggal={(t) => {
-                  setMulai(t);
-                  if (set半分 || !selesai || selesai < t) setSelesai(t);
+                onPilihTanggal={({ mulai: m, selesai: s }) => {
+                  setMulai(m);
+                  setSelesai(s);
                 }}
               />
             </div>
