@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Tema aplikasi dikendalikan lewat class .dark pada <html>, bukan prefers-color-scheme.
+   Tanpa ini, varian dark: di Tailwind hanya mengikuti setelan OS. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @font-face {
   font-family: "Instrument Sans";
   src: url("/fonts/instrument-sans.woff2") format("woff2");
@@ -8,21 +12,91 @@
 }
 
 :root {
-  color-scheme: dark; 
-  --bg: #050505;
-  --surface: #0d0d0d;
-  --ink: #f2f2f2;
-  --ink-muted: rgba(255, 255, 255, 0.55);
-  --line: rgba(255, 255, 255, 0.12);
-  --accent: #e0e0e0; 
-  --accent-ink: #050505;
-  --ok: oklch(0.8 0.15 155);
-  --warn: oklch(0.83 0.14 85);
-  --bad: oklch(0.72 0.18 25);
   --radius: 0.75rem;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --dur: 200ms;
-  --chrome: #161616;                 /* tema gelap mercury */
+}
+
+:root,
+[data-theme="dark"],
+.dark {
+  color-scheme: dark;
+  --bg: #050505;
+  --surface: #0f0f0f;
+  --ink: #f2f2f2;
+  --ink-muted: rgba(255, 255, 255, 0.55);
+  --line: rgba(255, 255, 255, 0.12);
+  --accent: #e0e0e0;
+  --accent-ink: #050505;
+  --chrome: #161616;
+  --ok: oklch(0.8 0.15 155);
+  --warn: oklch(0.83 0.14 85);
+  --bad: oklch(0.72 0.18 25);
+
+  /* Variabel tambahan kompatibilitas shadcn/ui */
+  --background: var(--bg);
+  --foreground: var(--ink);
+  --border: var(--line);
+  --card: var(--surface);
+  --card-foreground: var(--ink);
+  --popover: var(--surface);
+  --popover-foreground: var(--ink);
+  --muted: var(--surface);
+  --muted-foreground: var(--ink-muted);
+}
+
+[data-theme="light"],
+.light {
+  color-scheme: light;
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --ink: #0f172a;
+  --ink-muted: rgba(15, 23, 42, 0.6);
+  --line: rgba(15, 23, 42, 0.12);
+  --accent: #0f172a;
+  --accent-ink: #ffffff;
+  --chrome: #eef2f6;
+  --ok: oklch(0.62 0.17 150);
+  --warn: oklch(0.65 0.16 75);
+  --bad: oklch(0.58 0.2 25);
+
+  /* Variabel tambahan kompatibilitas shadcn/ui */
+  --background: var(--bg);
+  --foreground: var(--ink);
+  --border: var(--line);
+  --card: var(--surface);
+  --card-foreground: var(--ink);
+  --popover: var(--surface);
+  --popover-foreground: var(--ink);
+  --muted: #f1f5f9;
+  --muted-foreground: var(--ink-muted);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]):not(.dark) {
+    color-scheme: light;
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --ink: #0f172a;
+    --ink-muted: rgba(15, 23, 42, 0.6);
+    --line: rgba(15, 23, 42, 0.12);
+    --accent: #0f172a;
+    --accent-ink: #ffffff;
+    --chrome: #eef2f6;
+    --ok: oklch(0.62 0.17 150);
+    --warn: oklch(0.65 0.16 75);
+    --bad: oklch(0.58 0.2 25);
+
+    --background: var(--bg);
+    --foreground: var(--ink);
+    --border: var(--line);
+    --card: var(--surface);
+    --card-foreground: var(--ink);
+    --popover: var(--surface);
+    --popover-foreground: var(--ink);
+    --muted: #f1f5f9;
+    --muted-foreground: var(--ink-muted);
+  }
 }
 
 @theme inline {
@@ -36,16 +110,18 @@
   --color-ok: var(--ok);
   --color-warn: var(--warn);
   --color-bad: var(--bad);
+  --color-chrome: var(--chrome);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-border: var(--border);
   --font-sans: "Instrument Sans", system-ui, sans-serif;
   --font-display: "Instrument Sans", system-ui, sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  --color-chrome: var(--chrome);
 }
 
 body {
   background-color: var(--bg);
-
-  background-image: radial-gradient(ellipse 70% 45% at 90% -10%, rgba(224, 224, 224, 0.08), transparent 70%);
+  background-image: radial-gradient(ellipse 70% 45% at 90% -10%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 70%);
   background-attachment: fixed;
   color: var(--ink);
   font-family: var(--font-sans);
@@ -66,6 +142,3 @@ a.text-accent:hover { text-decoration-color: currentColor; }
     scroll-behavior: auto !important;
   }
 }
-
-/* Latar 3D halaman login (Vortex) menggantikan animasi blob sebelumnya, jadi
-   utility `animate-float` tidak lagi diperlukan. */

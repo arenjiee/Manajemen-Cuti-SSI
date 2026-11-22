@@ -3,8 +3,11 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
-import { Bell, CalendarRange, ChevronRight, ClipboardCheck, LogOut, Menu, PanelLeft, ShieldCheck, Users, X } from "lucide-react";
+import { Bell, CalendarRange, ChevronRight, ClipboardCheck, Menu, MessageSquarePlus, PanelLeft, ShieldCheck, UserRound, Users, X } from "lucide-react";
 import TabBar from "./TabBar";
+import ModalSaran from "./ModalSaran";
+import UserMenu from "./ui/user-menu";
+import { useTheme } from "@/lib/theme";
 import { IkonMenu } from "./nav-icons";
 import { bersihkanTabs, cocokkanMenu, sinkronkanHref, tambahTab, tutupKanan, tutupKiri, tutupLain, tutupSemua, tutupTab } from "@/lib/tabs";
 
@@ -14,14 +17,32 @@ const tombolIkon = "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg
 function Brand({ ciut }) {
   return (
     <Link href="/dashboard" aria-label="LeaveSync — beranda" className="flex min-w-0 items-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
-      {/* Logo statis kecil: cukup <img> agar tidak perlu konfigurasi loader next/image. */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={ciut ? "/images/leavesync-icon.png" : "/images/leavesync-wordmark.png"}
-        alt="LeaveSync"
-        className={`w-auto shrink-0 select-none ${ciut ? "h-8" : "h-6"}`}
-        draggable={false}
-      />
+      {ciut ? (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src="/images/leavesync-icon.png"
+          alt="LeaveSync"
+          className="h-8 w-auto shrink-0 select-none"
+          draggable={false}
+        />
+      ) : (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/leavesync-wordmark.png"
+            alt="LeaveSync"
+            className="hidden h-6 w-auto shrink-0 select-none dark:block"
+            draggable={false}
+          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/leavesync-wordmark-light.png"
+            alt="LeaveSync"
+            className="block h-6 w-auto shrink-0 select-none dark:hidden"
+            draggable={false}
+          />
+        </>
+      )}
     </Link>
   );
 }
@@ -61,7 +82,20 @@ function RingkasanTopbar({ ringkasan }) {
   );
 }
 
-function TopBar({ menu, pathname, user, ringkasan, notifikasi, drawer, onBukaMenu }) {
+function TopBar({
+  menu,
+  pathname,
+  user,
+  ringkasan,
+  notifikasi,
+  drawer,
+  onBukaMenu,
+  theme,
+  onThemeChange,
+  onBukaSaran,
+  onKeluar,
+  router,
+}) {
   const halaman = cocokkanMenu(menu, pathname)?.label ?? "SMCK";
   return (
     <header className="flex h-14 shrink-0 items-center gap-3 border-b border-line bg-chrome px-3 md:px-5">
@@ -77,6 +111,31 @@ function TopBar({ menu, pathname, user, ringkasan, notifikasi, drawer, onBukaMen
         <Bell className="h-4 w-4" aria-hidden />
         {notifikasi > 0 && <span className="absolute top-1 right-1 flex min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] leading-4 font-bold text-accent-ink">{notifikasi > 9 ? "9+" : notifikasi}</span>}
       </Link>
+      <UserMenu
+        user={{
+          name: user?.nama || "Pengguna",
+          email: user?.email || "",
+          plan: user?.peran || "Karyawan",
+          avatarSrc: user?.fotoKey ? `/api/foto/${user.id}?v=${encodeURIComponent(user.fotoKey)}` : undefined,
+        }}
+        showName
+        theme={theme}
+        onThemeChange={onThemeChange}
+        showTheme
+        items={[
+          {
+            label: "Profil",
+            icon: <UserRound size={16} />,
+            onSelect: () => router.push("/profil"),
+          },
+          {
+            label: "Saran & Masukan",
+            icon: <MessageSquarePlus size={16} />,
+            onSelect: onBukaSaran,
+          },
+        ]}
+        onSignOut={onKeluar}
+      />
     </header>
   );
 }
@@ -111,54 +170,11 @@ function NavList({ menu, aktifHref, ciut, onPilih, idIndikator }) {
   );
 }
 
-function KartuUser({ user, ciut, onKeluar }) {
-  const inisial = user.nama.split(/\s+/).slice(0, 2).map((x) => x[0]).join("").toUpperCase();
-  const avatar = user.fotoKey ? (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={`/api/foto/${user.id}?v=${encodeURIComponent(user.fotoKey)}`}
-      alt={`Foto ${user.nama}`}
-      className="h-9 w-9 shrink-0 rounded-full border border-line object-cover"
-    />
-  ) : (
-    <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/10 font-display text-sm font-semibold text-accent">
-      {inisial}
-    </span>
-  );
-
-  if (ciut) {
-    return (
-      <div className="flex flex-col items-center gap-2">
-        <Link href="/profil" title={`Profil: ${user.nama}`} className="transition hover:opacity-80">
-          {avatar}
-        </Link>
-        <button type="button" title="Keluar" aria-label="Keluar" onClick={onKeluar} suppressHydrationWarning className="mx-auto flex h-8 w-8 items-center justify-center rounded-lg text-muted transition hover:bg-ink/5 hover:text-ink">
-          <LogOut className="h-4 w-4" />
-        </button>
-      </div>
-    );
-  }
-  return (
-    <div className="flex w-full items-center gap-3 rounded-lg bg-bg px-3 py-2">
-      <Link href="/profil" title="Lihat profil" className="shrink-0 transition hover:opacity-80">
-        {avatar}
-      </Link>
-      <div className="min-w-0 flex-1">
-        <Link href="/profil" className="block truncate text-xs font-medium hover:underline">
-          {user.nama}
-        </Link>
-        <p className="truncate text-[11px] text-muted">{user.peran}</p>
-      </div>
-      <button type="button" title="Keluar" aria-label="Keluar" onClick={onKeluar} suppressHydrationWarning className="rounded-md p-1.5 text-muted transition hover:bg-ink/5 hover:text-ink">
-        <LogOut className="h-4 w-4" />
-      </button>
-    </div>
-  );
-}
-
 export default function AppShell({ menu, user, children, ringkasan, notifikasi }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { theme, setTheme } = useTheme();
+  const [modalSaranBuka, setModalSaranBuka] = useState(false);
   const qs = useSearchParams().toString();
   const sekarang = qs ? `${pathname}?${qs}` : pathname;
   const kunci = `smck-tab:${user.id}`;
@@ -260,9 +276,6 @@ export default function AppShell({ menu, user, children, ringkasan, notifikasi }
           <div className="flex-1 overflow-y-auto py-4">
             <NavList menu={menu} aktifHref={aktifHref} ciut={ciut} idIndikator="nav-aktif" />
           </div>
-          <div className="flex min-h-[73px] shrink-0 items-center border-t border-line p-3">
-            <KartuUser user={user} ciut={ciut} onKeluar={keluar} />
-          </div>
         </motion.aside>
 
         <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
@@ -274,6 +287,11 @@ export default function AppShell({ menu, user, children, ringkasan, notifikasi }
             notifikasi={notifikasi}
             drawer={drawer}
             onBukaMenu={() => setDrawer(true)}
+            theme={theme}
+            onThemeChange={setTheme}
+            onBukaSaran={() => setModalSaranBuka(true)}
+            onKeluar={keluar}
+            router={router}
           />
           <TabBar
             tabs={tabs}
@@ -306,10 +324,14 @@ export default function AppShell({ menu, user, children, ringkasan, notifikasi }
               <div className="flex-1 overflow-y-auto py-4">
                 <NavList menu={menu} aktifHref={aktifHref} onPilih={() => setDrawer(false)} idIndikator="nav-aktif-drawer" />
               </div>
-              <div className="border-t border-line p-3"><KartuUser user={user} onKeluar={keluar} /></div>
             </aside>
           </div>
         )}
+
+        <ModalSaran
+          buka={modalSaranBuka}
+          onTutup={() => setModalSaranBuka(false)}
+        />
       </div>
     </MotionConfig>
   );

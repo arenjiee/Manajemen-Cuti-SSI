@@ -10,7 +10,7 @@ import * as THREE from "three";
  */
 const PALET = {
   dark: { primary: "#e8e8e8", muted: "#2c2c2c" },
-  light: { primary: "#161616", muted: "#c9c9c9" },
+  light: { primary: "#0f172a", muted: "#94a3b8" },
 };
 
 /**
@@ -46,7 +46,11 @@ export function useResolvedTheme(theme = "auto") {
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const ubah = () => setMode(bacaMode());
     mq.addEventListener("change", ubah);
-    return () => mq.removeEventListener("change", ubah);
+    window.addEventListener("smck-theme-change", ubah);
+    return () => {
+      mq.removeEventListener("change", ubah);
+      window.removeEventListener("smck-theme-change", ubah);
+    };
   }, []);
 
   if (theme === "light" || theme === "dark") return theme;

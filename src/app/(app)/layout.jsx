@@ -21,6 +21,7 @@ export default async function AppLayout({ children }) {
         user={{
           id: user.id,
           nama: user.nama_lengkap,
+          email: user.email,
           peran: NAMA_ROLE[user.role],
           fotoKey: user.foto_key,
         }}

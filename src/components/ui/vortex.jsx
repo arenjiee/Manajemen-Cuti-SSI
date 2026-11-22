@@ -5,7 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 import { SceneContainer } from "@/components/ui/vortex-utils/scene-container";
-import { useShadcnTheme } from "@/components/ui/vortex-utils/use-shadcn-theme";
+import { useShadcnTheme, useResolvedTheme } from "@/components/ui/vortex-utils/use-shadcn-theme";
 
 function seedVortex(count, arms) {
   const positions = new Float32Array(count * 3);
@@ -29,6 +29,8 @@ function seedVortex(count, arms) {
 function Spiral({ count, speed, arms, theme, opacity }) {
   const pointsRef = React.useRef(null);
   const { primaryColor, mutedColor } = useShadcnTheme(theme);
+  const mode = useResolvedTheme(theme);
+  const isDark = mode === "dark";
 
   const { positions, radii } = React.useMemo(
     () => seedVortex(count, arms),
@@ -59,12 +61,12 @@ function Spiral({ count, speed, arms, theme, opacity }) {
       </bufferGeometry>
       <pointsMaterial
         vertexColors
-        size={0.05}
+        size={isDark ? 0.05 : 0.065}
         sizeAttenuation
         transparent
-        opacity={opacity}
+        opacity={isDark ? opacity : 0.85}
         depthWrite={false}
-        blending={THREE.AdditiveBlending}
+        blending={isDark ? THREE.AdditiveBlending : THREE.NormalBlending}
       />
     </points>
   );
