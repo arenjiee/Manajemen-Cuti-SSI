@@ -38,10 +38,16 @@ export default async function UsersPage({ searchParams }) {
     {
       label: "Aksi",
       render: (u) => (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-4 pl-2">
         <TautanDetail href={`/admin/users/${u.id}`} label="Edit" />
         {ROLE_DAPAT_DIHAPUS.includes(u.role) && (
-          <TombolKonfirmasi action="/api/admin/users/hapus" fields={{ id: u.id }} label="Hapus" pesan={`Hapus pengguna ${u.nama_lengkap}?`} className={btnDanger} />
+          <TombolKonfirmasi
+            action="/api/admin/users/hapus"
+            fields={{ id: u.id }}
+            label="Hapus"
+            pesan={`Hapus pengguna ${u.nama_lengkap}?`}
+            className={`${btnDanger} ml-1`}
+          />
         )}
       </div>
       ),

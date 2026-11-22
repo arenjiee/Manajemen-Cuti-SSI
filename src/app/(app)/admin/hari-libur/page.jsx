@@ -40,14 +40,14 @@ export default async function HariLiburPage({ searchParams }) {
     {
       label: "Aksi",
       render: (h) => (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-4 pl-2">
         <TautanDetail href={`/admin/hari-libur/${h.id}`} label="Edit" />
         <TombolKonfirmasi
           action="/api/admin/hari-libur/hapus"
           fields={{ id: h.id }}
           label="Hapus"
           pesan={`Hapus hari libur ${formatTanggal(h.tanggal)}?`}
-          className={btnDanger}
+          className={`${btnDanger} ml-1`}
         />
       </div>
       ),

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { formatTanggal } from "@/lib/format";
 
 const WARNA = {
@@ -37,53 +36,62 @@ const LEGENDA = [
   ["akhir_pekan", "Akhir pekan", "bg-white/10 ring-1 ring-white/15"],
 ];
 
-export default function KalenderMini({ kalender, mulai, selesai, onPilihTanggal }) {
-  // State internal untuk toggle rentang (mulai/selesai).
-  // Nilai awal diisi dari prop mulai/selesai agar ikut sinkron saat komponen mount.
-  // Hook dipanggil di sini sebelum return null agar urutan selalu konsisten.
-  const [internalMulai, setInternalMulai] = useState(mulai ?? "");
-  const [internalSelesai, setInternalSelesai] = useState(selesai ?? "");
-
+export default function KalenderMini({
+  kalender,
+  mulai = "",
+  selesai = "",
+  setengahHari = false,
+  onPilihTanggal,
+}) {
   if (!kalender?.length) return null;
 
-  // Toggle: klik hari ini mengubah rentang.
-  const handleKlik = (tanggal) => {
-    const t = tanggal;
-    if (!internalMulai && !internalSelesai) {
-      // Belum ada rentang → jadi mulai
-      setInternalMulai(t);
-      setInternalSelesai("");
-    } else if (internalMulai && !internalSelesai) {
-      // Sudah ada mulai, cari selesai
-      if (t >= internalMulai) {
-        setInternalSelesai(t);
+  const curM = mulai || "";
+  const curS = selesai || "";
+
+  const [dari, sampai] = curM && curS
+    ? (curM <= curS ? [curM, curS] : [curS, curM])
+    : (curM ? [curM, curM] : (curS ? [curS, curS] : ["", ""]));
+
+  const handleKlik = (t) => {
+    if (!onPilihTanggal) return;
+
+    let nextMulai = "";
+    let nextSelesai = "";
+
+    if (setengahHari) {
+      if (curM === t) {
+        nextMulai = "";
+        nextSelesai = "";
       } else {
-        // Klik sebelum mulai → geser mulai ke klikan, selesai tetap
-        setInternalMulai(t);
-        setInternalSelesai("");
+        nextMulai = t;
+        nextSelesai = t;
       }
-    } else if (internalMulai && internalSelesai) {
-      // Sudah ada keduanya → cek apakah klik tersebut salah satu ujung rentang
-      if (t === internalMulai || t === internalSelesai) {
-        // Klik ujung → reset semuanya
-        setInternalMulai("");
-        setInternalSelesai("");
-      } else if (t > internalMulai && t < internalSelesai) {
-        // Klik di dalam rentang → reset semuanya
-        setInternalMulai("");
-        setInternalSelesai("");
-      } else if (t < internalMulai) {
-        // Klik sebelum mulai → geser mulai, geser selesai juga ke klikan (atau kosong)
-        setInternalMulai(t);
-        setInternalSelesai("");
-      } else if (t > internalSelesai) {
-        // Klik setelah selesai → geser mulai dan selesai
-        setInternalMulai(internalSelesai);
-        setInternalSelesai(t);
+    } else if (!curM && !curS) {
+      nextMulai = t;
+      nextSelesai = t;
+    } else if (curM && (!curS || curM === curS)) {
+      if (t === curM) {
+        nextMulai = "";
+        nextSelesai = "";
+      } else if (t > curM) {
+        nextMulai = curM;
+        nextSelesai = t;
+      } else {
+        nextMulai = t;
+        nextSelesai = curM;
+      }
+    } else {
+      const [awal, akhir] = curM <= curS ? [curM, curS] : [curS, curM];
+      if (t >= awal && t <= akhir) {
+        nextMulai = "";
+        nextSelesai = "";
+      } else {
+        nextMulai = t;
+        nextSelesai = t;
       }
     }
-    // Kirim ke parent
-    onPilihTanggal?.(internalMulai, internalSelesai);
+
+    onPilihTanggal({ mulai: nextMulai, selesai: nextSelesai }, nextMulai, nextSelesai);
   };
 
   return (
@@ -102,9 +110,7 @@ export default function KalenderMini({ kalender, mulai, selesai, onPilihTanggal 
                 <span key={`k${i}`} />
               ))}
               {daftarHari.map((h) => {
-                const dipilih = internalMulai && internalSelesai
-                  ? h.tanggal >= internalMulai && h.tanggal <= internalSelesai
-                  : false;
+                const dipilih = Boolean(dari && h.tanggal >= dari && h.tanggal <= sampai);
                 const statusKunci = h.status === "libur" && h.liburInfo?.jenis === "cuti_bersama" ? "cuti_bersama" : h.status;
                 
                 let detailLibur = "";

@@ -64,6 +64,20 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
     setJenisId(""); setSetengah(false); setMulai(""); setSelesai(""); setHandoverId(""); setLampiran(null); setSim(null); setUnggah({ loading: false, error: "" }); setErrorPesan("");
   }
 
+  function handlePilihTanggal(arg1, arg2) {
+    let m = "";
+    let s = "";
+    if (typeof arg1 === "object" && arg1 !== null) {
+      m = arg1.mulai ?? "";
+      s = arg1.selesai ?? "";
+    } else if (typeof arg1 === "string") {
+      m = arg1;
+      s = typeof arg2 === "string" ? arg2 : arg1;
+    }
+    setMulai(m);
+    setSelesai(s);
+  }
+
   async function pilihBerkas(e) {
     const f = e.target.files?.[0];
     if (!f) return;
@@ -125,11 +139,11 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
         </label>
         <div className="grid gap-4 sm:grid-cols-2">
           <L t="Tanggal mulai">
-            <input name="mulai" type="date" required value={mulai} className={inputCls}
+            <input name="mulai" type="date" required value={mulai ?? ""} className={inputCls}
               onChange={(e) => { setMulai(e.target.value); if (set半分 || !selesai || selesai < e.target.value) setSelesai(e.target.value); }} />
           </L>
           <L t="Tanggal selesai">
-            <input name="selesai" type="date" required value={selesai} min={mulai || undefined} readOnly={set半分} className={inputCls} onChange={(e) => setSelesai(e.target.value)} />
+            <input name="selesai" type="date" required value={selesai ?? ""} min={mulai || undefined} readOnly={set半分} className={inputCls} onChange={(e) => setSelesai(e.target.value)} />
           </L>
         </div>
 
@@ -208,10 +222,8 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
             kalender={sim.kalender}
             mulai={mulai}
             selesai={selesai}
-            onPilihTanggal={({ mulai: m, selesai: s }) => {
-              setMulai(m);
-              setSelesai(s);
-            }}
+            setengahHari={set半分}
+            onPilihTanggal={handlePilihTanggal}
           />
         )}
 
@@ -223,10 +235,8 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
                 kalender={kalenderAwal}
                 mulai={mulai}
                 selesai={selesai}
-                onPilihTanggal={({ mulai: m, selesai: s }) => {
-                  setMulai(m);
-                  setSelesai(s);
-                }}
+                setengahHari={set半分}
+                onPilihTanggal={handlePilihTanggal}
               />
             </div>
 
