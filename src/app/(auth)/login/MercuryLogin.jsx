@@ -1,40 +1,18 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 
-const BLOBS = [
-  { size: 260, left: 18, top: 22, delay: -4, duration: 22 },
-  { size: 200, left: 72, top: 16, delay: -11, duration: 26 },
-  { size: 320, left: 55, top: 64, delay: -2, duration: 30 },
-  { size: 170, left: 10, top: 70, delay: -16, duration: 19 },
-  { size: 230, left: 82, top: 76, delay: -8, duration: 24 },
-  { size: 150, left: 40, top: 40, delay: -13, duration: 28 },
-];
+// Kanvas WebGL hanya ada di browser: muat setelah hidrasi agar tidak ikut SSR.
+const Vortex = dynamic(() => import("@/components/ui/vortex"), { ssr: false });
 
 export default function MercuryLogin() {
   const router = useRouter();
-  const blobRefs = useRef([]);
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
   const [pesan, setPesan] = useState("");
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const onMove = (e) => {
-      const x = e.clientX / window.innerWidth;
-      const y = e.clientY / window.innerHeight;
-      blobRefs.current.forEach((blob, i) => {
-        if (!blob) return;
-        const speed = (i + 1) * 20;
-        blob.style.marginLeft = `${x * speed}px`;
-        blob.style.marginTop = `${y * speed}px`;
-      });
-    };
-    document.addEventListener("mousemove", onMove);
-    return () => document.removeEventListener("mousemove", onMove);
-  }, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -76,26 +54,12 @@ export default function MercuryLogin() {
         </defs>
       </svg>
 
-      <div className="pointer-events-none absolute inset-0 z-0 opacity-60 [filter:url(#mc-gooey)]" aria-hidden="true">
-        {BLOBS.map((b, i) => (
-          <div
-            key={i}
-            ref={(el) => (blobRefs.current[i] = el)}
-            className="absolute animate-float rounded-full bg-linear-to-br from-[#e0e0e0] to-[#888] blur-[20px] shadow-[inset_-10px_-10px_20px_rgba(0,0,0,0.5),10px_10px_30px_rgba(255,255,255,0.2)] transition-[margin] duration-100 ease-out motion-reduce:animate-none motion-reduce:transition-none"
-            style={{
-              width: b.size,
-              height: b.size,
-              left: `${b.left}%`,
-              top: `${b.top}%`,
-              animationDelay: `${b.delay}s`,
-              animationDuration: `${b.duration}s`,
-            }}
-          />
-        ))}
+      <div className="pointer-events-none absolute inset-0 z-0" aria-hidden="true">
+        <Vortex className="h-full w-full" theme="auto" environment="auto" />
       </div>
 
-      {/* Panel gelap tembus pandang: menjaga kontras teks di atas blob, cairan latar tetap terlihat. */}
-      <main className="relative z-10 w-full max-w-[440px] rounded-3xl border border-white/10 bg-[#050505]/65 px-6 pt-9 pb-7 backdrop-blur-[18px] min-[480px]:rounded-[28px] min-[480px]:px-9 min-[480px]:pt-11 min-[480px]:pb-9">
+      {/* Panel gelap tembus pandang: menjaga kontras teks di atas vortex, spiral latar tetap terlihat. */}
+      <main className="relative z-10 w-full max-w-[440px] rounded-3xl border border-white/10 bg-[#050505]/55 px-6 pt-9 pb-7 backdrop-blur-[10px] min-[480px]:rounded-[28px] min-[480px]:px-9 min-[480px]:pt-11 min-[480px]:pb-9">
         <header className="mb-10">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/images/leavesync-wordmark.png" alt="LeaveSync" className="mb-6 h-8 w-auto select-none" draggable={false} />

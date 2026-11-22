@@ -67,14 +67,5 @@ a.text-accent:hover { text-decoration-color: currentColor; }
   }
 }
 
-/* Animasi latar halaman login: tersedia sebagai utility `animate-float`. */
-@theme {
-  --animate-float: float 20s infinite alternate ease-in-out;
-
-  @keyframes float {
-    0% { transform: translate(0, 0) scale(1); }
-    33% { transform: translate(10vw, 20vh) scale(1.2); }
-    66% { transform: translate(-5vw, 10vh) scale(0.8); }
-    100% { transform: translate(5vw, -10vh) scale(1.1); }
-  }
-}
+/* Latar 3D halaman login (Vortex) menggantikan animasi blob sebelumnya, jadi
+   utility `animate-float` tidak lagi diperlukan. */
