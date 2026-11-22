@@ -97,6 +97,8 @@ export default function MercuryLogin() {
       {/* Panel gelap tembus pandang: menjaga kontras teks di atas blob, cairan latar tetap terlihat. */}
       <main className="relative z-10 w-full max-w-[440px] rounded-3xl border border-white/10 bg-[#050505]/65 px-6 pt-9 pb-7 backdrop-blur-[18px] min-[480px]:rounded-[28px] min-[480px]:px-9 min-[480px]:pt-11 min-[480px]:pb-9">
         <header className="mb-10">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/images/leavesync-wordmark.png" alt="LeaveSync" className="mb-6 h-8 w-auto select-none" draggable={false} />
           <span className="mb-2.5 block font-mono text-[11px] tracking-[3px] text-white/70 uppercase">PT SSI · Cabang Makassar</span>
           <h1 className="-ml-[3px] font-sans text-[length:clamp(2.4rem,11vw,3.4rem)] leading-[0.92] font-bold tracking-[-0.04em]">
             MANAJEMEN<br />CUTI

@@ -13,10 +13,16 @@ const tombolIkon = "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg
 
 function Brand({ ciut }) {
   return (
-    <div className="flex min-w-0 items-center gap-3">
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent font-display text-sm font-semibold text-accent-ink">S</span>
-      {!ciut && <span className="truncate font-display text-lg font-semibold">SMCK</span>}
-    </div>
+    <Link href="/dashboard" aria-label="LeaveSync — beranda" className="flex min-w-0 items-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
+      {/* Logo statis kecil: cukup <img> agar tidak perlu konfigurasi loader next/image. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={ciut ? "/images/leavesync-icon.png" : "/images/leavesync-wordmark.png"}
+        alt="LeaveSync"
+        className={`w-auto shrink-0 select-none ${ciut ? "h-8" : "h-6"}`}
+        draggable={false}
+      />
+    </Link>
   );
 }
 
