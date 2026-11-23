@@ -8,7 +8,7 @@ import DataTable from "@/components/DataTable";
 import FilterBar from "@/components/FilterBar";
 import PageHeader from "@/components/PageHeader";
 import GlowCard from "@/components/GlowCard";
-import { btnPrimary } from "@/components/ui";
+import FormPengingat from "./FormPengingat";
 
 export const metadata = { title: "Kuota Hangus | LeaveSync" };
 
@@ -37,12 +37,7 @@ export default async function KuotaHangusPage({ searchParams }) {
         title="Peringatan Kuota Hangus"
         description="Karyawan dengan sisa Cuti Tahunan besar menjelang akhir tahun. Kuota tidak dibawa ke tahun berikutnya."
         action={
-          d.aktif && d.rows.length > 0 && (
-            <form id="form-pengingat" action="/api/kuota-hangus/pengingat" method="POST">
-              <input type="hidden" name="ambang" value={d.ambang} suppressHydrationWarning />
-              <button suppressHydrationWarning className={btnPrimary}>Kirim pengingat ke yang dipilih</button>
-            </form>
-          )
+          d.aktif && d.rows.length > 0 && <FormPengingat ambang={d.ambang} />
         }
       />
 

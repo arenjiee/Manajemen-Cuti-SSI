@@ -2,7 +2,17 @@ import { NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { guardApi } from "@/lib/guard";
 import { kirimPengingat } from "@/lib/queries/kuota-hangus";
-import { ambangValid } from "@/lib/leave/kuota-hangus";
+import { ambangValid, JEDA_PENGINGAT_HARI } from "@/lib/leave/kuota-hangus";
+
+const PESAN_KOSONG = "Belum ada karyawan yang dipilih.";
+
+function pesanHasil({ terkirim, dilewati }) {
+  if (terkirim === 0 && dilewati === 0) return PESAN_KOSONG;
+  const alasan = `karena sudah diingatkan dalam ${JEDA_PENGINGAT_HARI} hari terakhir atau sudah tidak berisiko`;
+  if (terkirim === 0) return `Tidak ada pengingat yang dikirim. ${dilewati} karyawan dilewati ${alasan}.`;
+  if (dilewati === 0) return `${terkirim} pengingat berhasil dikirim.`;
+  return `${terkirim} pengingat berhasil dikirim. ${dilewati} dilewati ${alasan}.`;
+}
 
 export async function POST(request) {
   const g = await guardApi(["admin", "hrd"], request);
@@ -40,6 +50,7 @@ export async function POST(request) {
     ok: true,
     terkirim: r.terkirim,
     dilewati: r.dilewati,
+    message: pesanHasil(r),
   });
 }
 
