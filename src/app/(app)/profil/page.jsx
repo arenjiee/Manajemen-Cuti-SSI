@@ -16,7 +16,7 @@ import Section from "@/components/Section";
 import PresenceBadge from "@/components/PresenceBadge";
 import FotoProfil from "./FotoProfil";
 
-export const metadata = { title: "Profil | SMCK" };
+export const metadata = { title: "Profil | LeaveSync" };
 
 const L = ({ t, children }) => <label className="block"><span className={labelCls}>{t}</span>{children}</label>;
 const Baris = ({ t, children }) => (

@@ -1,4 +1,4 @@
-# Sistem Manajemen Cuti Karyawan (SMCK) Implementation Plan
+# Sistem Manajemen Cuti Karyawan (LeaveSync) Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -38,14 +38,14 @@
 ### Task 1: Scaffold project, dependensi, token desain
 
 **Files:**
-- Create: project `smck` (opsi `create-next-app` sama seperti Bab 8: JS, ESLint, Tailwind, `src/`, App Router, Turbopack, tanpa alias kustom), `package.json` (scripts), `.env.local`, `.gitignore` (+`uploads/`), `src/app/globals.css` (token), `public/fonts/` (Fraunces, Instrument Sans), `src/app/layout.jsx`.
+- Create: project `leavesync` (opsi `create-next-app` sama seperti Bab 8: JS, ESLint, Tailwind, `src/`, App Router, Turbopack, tanpa alias kustom), `package.json` (scripts), `.env.local`, `.gitignore` (+`uploads/`), `src/app/globals.css` (token), `public/fonts/` (Fraunces, Instrument Sans), `src/app/layout.jsx`.
 
 **Interfaces:** Produces: script `npm test` = `node --test "src/lib/**/*.test.js" "tests/**/*.test.js"`; env `DATABASE_URL`, `DATABASE_URL_TEST`, `SESSION_SECRET` (minimal 32 karakter); CSS variables `--bg --surface --ink --ink-muted --accent --ok --warn --bad --radius --ease` (warna `oklch`, bukan hitam/putih murni).
 
 - [ ] Scaffold, `npm i pg bcryptjs jose pdf-lib`, set `"type": "module"`.
 - [ ] Definisikan token di `globals.css`, `@font-face` lokal, `prefers-reduced-motion` mematikan transisi.
 - [ ] Verifikasi: `npm run build` lolos; `npm test` berjalan (0 tes) tanpa error.
-- [ ] Commit `chore: scaffold smck`.
+- [ ] Commit `chore: scaffold leavesync`.
 
 ### Task 2: Skema, seed, dan setup DB
 

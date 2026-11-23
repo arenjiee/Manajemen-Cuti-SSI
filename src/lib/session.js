@@ -1,6 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 
-export const COOKIE_NAME = "smck_session";
+export const COOKIE_NAME = "leavesync_session";
 const TIGA_PULUH_HARI = 30 * 24 * 3600;
 const DUA_BELAS_JAM = 12 * 3600;
 

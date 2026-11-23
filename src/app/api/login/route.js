@@ -7,8 +7,8 @@ import { buatPembatas } from "@/lib/rate-limit";
 import { ipKlien } from "@/lib/klien-ip";
 
 const globalRef = globalThis;
-const perAkun = globalRef.__smckLoginAkun ?? (globalRef.__smckLoginAkun = buatPembatas({ maks: 5, jendelaMs: 15 * 60 * 1000 }));
-const perIp = globalRef.__smckLoginIp ?? (globalRef.__smckLoginIp = buatPembatas({ maks: 30, jendelaMs: 15 * 60 * 1000 }));
+const perAkun = globalRef.__leavesyncLoginAkun ?? (globalRef.__leavesyncLoginAkun = buatPembatas({ maks: 5, jendelaMs: 15 * 60 * 1000 }));
+const perIp = globalRef.__leavesyncLoginIp ?? (globalRef.__leavesyncLoginIp = buatPembatas({ maks: 30, jendelaMs: 15 * 60 * 1000 }));
 
 export async function POST(request) {
   if (!originValid(request.headers.get("origin"), request.headers.get("host"))) {

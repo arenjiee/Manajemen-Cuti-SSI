@@ -10,7 +10,7 @@ import Panah from "@/components/Panah";
 import PageHeader from "@/components/PageHeader";
 import { btnGhost, inputCls, labelCls } from "@/components/ui";
 
-export const metadata = { title: "Kapasitas Tim | SMCK" };
+export const metadata = { title: "Kapasitas Tim | LeaveSync" };
 
 const BULAN = /^\d{4}-(0[1-9]|1[0-2])$/;
 const PESAN = { batas: "Persentase kapasitas disimpan." };

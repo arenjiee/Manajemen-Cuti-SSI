@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export const metadata = { title: "Halaman tidak ditemukan | SMCK" };
+export const metadata = { title: "Halaman tidak ditemukan | LeaveSync" };
 
 const Ikon = ({ children }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="size-4">

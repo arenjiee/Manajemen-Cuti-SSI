@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 export function getStoredTheme() {
   if (typeof window === "undefined") return "system";
   try {
-    return localStorage.getItem("smck-theme") || "system";
+    return localStorage.getItem("leavesync-theme") || "system";
   } catch {
     return "system";
   }
@@ -14,7 +14,7 @@ export function getStoredTheme() {
 export function applyTheme(theme) {
   if (typeof window === "undefined") return;
   try {
-    localStorage.setItem("smck-theme", theme);
+    localStorage.setItem("leavesync-theme", theme);
   } catch {}
 
   const root = document.documentElement;
@@ -35,7 +35,7 @@ export function applyTheme(theme) {
   }
 
   window.dispatchEvent(
-    new CustomEvent("smck-theme-change", { detail: { theme, isDark } })
+    new CustomEvent("leavesync-theme-change", { detail: { theme, isDark } })
   );
 }
 
@@ -62,11 +62,11 @@ export function useTheme() {
     const onCustom = () => update();
 
     mq.addEventListener("change", onMq);
-    window.addEventListener("smck-theme-change", onCustom);
+    window.addEventListener("leavesync-theme-change", onCustom);
 
     return () => {
       mq.removeEventListener("change", onMq);
-      window.removeEventListener("smck-theme-change", onCustom);
+      window.removeEventListener("leavesync-theme-change", onCustom);
     };
   }, []);
 

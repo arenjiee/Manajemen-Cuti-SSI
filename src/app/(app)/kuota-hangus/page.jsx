@@ -10,7 +10,7 @@ import PageHeader from "@/components/PageHeader";
 import GlowCard from "@/components/GlowCard";
 import { btnPrimary } from "@/components/ui";
 
-export const metadata = { title: "Kuota Hangus | SMCK" };
+export const metadata = { title: "Kuota Hangus | LeaveSync" };
 
 const angka = (v) => (/^\d{1,4}$/.test(v ?? "") ? Number(v) : null);
 

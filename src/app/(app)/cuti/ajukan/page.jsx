@@ -13,7 +13,7 @@ import TombolKembali from "@/components/TombolKembali";
 import PageHeader from "@/components/PageHeader";
 import FormPengajuan from "./FormPengajuan";
 
-export const metadata = { title: "Ajukan Cuti | SMCK" };
+export const metadata = { title: "Ajukan Cuti | LeaveSync" };
 
 export default async function AjukanPage() {
   const user = await requireRole(["karyawan", "ketua_divisi"]);

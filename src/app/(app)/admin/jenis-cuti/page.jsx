@@ -13,7 +13,7 @@ import Section from "@/components/Section";
 import TautanDetail from "@/components/TautanDetail";
 import { btnDanger } from "@/components/ui";
 
-export const metadata = { title: "Jenis Cuti | SMCK" };
+export const metadata = { title: "Jenis Cuti | LeaveSync" };
 
 export default async function JenisCutiPage({ searchParams }) {
   await requireRole(["admin"]);

@@ -15,7 +15,7 @@ import PageHeader from "@/components/PageHeader";
 import BatalkanCuti from "./BatalkanCuti";
 import { btnPrimary } from "@/components/ui";
 
-export const metadata = { title: "Detail Cuti | SMCK" };
+export const metadata = { title: "Detail Cuti | LeaveSync" };
 
 const Baris = ({ t, children }) => (
   <div className="flex justify-between gap-6 border-b border-line py-2 text-sm last:border-0"><dt className="text-muted">{t}</dt><dd className="text-right">{children || "-"}</dd></div>

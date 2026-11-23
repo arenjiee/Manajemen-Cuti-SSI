@@ -96,7 +96,7 @@ function TopBar({
   onKeluar,
   router,
 }) {
-  const halaman = cocokkanMenu(menu, pathname)?.label ?? "SMCK";
+  const halaman = cocokkanMenu(menu, pathname)?.label ?? "LeaveSync";
   return (
     <header className="flex h-14 shrink-0 items-center gap-3 border-b border-line bg-chrome px-3 md:px-5">
       <button type="button" aria-label="Buka menu" aria-expanded={drawer} onClick={onBukaMenu} suppressHydrationWarning className={`${tombolIkon} md:hidden`}>
@@ -177,7 +177,7 @@ export default function AppShell({ menu, user, children, ringkasan, notifikasi }
   const [modalSaranBuka, setModalSaranBuka] = useState(false);
   const qs = useSearchParams().toString();
   const sekarang = qs ? `${pathname}?${qs}` : pathname;
-  const kunci = `smck-tab:${user.id}`;
+  const kunci = `leavesync-tab:${user.id}`;
 
   // State awal sama di server dan klien (satu tab = halaman ini); isi tersimpan dimuat setelah mount.
   const [tabs, setTabs] = useState([{ id: "t1", href: sekarang }]);
@@ -194,7 +194,7 @@ export default function AppShell({ menu, user, children, ringkasan, notifikasi }
     let simpan = null;
     try {
       simpan = bersihkanTabs(JSON.parse(localStorage.getItem(kunci)), awal.current.menu);
-      setCiut(localStorage.getItem("smck-sidebar-ciut") === "1");
+      setCiut(localStorage.getItem("leavesync-sidebar-ciut") === "1");
     } catch {}
     const mulai = simpan ?? { tabs: [{ id: "t1", href: awal.current.sekarang }], activeId: "t1" };
     aktifRef.current = mulai.activeId;
@@ -242,7 +242,7 @@ export default function AppShell({ menu, user, children, ringkasan, notifikasi }
 
   function toggleCiut() {
     setCiut((c) => {
-      try { localStorage.setItem("smck-sidebar-ciut", c ? "0" : "1"); } catch {}
+      try { localStorage.setItem("leavesync-sidebar-ciut", c ? "0" : "1"); } catch {}
       return !c;
     });
   }

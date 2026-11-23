@@ -9,7 +9,7 @@ import PageHeader from "@/components/PageHeader";
 import TautanDetail from "@/components/TautanDetail";
 import { btnPrimary } from "@/components/ui";
 
-export const metadata = { title: "Divisi | SMCK" };
+export const metadata = { title: "Divisi | LeaveSync" };
 
 export default async function DivisiPage({ searchParams }) {
   await requireRole(["admin"]);

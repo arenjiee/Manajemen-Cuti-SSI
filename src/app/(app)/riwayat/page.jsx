@@ -13,7 +13,7 @@ import FilterBar from "@/components/FilterBar";
 import PageHeader from "@/components/PageHeader";
 import TautanDetail from "@/components/TautanDetail";
 
-export const metadata = { title: "Riwayat | SMCK" };
+export const metadata = { title: "Riwayat | LeaveSync" };
 
 const CAKUPAN = {
   karyawan: "Seluruh pengajuan cuti Anda.",

@@ -15,7 +15,7 @@ import TautanDetail from "@/components/TautanDetail";
 import StatusBadge from "@/components/StatusBadge";
 import { btnPrimary } from "@/components/ui";
 
-export const metadata = { title: "Cuti Saya | SMCK" };
+export const metadata = { title: "Cuti Saya | LeaveSync" };
 
 export default async function CutiSayaPage({ searchParams }) {
   const user = await requireRole(["karyawan", "ketua_divisi"]);

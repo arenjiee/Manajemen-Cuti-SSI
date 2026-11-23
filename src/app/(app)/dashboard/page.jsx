@@ -28,7 +28,7 @@ import {
   UserX,
 } from "lucide-react";
 
-export const metadata = { title: "Dashboard | SMCK" };
+export const metadata = { title: "Dashboard | LeaveSync" };
 
 const ikon = (Ikon) => <Ikon className="h-4 w-4" aria-hidden />;
 
@@ -556,9 +556,6 @@ export default async function DashboardPage() {
             Halo, {user.nama_lengkap}
           </h1>
         </div>
-        <p className="text-xs text-muted">
-          SMCK · PT SSI Makassar
-        </p>
       </header>
 
       {/* Konten Dashboard Sesuai Role */}

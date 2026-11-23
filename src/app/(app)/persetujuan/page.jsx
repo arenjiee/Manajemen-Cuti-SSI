@@ -7,7 +7,7 @@ import KartuApproval from "@/components/KartuApproval";
 import PageHeader from "@/components/PageHeader";
 import { btnPrimary } from "@/components/ui";
 
-export const metadata = { title: "Persetujuan Final | SMCK" };
+export const metadata = { title: "Persetujuan Final | LeaveSync" };
 
 const angka = (v) => (/^\d{1,4}$/.test(v ?? "") ? Number(v) : null);
 

@@ -13,7 +13,7 @@ import PresenceBadge from "@/components/PresenceBadge";
 import TautanDetail from "@/components/TautanDetail";
 import { btnPrimary, btnDanger } from "@/components/ui";
 
-export const metadata = { title: "Pengguna | SMCK" };
+export const metadata = { title: "Pengguna | LeaveSync" };
 
 export default async function UsersPage({ searchParams }) {
   await requireRole(["admin"]);

@@ -7,7 +7,7 @@ import { formatWaktu } from "@/lib/format";
 import { btnGhost } from "@/components/ui";
 import PageHeader from "@/components/PageHeader";
 
-export const metadata = { title: "Notifikasi | SMCK" };
+export const metadata = { title: "Notifikasi | LeaveSync" };
 
 export default async function NotifikasiPage({ searchParams }) {
   const user = await requireRole();

@@ -1,4 +1,4 @@
-# SMCK — Sistem Manajemen Cuti Karyawan (PT SSI Cabang Makassar)
+# LeaveSync — Sistem Manajemen Cuti Karyawan (PT SSI Cabang Makassar)
 
 Next.js (App Router) + PostgreSQL (`pg`, raw SQL) + Tailwind. Spesifikasi dan rencana ada di `docs/superpowers/`.
 

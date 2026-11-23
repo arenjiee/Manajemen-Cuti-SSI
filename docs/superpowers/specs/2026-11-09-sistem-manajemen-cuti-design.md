@@ -1,4 +1,4 @@
-# Spec Desain: Sistem Manajemen Cuti Karyawan (SMCK)
+# Spec Desain: Sistem Manajemen Cuti Karyawan (LeaveSync)
 
 Tanggal: 2026-11-09
 Konteks: Individual Project 7, dinilai dari `project_description.md`. Skenario: PT SSI Cabang Makassar.

@@ -8,7 +8,7 @@ import TombolKembali from "@/components/TombolKembali";
 import PageHeader from "@/components/PageHeader";
 import { inputCls, labelCls, selectCls } from "@/components/ui";
 
-export const metadata = { title: "Tambah Pengguna | SMCK" };
+export const metadata = { title: "Tambah Pengguna | LeaveSync" };
 
 const L = ({ t, children }) => <label className="block"><span className={labelCls}>{t}</span>{children}</label>;
 

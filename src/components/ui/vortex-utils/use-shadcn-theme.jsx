@@ -46,10 +46,10 @@ export function useResolvedTheme(theme = "auto") {
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const ubah = () => setMode(bacaMode());
     mq.addEventListener("change", ubah);
-    window.addEventListener("smck-theme-change", ubah);
+    window.addEventListener("leavesync-theme-change", ubah);
     return () => {
       mq.removeEventListener("change", ubah);
-      window.removeEventListener("smck-theme-change", ubah);
+      window.removeEventListener("leavesync-theme-change", ubah);
     };
   }, []);
 

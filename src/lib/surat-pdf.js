@@ -52,7 +52,7 @@ export function bungkus(font, teks, ukuran, lebar) {
 export async function buatSuratCuti(p, { perusahaan, alamat, dicetak }) {
   const doc = await PDFDocument.create();
   doc.setTitle(`Surat Persetujuan Cuti ${nomorSurat(p.id, p.tanggal_mulai)}`);
-  doc.setProducer("SMCK");
+  doc.setProducer("LeaveSync");
   const page = doc.addPage(A4);
   const reg = await doc.embedFont(StandardFonts.Helvetica);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);

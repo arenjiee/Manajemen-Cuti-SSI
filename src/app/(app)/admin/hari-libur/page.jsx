@@ -14,7 +14,7 @@ import TautanDetail from "@/components/TautanDetail";
 import { CalendarDays } from "lucide-react";
 import { btnDanger, inputCls } from "@/components/ui";
 
-export const metadata = { title: "Hari Libur | SMCK" };
+export const metadata = { title: "Hari Libur | LeaveSync" };
 
 export default async function HariLiburPage({ searchParams }) {
   await requireRole(["admin"]);

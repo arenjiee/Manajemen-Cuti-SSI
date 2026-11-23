@@ -158,7 +158,7 @@ export default function MercuryLogin() {
         </form>
 
         <footer className="mt-10 flex justify-between gap-4 font-mono text-[11px] text-muted">
-          <span>SMCK 2026</span>
+          <span>LeaveSync 2026</span>
           <span>Lupa password? Hubungi Admin</span>
         </footer>
       </main>

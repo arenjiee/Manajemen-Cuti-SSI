@@ -5,7 +5,7 @@ import { antreanLeader } from "@/lib/queries/approval";
 import KartuApproval from "@/components/KartuApproval";
 import PageHeader from "@/components/PageHeader";
 
-export const metadata = { title: "Verifikasi Cuti | SMCK" };
+export const metadata = { title: "Verifikasi Cuti | LeaveSync" };
 
 export default async function VerifikasiPage() {
   const user = await requireRole(["ketua_divisi"]);
