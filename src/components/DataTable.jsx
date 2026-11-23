@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import EmptyState from "./EmptyState";
 import TabelPilih from "./TabelPilih";
 
@@ -16,7 +17,7 @@ export default function DataTable({ kolom, rows, kosong = "Belum ada data.", sel
         label={kolom.map((k) => k.label)}
         baris={rows.map((r, i) => ({
           id: r.id ?? i,
-          cells: kolom.map((k) => sel(k, r)),
+          cells: kolom.map((k) => <Fragment key={k.label}>{sel(k, r)}</Fragment>),
         }))}
       />
     );

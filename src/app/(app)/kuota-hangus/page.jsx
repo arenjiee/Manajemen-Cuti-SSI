@@ -24,7 +24,7 @@ export default async function KuotaHangusPage({ searchParams }) {
 
   const kolom = [
     { label: "", render: (r) => <input type="checkbox" name="ids" value={r.id} form="form-pengingat" defaultChecked aria-label={`Pilih ${r.nama}`} suppressHydrationWarning className="h-4 w-4" /> },
-    { label: "Nama", render: (r) => <><p className="font-medium">{r.nama}</p><p className="text-xs text-muted">{NAMA_ROLE[r.role]} · {r.divisiNama ?? "Tanpa divisi"}</p></> },
+    { label: "Nama", render: (r) => <div><p className="font-medium">{r.nama}</p><p className="text-xs text-muted">{NAMA_ROLE[r.role]} · {r.divisiNama ?? "Tanpa divisi"}</p></div> },
     { label: "Kuota", render: (r) => `${formatHari(r.kuotaAwal)} hari` },
     { label: "Terpakai", render: (r) => `${formatHari(r.terpakai)} hari` },
     { label: "Sisa", render: (r) => <strong className={r.risiko === "pasti" ? "text-bad" : "text-warn"}>{formatHari(r.sisa)} hari</strong> },

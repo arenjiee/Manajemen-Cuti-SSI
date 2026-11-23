@@ -29,7 +29,7 @@ export default async function UsersPage({ searchParams }) {
     { name: "urut", label: "Urutkan", type: "select", options: [{ value: "nama", label: "Nama" }, { value: "bergabung", label: "Tanggal bergabung" }, { value: "divisi", label: "Divisi" }] },
   ];
   const kolom = [
-    { label: "Nama", render: (u) => <><p className="font-medium">{u.nama_lengkap}</p><p className="text-xs text-muted">{u.email}</p></> },
+    { label: "Nama", render: (u) => <div><p className="font-medium">{u.nama_lengkap}</p><p className="text-xs text-muted">{u.email}</p></div> },
     { label: "Username", key: "username" },
     { label: "Role", render: (u) => NAMA_ROLE[u.role] },
     { label: "Divisi", render: (u) => u.divisi_nama ?? "-" },
