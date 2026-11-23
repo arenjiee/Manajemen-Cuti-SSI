@@ -3,6 +3,7 @@ import { useState, useActionState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { btnPrimary, btnGhost } from "./ui";
+import { useToast } from "./ToastProvider";
 
 export default function FormAction({
   action,
@@ -14,8 +15,10 @@ export default function FormAction({
   redirectTo,
   batalHref,
   batalLabel = "Batal",
+  suksesPesan,
 }) {
   const router = useRouter();
+  const tampilToast = useToast();
   const isUrl = typeof action === "string";
 
   const [actionState, standardFormAction, actionPending] = useActionState(
@@ -44,6 +47,7 @@ export default function FormAction({
         return;
       }
       setLoading(false);
+      tampilToast(suksesPesan || data.message || data.pesan || "Perubahan berhasil disimpan.", "sukses");
       if (onSuccess) {
         onSuccess(data);
       } else if (redirectTo) {

@@ -64,7 +64,7 @@ export default async function KapasitasPage({ searchParams }) {
                   Maksimal <strong>{p.persen}%</strong> ({p.batas} orang/hari dari {p.jumlahAnggota} anggota aktif).
                   {p.hariPenuh > 0 ? <span className="text-bad"> {p.hariPenuh} hari penuh bulan ini.</span> : <span className="text-muted"> Belum ada hari penuh bulan ini.</span>}
                 </p>
-                <FormAction action="/api/kapasitas" label="Simpan persen" className="flex flex-wrap items-end gap-3">
+                <FormAction action="/api/kapasitas" label="Simpan persen" className="flex flex-wrap items-end gap-3" suksesPesan={`Kapasitas tim ${p.nama} berhasil disimpan.`}>
                   <input type="hidden" name="divisiId" value={p.id} />
                   <input type="hidden" name="bulan" value={bulan} />
                   <label className="min-w-[150px]">

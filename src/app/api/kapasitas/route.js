@@ -58,6 +58,6 @@ async function handleUpdate(request) {
     return NextResponse.redirect(new URL(`/kapasitas${bulanParam}`, request.url), 303);
   }
 
-  return NextResponse.json({ ok: true, message: "Persentase kapasitas disimpan." });
+  return NextResponse.json({ ok: true, message: "Kapasitas tim berhasil disimpan." });
 }
 
