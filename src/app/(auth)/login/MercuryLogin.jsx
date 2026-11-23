@@ -78,7 +78,7 @@ export default function MercuryLogin() {
       </div>
 
       {/* Panel tembus pandang: menjaga kontras teks di atas vortex, spiral latar tetap terlihat jelas baik mode terang maupun gelap. */}
-      <main className="relative z-10 w-full max-w-[440px] rounded-3xl border border-line bg-surface/75 px-6 pt-9 pb-7 shadow-2xl backdrop-blur-[12px] min-[480px]:rounded-[28px] min-[480px]:px-9 min-[480px]:pt-11 min-[480px]:pb-9">
+      <main className="relative z-10 w-full max-w-[440px] rounded-3xl border border-line bg-surface/95 px-6 pt-9 pb-7 shadow-2xl backdrop-blur-[12px] min-[480px]:rounded-[28px] min-[480px]:px-9 min-[480px]:pt-11 min-[480px]:pb-9">
         <header className="mb-10">
           {/* Logo LeaveSync: wordmark gelap untuk dark mode, wordmark terang untuk light mode */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
