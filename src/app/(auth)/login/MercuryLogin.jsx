@@ -160,7 +160,7 @@ export default function MercuryLogin() {
         <footer className="mt-10 flex justify-between gap-4 font-mono text-[11px] text-muted">
           <span>LeaveSync 2026</span>
           <a
-            href="https://wa.me/628110000001?text=Halo%20Admin%2C%20saya%20lupa%20password%20akun%20LeaveSync"
+            href="https://wa.me/6283892122629?text=Halo%20Admin%2C%20saya%20lupa%20password%20akun%20LeaveSync"
             target="_blank"
             rel="noopener noreferrer"
             className="transition-colors hover:text-ink hover:underline"

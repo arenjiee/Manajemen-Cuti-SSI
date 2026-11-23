@@ -5,8 +5,11 @@ export default function FormJenis({ j }) {
   const isTahunan = j?.kode === "tahunan";
   return (
     <>
-      {j && <input type="hidden" name="id" value={j.id} />}
-      <label className="block"><span className={labelCls}>Nama jenis cuti</span><input name="nama" defaultValue={j?.nama} required className={inputCls} /></label>
+      {j && <input type="hidden" name="id" value={j.id} suppressHydrationWarning />}
+      <label className="block">
+        <span className={labelCls}>Nama jenis cuti</span>
+        <input name="nama" defaultValue={j?.nama} required className={inputCls} suppressHydrationWarning />
+      </label>
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block">
           <span className={labelCls}>
@@ -22,10 +25,20 @@ export default function FormJenis({ j }) {
             defaultValue={j?.kuotaHari ?? (isTahunan ? KUOTA_TAHUNAN_MIN : "")}
             placeholder={isTahunan ? `Minimal ${KUOTA_TAHUNAN_MIN} hari` : "Kosong = tak terbatas"}
             className={inputCls}
+            suppressHydrationWarning
           />
         </label>
-        <label className="block"><span className={labelCls}>Batas pengajuan</span>
-          <input name="batasPengajuanHari" type="number" step="1" required defaultValue={j?.batasPengajuanHari ?? 0} className={inputCls} />
+        <label className="block">
+          <span className={labelCls}>Batas pengajuan</span>
+          <input
+            name="batasPengajuanHari"
+            type="number"
+            step="1"
+            required
+            defaultValue={j?.batasPengajuanHari ?? 0}
+            className={inputCls}
+            suppressHydrationWarning
+          />
         </label>
       </div>
       <p className="-mt-2 text-xs text-muted">
@@ -33,9 +46,17 @@ export default function FormJenis({ j }) {
           ? "Perubahan kuota Cuti Tahunan akan otomatis menyamakan kuota seluruh pengguna."
           : "Positif = H-n (sebelum mulai). 0 = H-0 (hari H). Negatif = H+n (setelah mulai)."}
       </p>
-      <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="wajibLampiran" defaultChecked={j?.wajibLampiran} /> Wajib melampirkan dokumen</label>
-      <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="potongKuota" defaultChecked={j?.potongKuota} /> Memotong kuota cuti tahunan</label>
-      {j && <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="aktif" defaultChecked={j.aktif} /> Aktif</label>}
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" name="wajibLampiran" defaultChecked={j?.wajibLampiran} suppressHydrationWarning /> Wajib melampirkan dokumen
+      </label>
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" name="potongKuota" defaultChecked={j?.potongKuota} suppressHydrationWarning /> Memotong kuota cuti tahunan
+      </label>
+      {j && (
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" name="aktif" defaultChecked={j.aktif} suppressHydrationWarning /> Aktif
+        </label>
+      )}
     </>
   );
 }
