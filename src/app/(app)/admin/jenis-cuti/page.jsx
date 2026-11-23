@@ -31,7 +31,7 @@ export default async function JenisCutiPage({ searchParams }) {
     {
       label: "Batas pengajuan",
       render: (j) => (
-        <span title={keteranganBatasPengajuan(j.batasPengajuanHari)} className="font-mono text-xs">
+        <span title={keteranganBatasPengajuan(j.batasPengajuanHari)}>
           {labelBatasPengajuan(j.batasPengajuanHari)}
         </span>
       ),
