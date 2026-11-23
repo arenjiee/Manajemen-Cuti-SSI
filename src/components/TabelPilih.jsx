@@ -3,12 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Modal from "./Modal";
+import HeaderUrut from "./HeaderUrut";
 import { useToast } from "./ToastProvider";
 import { btnDanger, btnGhost } from "./ui";
 import { Trash2 } from "lucide-react";
 
 export default function TabelPilih({
   label,
+  header,
   baris,
   hapusAction,
   hapusLabel = "Hapus terpilih",
@@ -41,6 +43,16 @@ export default function TabelPilih({
     if (semuaRef.current) semuaRef.current.indeterminate = sebagian;
     if (semuaMobileRef.current) semuaMobileRef.current.indeterminate = sebagian;
   }, [sebagian]);
+
+  // Urutan/pencarian berubah lewat navigasi klien (state ini tidak di-reset): buang pilihan
+  // pada baris yang sudah tidak tampil supaya "Hapus terpilih" tidak menghapus baris tersembunyi.
+  const kunciId = semuaId.join(",");
+  const [kunciLama, setKunciLama] = useState(kunciId);
+  if (kunciLama !== kunciId) {
+    setKunciLama(kunciId);
+    const ada = new Set(semuaId.map(String));
+    setTerpilih((prev) => new Set([...prev].filter((id) => ada.has(String(id)))));
+  }
 
   useEffect(() => {
     if (onSelectChange) {
@@ -196,9 +208,9 @@ export default function TabelPilih({
                     className="h-4 w-4 cursor-pointer accent-accent"
                   />
                 </th>
-                {label.map((l) => (
+                {label.map((l, i) => (
                   <th key={l} className="px-5 py-3.5 font-medium whitespace-nowrap">
-                    {l}
+                    <HeaderUrut {...(header?.[i] ?? { label: l })} />
                   </th>
                 ))}
               </tr>

@@ -16,6 +16,7 @@ export async function GET(request) {
     aktif: url.searchParams.get("aktif") || undefined,
     masaKerja: url.searchParams.get("masaKerja") || undefined,
     urut: url.searchParams.get("urut") || undefined,
+    arah: url.searchParams.get("arah") || undefined,
   };
 
   const data = await daftarUser(pool, filter);

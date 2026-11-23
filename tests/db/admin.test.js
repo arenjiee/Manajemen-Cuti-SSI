@@ -171,10 +171,16 @@ test("daftarDivisi: ketua, jumlah anggota, filter dan sortir", async () => {
   assert.deepEqual((await daftarDivisi(pool, { urut: "nama_desc" })).map((x) => x.nama), ["FLM", "CIT"]);
 });
 
-test("daftarUser: pencarian q mencocokkan nama, username, atau email", async () => {
+test("daftarUser: pencarian q mencocokkan nama atau username, bukan email; wildcard LIKE di-escape", async () => {
   await user({ username: "alfa", email: "satu@x.id", nama_lengkap: "Alfa Omega" });
   await user({ username: "beta", email: "dua@x.id", nama_lengkap: "Beta" });
+  await user({ username: "persen", email: "tiga@x.id", nama_lengkap: "Diskon 100% Pasti" });
   assert.deepEqual((await daftarUser(pool, { q: "omega" })).map((u) => u.username), ["alfa"]);
   assert.deepEqual((await daftarUser(pool, { q: "BETA" })).map((u) => u.username), ["beta"]);
-  assert.deepEqual((await daftarUser(pool, { q: "dua@" })).map((u) => u.username), ["beta"]);
+  // Email tidak lagi ikut dicari.
+  assert.deepEqual(await daftarUser(pool, { q: "dua@" }), []);
+  // % dan _ dari input pengguna adalah karakter biasa, bukan wildcard.
+  assert.deepEqual((await daftarUser(pool, { q: "100%" })).map((u) => u.username), ["persen"]);
+  assert.deepEqual((await daftarUser(pool, { q: "%" })).map((u) => u.username), ["persen"]);
+  assert.deepEqual(await daftarUser(pool, { q: "al_a" }), []);
 });

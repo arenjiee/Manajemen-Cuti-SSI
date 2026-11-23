@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import EmptyState from "./EmptyState";
 import TabelPilih from "./TabelPilih";
+import HeaderUrut from "./HeaderUrut";
 
 export default function DataTable({
   kolom,
@@ -16,10 +17,25 @@ export default function DataTable({
   selectForm,
   defaultSelectAll = false,
   onSelectChange,
+  sort,
 }) {
   if (rows.length === 0) {
     return <EmptyState title="Tidak ada data" description={kosong} />;
   }
+
+  // sort = { basePath, params, urut, arah }. Kolom dengan `sortKey` jadi header yang bisa diklik;
+  // klik pertama = A-Z, klik berikutnya pada kolom yang sama membalik arah. URL dibangun di server
+  // agar bisa diteruskan ke TabelPilih (komponen klien) sebagai data biasa.
+  const header = kolom.map((k) => {
+    if (!sort || !k.sortKey) return { label: k.label };
+    const aktif = sort.urut === k.sortKey;
+    const arahSekarang = aktif ? (sort.arah === "desc" ? "desc" : "asc") : null;
+    const usp = new URLSearchParams();
+    Object.entries(sort.params ?? {}).forEach(([n, v]) => { if (v) usp.set(n, v); });
+    usp.set("urut", k.sortKey);
+    usp.set("arah", arahSekarang === "asc" ? "desc" : "asc");
+    return { label: k.label, href: `${sort.basePath}?${usp.toString()}`, arah: arahSekarang };
+  });
 
   const sel = (k, r) => (k.render ? k.render(r) : r[k.key]);
 
@@ -29,6 +45,7 @@ export default function DataTable({
     return (
       <TabelPilih
         label={kolom.map((k) => k.label)}
+        header={header}
         baris={rows.map((r, i) => ({
           id: r.id ?? i,
           cells: kolom.map((k) => <Fragment key={k.label}>{sel(k, r)}</Fragment>),
@@ -56,7 +73,7 @@ export default function DataTable({
               <tr>
                 {kolom.map((k) => (
                   <th key={k.label} className="px-5 py-3.5 font-medium whitespace-nowrap">
-                    {k.label}
+                    <HeaderUrut {...header[kolom.indexOf(k)]} />
                   </th>
                 ))}
               </tr>

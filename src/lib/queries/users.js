@@ -122,11 +122,22 @@ export async function hapusUser(db, id) {
   return { ok: true };
 }
 
-const URUT_USER = {
-  nama: "u.nama_lengkap ASC",
-  bergabung: "u.tanggal_bergabung DESC, u.id",
-  divisi: "d.nama ASC NULLS LAST, u.nama_lengkap ASC",
+// Ekspresi urut berasal dari daftar putih ini, bukan dari input pengguna.
+const KOLOM_URUT_USER = {
+  nama: "lower(u.nama_lengkap)",
+  username: "lower(u.username)",
+  role: "u.role",
+  divisi: "lower(d.nama)",
+  bergabung: "u.tanggal_bergabung",
 };
+
+function orderUser(urut, arah) {
+  const kolom = KOLOM_URUT_USER[urut];
+  if (!kolom) return "u.id";
+  // Tanpa arah eksplisit: tanggal bergabung terbaru dulu (perilaku lama), kolom lain A-Z.
+  const dir = arah === "desc" ? "DESC" : arah === "asc" ? "ASC" : urut === "bergabung" ? "DESC" : "ASC";
+  return `${kolom} ${dir} NULLS LAST, lower(u.nama_lengkap) ASC, u.id`;
+}
 
 export async function daftarUser(db, f = {}) {
   const w = ["u.deleted_at IS NULL"];
@@ -151,15 +162,17 @@ export async function daftarUser(db, f = {}) {
   }
   if (f.masaKerja === "lt1") w.push(`u.tanggal_bergabung > ${HARI_INI_SQL} - interval '1 year'`);
   if (f.masaKerja === "gte1") w.push(`u.tanggal_bergabung <= ${HARI_INI_SQL} - interval '1 year'`);
-  if (f.q) {
-    p.push(`%${f.q}%`);
+  const q = String(f.q ?? "").trim();
+  if (q) {
+    // Cari nama lengkap atau username; karakter wildcard LIKE di input pengguna di-escape.
+    p.push(`%${q.replace(/[\\%_]/g, "\\$&")}%`);
     const n = `$${p.length}`;
-    w.push(`(u.nama_lengkap ILIKE ${n} OR u.username ILIKE ${n} OR u.email ILIKE ${n})`);
+    w.push(`(u.nama_lengkap ILIKE ${n} OR u.username ILIKE ${n})`);
   }
   const sql = `SELECT u.id, u.username, u.email, u.nama_lengkap, u.role, u.aktif, u.tanggal_bergabung, u.divisi_id, d.nama AS divisi_nama,
              ${SEDANG_CUTI_SQL}
      FROM users u LEFT JOIN divisi d ON d.id = u.divisi_id AND d.deleted_at IS NULL
-     WHERE ${w.join(" AND ")} ORDER BY ${URUT_USER[f.urut] ?? "u.id"}`;
+     WHERE ${w.join(" AND ")} ORDER BY ${orderUser(f.urut, f.arah)}`;
   return (await db.query(sql, p)).rows;
 }
 

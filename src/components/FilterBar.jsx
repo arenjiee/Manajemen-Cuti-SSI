@@ -2,9 +2,10 @@ import Link from "next/link";
 import { btnGhost, btnPrimary, inputCls, labelCls, selectCls } from "@/components/ui";
 
 // Form GET: filter dan sortir hidup di URL (searchParams), dirender server.
-export default function FilterBar({ fields, values = {}, resetHref }) {
+export default function FilterBar({ fields, values = {}, resetHref, hidden = {} }) {
   return (
     <form method="get" suppressHydrationWarning className="flex flex-wrap items-end gap-3 rounded-2xl border border-line bg-surface/60 p-4">
+      {Object.entries(hidden).map(([n, v]) => (v ? <input key={n} type="hidden" name={n} value={v} /> : null))}
       {fields.map((f) => (
         <label key={f.name} className="min-w-36 flex-1">
           <span className={labelCls}>{f.label}</span>
