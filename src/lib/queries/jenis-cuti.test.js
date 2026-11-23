@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { ubahJenis } from "./jenis-cuti.js";
+import { ubahJenis, buatJenis } from "./jenis-cuti.js";
 
 const TAHUNAN = {
   id: 1, nama: "Cuti Tahunan", kode: "tahunan", is_system: true, kuota_hari: "12.0",
@@ -17,11 +17,29 @@ function dbRekam(lama) {
     query: async (sql, params) => {
       q.push({ sql, params });
       if (sql.startsWith("SELECT * FROM jenis_cuti")) return { rows: [lama] };
+      if (sql.startsWith("SELECT 1 FROM jenis_cuti")) return { rows: [] };
       return { rowCount: 1 };
     },
   };
   return { db, q };
 }
+
+function dbDuplikat(lama = MENIKAH) {
+  const q = [];
+  const db = {
+    query: async (sql, params) => {
+      q.push({ sql, params });
+      if (sql.startsWith("SELECT * FROM jenis_cuti")) return { rows: [lama] };
+      if (sql.startsWith("SELECT 1 FROM jenis_cuti")) return { rows: [{ ok: 1 }] };
+      return { rowCount: 1 };
+    },
+  };
+  return { db, q };
+}
+
+const jenisBaru = (nama) => ({
+  nama, kode: null, kuotaHari: 3, batasPengajuanHari: 7, wajibLampiran: false, potongKuota: false,
+});
 
 const kirim = (kuotaHari, extra = {}) => ({
   nama: "X", kuotaHari, batasPengajuanHari: 3, wajibLampiran: false, potongKuota: true, aktif: true, ...extra,
@@ -55,4 +73,20 @@ test("ubahJenis: jenis non-tahunan boleh kuota < 12 dan tidak menyinkronkan peng
   const r = await ubahJenis(db, 3, kirim(3, { nama: "Cuti Menikah", potongKuota: false }));
   assert.equal(r.ok, true);
   assert.equal(q.some((x) => x.sql.includes("UPDATE users")), false);
+});
+
+test("buatJenis: nama duplikat beda kapital ditolak tanpa INSERT", async () => {
+  const { db, q } = dbDuplikat();
+  const r = await buatJenis(db, jenisBaru("cuti menikah"));
+  assert.equal(r.ok, false);
+  assert.match(r.pesan, /sudah dipakai/);
+  assert.equal(q.some((x) => x.sql.includes("INSERT INTO jenis_cuti")), false);
+});
+
+test("ubahJenis: nama duplikat beda kapital ditolak", async () => {
+  const { db, q } = dbDuplikat();
+  const r = await ubahJenis(db, 3, kirim(3, { nama: "CUTI TAHUNAN", potongKuota: false }));
+  assert.equal(r.ok, false);
+  assert.match(r.pesan, /sudah dipakai/);
+  assert.equal(q.some((x) => x.sql.includes("UPDATE jenis_cuti")), false);
 });

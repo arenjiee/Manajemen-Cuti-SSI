@@ -41,9 +41,18 @@ function cek(d, { kode } = {}) {
   return null;
 }
 
+async function namaDipakai(db, nama, kecualiId = null) {
+  const r = await db.query(
+    "SELECT 1 FROM jenis_cuti WHERE lower(nama) = lower($1) AND id <> COALESCE($2, -1) LIMIT 1",
+    [nama, kecualiId]
+  );
+  return r.rows.length > 0;
+}
+
 export async function buatJenis(db, d) {
   const err = cek(d, { kode: d.kode });
   if (err) return gagal(err);
+  if (await namaDipakai(db, d.nama.trim())) return gagal("Nama jenis cuti sudah dipakai.");
   try {
     const r = await db.query(
       `INSERT INTO jenis_cuti (nama, kuota_hari, batas_pengajuan_hari, wajib_lampiran, potong_kuota)
@@ -62,6 +71,7 @@ export async function ubahJenis(db, id, d) {
   if (!lama) return gagal("Jenis cuti tidak ditemukan.");
   const err = cek(d, { kode: lama.kode });
   if (err) return gagal(err);
+  if (await namaDipakai(db, d.nama.trim(), id)) return gagal("Nama jenis cuti sudah dipakai.");
   if (lama.isSystem && !d.aktif) return gagal("Jenis cuti bawaan sistem tidak dapat dinonaktifkan.");
   if (lama.kode === "tahunan" && !d.potongKuota) return gagal("Cuti Tahunan harus selalu memotong kuota.");
   try {

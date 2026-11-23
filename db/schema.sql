@@ -45,7 +45,7 @@ ALTER TABLE users ADD CONSTRAINT users_divisi_fk FOREIGN KEY (divisi_id) REFEREN
 
 CREATE TABLE jenis_cuti (
   id SERIAL PRIMARY KEY,
-  nama VARCHAR(100) NOT NULL UNIQUE,
+  nama VARCHAR(100) NOT NULL,
   kode VARCHAR(20) UNIQUE CHECK (kode IN ('tahunan','sakit')),
   is_system BOOLEAN NOT NULL DEFAULT false,
   kuota_hari NUMERIC(5,1),
@@ -54,6 +54,7 @@ CREATE TABLE jenis_cuti (
   potong_kuota BOOLEAN NOT NULL DEFAULT false,
   aktif BOOLEAN NOT NULL DEFAULT true
 );
+CREATE UNIQUE INDEX jenis_cuti_nama_lower ON jenis_cuti (lower(nama));
 
 CREATE TABLE pengajuan_cuti (
   id SERIAL PRIMARY KEY,
