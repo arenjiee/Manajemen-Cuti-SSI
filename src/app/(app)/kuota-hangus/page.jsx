@@ -48,7 +48,9 @@ export default async function KuotaHangusPage({ searchParams }) {
 
       {terkirim != null && (
         <p role="status" className="rounded-2xl border border-ok/30 bg-ok/10 px-4 py-3 text-sm text-ok">
-          {terkirim} pengingat terkirim{dilewati ? `, ${dilewati} dilewati (sudah diingatkan dalam ${JEDA_PENGINGAT_HARI} hari terakhir atau sudah tidak berisiko)` : ""}.
+          {terkirim === 0 && dilewati === 0
+            ? "Tidak ada karyawan yang dipilih."
+            : `${terkirim} pengingat terkirim${dilewati ? `, ${dilewati} dilewati (sudah diingatkan dalam ${JEDA_PENGINGAT_HARI} hari terakhir atau sudah tidak berisiko)` : ""}.`}
         </p>
       )}
 
@@ -76,7 +78,6 @@ export default async function KuotaHangusPage({ searchParams }) {
         selectable
         selectName="ids"
         selectForm="form-pengingat"
-        defaultSelectAll
       />
     </div>
   );

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Modal from "./Modal";
 import { useToast } from "./ToastProvider";
-import { btnDanger, btnGhost, btnPrimary } from "./ui";
+import { btnDanger, btnGhost } from "./ui";
 import { Trash2 } from "lucide-react";
 
 export default function TabelPilih({
@@ -174,16 +174,6 @@ export default function TabelPilih({
                   </button>
                 )}
               </>
-            )}
-            {selectForm && (
-              <button
-                type="submit"
-                form={selectForm}
-                className={btnPrimary}
-                suppressHydrationWarning
-              >
-                Kirim pengingat ({jumlahTerpilih})
-              </button>
             )}
           </div>
         </div>
