@@ -63,7 +63,7 @@ export default async function UsersPage({ searchParams }) {
       />
       {sp.error && <p role="alert" className="rounded-2xl border border-bad/30 bg-bad/10 px-4 py-3 text-sm text-bad">{sp.error}</p>}
       <FilterBar fields={fields} values={sp} resetHref="/admin/users" />
-      <DataTable kolom={kolom} rows={rows} kosong="Tidak ada pengguna yang cocok dengan filter." />
+      <DataTable kolom={kolom} rows={rows} kosong="Tidak ada pengguna yang cocok dengan filter." selectable />
     </div>
   );
 }

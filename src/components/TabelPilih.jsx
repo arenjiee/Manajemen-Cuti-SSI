@@ -1,0 +1,117 @@
+"use client";
+import { useEffect, useRef, useState } from "react";
+
+export default function TabelPilih({ label, baris }) {
+  const [terpilih, setTerpilih] = useState(() => new Set());
+  const semuaRef = useRef(null);
+  const semuaMobileRef = useRef(null);
+
+  const semuaId = baris.map((b) => b.id);
+  const jumlahTerpilih = semuaId.filter((id) => terpilih.has(id)).length;
+  const semuaTerpilih = baris.length > 0 && jumlahTerpilih === baris.length;
+  const sebagian = jumlahTerpilih > 0 && !semuaTerpilih;
+
+  useEffect(() => {
+    if (semuaRef.current) semuaRef.current.indeterminate = sebagian;
+    if (semuaMobileRef.current) semuaMobileRef.current.indeterminate = sebagian;
+  }, [sebagian]);
+
+  function toggleSemua() {
+    setTerpilih(semuaTerpilih ? new Set() : new Set(semuaId));
+  }
+
+  function toggleSatu(id) {
+    setTerpilih((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  return (
+    <>
+      {/* Desktop view: table */}
+      <div className="hidden overflow-hidden rounded-2xl border border-line bg-surface md:block">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="border-b border-line bg-bg/40 font-mono text-[11px] tracking-wider text-muted uppercase">
+              <tr>
+                <th className="w-12 px-5 py-3.5">
+                  <input
+                    ref={semuaRef}
+                    type="checkbox"
+                    checked={semuaTerpilih}
+                    onChange={toggleSemua}
+                    aria-label="Pilih semua baris"
+                    className="h-4 w-4 cursor-pointer accent-accent"
+                  />
+                </th>
+                {label.map((l) => (
+                  <th key={l} className="px-5 py-3.5 font-medium whitespace-nowrap">
+                    {l}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line/70">
+              {baris.map((b) => (
+                <tr key={b.id} className="transition-colors hover:bg-ink/[0.02]">
+                  <td className="w-12 px-5 py-3.5 align-middle">
+                    <input
+                      type="checkbox"
+                      checked={terpilih.has(b.id)}
+                      onChange={() => toggleSatu(b.id)}
+                      aria-label="Pilih baris"
+                      className="h-4 w-4 cursor-pointer accent-accent"
+                    />
+                  </td>
+                  {b.cells.map((c, i) => (
+                    <td key={i} className="px-5 py-3.5 align-middle">
+                      {c}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Mobile view: cards */}
+      <div className="md:hidden">
+        <label className="mb-3 flex items-center gap-2 text-sm font-medium">
+          <input
+            ref={semuaMobileRef}
+            type="checkbox"
+            checked={semuaTerpilih}
+            onChange={toggleSemua}
+            className="h-4 w-4 cursor-pointer accent-accent"
+          />
+          Pilih semua
+        </label>
+        <ul className="space-y-3">
+          {baris.map((b) => (
+            <li key={b.id} className="space-y-2 rounded-2xl border border-line bg-surface p-4 text-sm">
+              <label className="flex items-center gap-2 border-b border-line/40 pb-1.5">
+                <input
+                  type="checkbox"
+                  checked={terpilih.has(b.id)}
+                  onChange={() => toggleSatu(b.id)}
+                  className="h-4 w-4 cursor-pointer accent-accent"
+                />
+                <span className="font-mono text-[11px] tracking-wide text-muted uppercase">Pilih</span>
+              </label>
+              {label.map((l, i) => (
+                <div key={l} className="flex items-center justify-between gap-4 border-b border-line/40 pb-1.5 last:border-0 last:pb-0">
+                  <span className="font-mono text-[11px] tracking-wide text-muted uppercase">{l}</span>
+                  <span className="text-right text-ink font-medium">{b.cells[i]}</span>
+                </div>
+              ))}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </>
+  );
+}

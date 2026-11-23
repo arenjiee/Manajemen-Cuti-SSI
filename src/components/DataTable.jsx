@@ -1,11 +1,26 @@
 import EmptyState from "./EmptyState";
+import TabelPilih from "./TabelPilih";
 
-export default function DataTable({ kolom, rows, kosong = "Belum ada data." }) {
+export default function DataTable({ kolom, rows, kosong = "Belum ada data.", selectable = false }) {
   if (rows.length === 0) {
     return <EmptyState title="Tidak ada data" description={kosong} />;
   }
 
   const sel = (k, r) => (k.render ? k.render(r) : r[k.key]);
+
+  // Sel dirender di server lalu dikirim sebagai node agar kolom dengan render() tetap bisa dipakai
+  // oleh komponen klien yang menyimpan state pilihan.
+  if (selectable) {
+    return (
+      <TabelPilih
+        label={kolom.map((k) => k.label)}
+        baris={rows.map((r, i) => ({
+          id: r.id ?? i,
+          cells: kolom.map((k) => sel(k, r)),
+        }))}
+      />
+    );
+  }
 
   return (
     <>
