@@ -9,7 +9,8 @@ import DataTable from "@/components/DataTable";
 import GlowCard from "@/components/GlowCard";
 import Panah from "@/components/Panah";
 import Section from "@/components/Section";
-import { btnPrimary, linkCls } from "@/components/ui";
+import KapasitasChart from "@/components/KapasitasChart";
+import { btnGhost, btnPrimary, linkCls } from "@/components/ui";
 import {
   CalendarDays,
   CalendarPlus,
@@ -36,6 +37,18 @@ const Bagian = ({ judul, deskripsi, aksi, children }) => (
   <Section title={judul} description={deskripsi} action={aksi}>
     {children}
   </Section>
+);
+
+// Rincian angka-di-atas-label untuk kartu ringkasan (pengganti teks dipisah titik tengah).
+const RincianAngka = ({ items }) => (
+  <dl className="mt-1 grid grid-cols-4 gap-2">
+    {items.map(([label, n]) => (
+      <div key={label}>
+        <dd className="font-display text-lg font-semibold text-ink tabular-nums">{n}</dd>
+        <dt className="text-[11px] text-muted">{label}</dt>
+      </div>
+    ))}
+  </dl>
 );
 
 const kolomPeriode = { label: "Periode", render: (r) => formatRentang(r.tanggal_mulai, r.tanggal_selesai) };
@@ -318,6 +331,15 @@ async function DashHrd() {
         />
       </div>
 
+      {/* Chart Kapasitas Divisi */}
+      <Bagian
+        judul={`Kapasitas Divisi, ${d.bulan.label}`}
+        deskripsi="Divisi yang paling mendekati batas cuti bersamaan"
+        aksi={<TautanAksi href="/kapasitas">Lihat kalender</TautanAksi>}
+      >
+        <KapasitasChart data={d.kapasitas} />
+      </Bagian>
+
       {/* Tabel Karyawan Cuti Bulan Ini */}
       <Bagian
         judul={`Karyawan Cuti pada ${d.bulan.label}`}
@@ -379,7 +401,7 @@ async function DashAdmin() {
           icon={ikon(Users)}
           label="Pengguna Aktif"
           value={d.totalAktif}
-          description={`Karyawan ${r.karyawan} · Ketua ${r.ketua_divisi} · HRD ${r.hrd} · Admin ${r.admin}`}
+          description={<RincianAngka items={[["Karyawan", r.karyawan], ["Ketua", r.ketua_divisi], ["HRD", r.hrd], ["Admin", r.admin]]} />}
           badge={d.tidakAktif > 0 ? `${d.tidakAktif} Nonaktif` : "Semua Aktif"}
           tone="accent"
           colSpan={2}
@@ -413,7 +435,7 @@ async function DashAdmin() {
           icon={ikon(UserX)}
           label="Belum Punya Divisi"
           value={d.tanpaDivisi.total}
-          description={`Karyawan ${d.tanpaDivisi.karyawan} · Ketua ${d.tanpaDivisi.ketua}`}
+          description={d.tanpaDivisi.total === 0 ? "Semua sudah ditempatkan" : [d.tanpaDivisi.karyawan > 0 && `${d.tanpaDivisi.karyawan} karyawan`, d.tanpaDivisi.ketua > 0 && `${d.tanpaDivisi.ketua} ketua divisi`].filter(Boolean).join(", ")}
           badge={d.tanpaDivisi.total > 0 ? "Perlu Penempatan" : "Lengkap"}
           tone={d.tanpaDivisi.total > 0 ? "warn" : "ok"}
           href="/admin/users"
@@ -434,25 +456,16 @@ async function DashAdmin() {
           tone="default"
           href="/admin/hari-libur"
         />
-        <GlowCard
-          icon={ikon(UserPlus)}
-          label="Aksi Cepat"
-          value="Tambah Pengguna"
-          description="Daftarkan akun karyawan, ketua, atau HRD baru"
-          tone="accent"
-          colSpan={2}
-          href="/admin/users/baru"
-        />
-        <GlowCard
-          icon={ikon(UserPlus)}
-          label="Aksi Cepat"
-          value="Tambah Divisi"
-          description="Buat divisi dan tetapkan ketua divisi"
-          tone="accent"
-          colSpan={2}
-          href="/admin/divisi/baru"
-        />
       </div>
+
+      {/* Chart Kapasitas Divisi */}
+      <Bagian
+        judul={`Kapasitas Divisi, ${d.bulan.label}`}
+        deskripsi="Tinjau apakah persentase batas cuti per divisi sudah pas"
+        aksi={<TautanAksi href="/kapasitas">Atur batas</TautanAksi>}
+      >
+        <KapasitasChart data={d.kapasitas} />
+      </Bagian>
 
       {/* Tabel Cuti Hari Ini */}
       <Bagian
@@ -556,6 +569,18 @@ export default async function DashboardPage() {
             Halo, {user.nama_lengkap}
           </h1>
         </div>
+        {user.role === "admin" && (
+          <div className="mt-3 flex flex-wrap gap-2 md:mt-0">
+            <Link href="/admin/users/baru" className={btnPrimary}>
+              <UserPlus className="mr-1.5 h-4 w-4" aria-hidden />
+              Tambah pengguna
+            </Link>
+            <Link href="/admin/divisi/baru" className={btnGhost}>
+              <Plus className="mr-1.5 h-4 w-4" aria-hidden />
+              Tambah divisi
+            </Link>
+          </div>
+        )}
       </header>
 
       {/* Konten Dashboard Sesuai Role */}

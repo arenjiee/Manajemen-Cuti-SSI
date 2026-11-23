@@ -73,7 +73,7 @@ export default function GlowCard({
       ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className={`group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-line bg-surface p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/40 ${colClasses} ${className}`}
+      className={`group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-line bg-surface p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/40 ${className}`}
     >
       {/* Radial spotlight effect following cursor */}
       <div
@@ -96,7 +96,7 @@ export default function GlowCard({
 
       {/* Card Header: Icon + Label + Badge */}
       <div className="relative z-10 flex items-start justify-between gap-3">
-        <div className="flex items-center gap-2.5">
+        <div className="flex min-w-0 items-center gap-2.5">
           {icon && (
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-line bg-bg/60 text-ink transition group-hover:border-ink/20 group-hover:bg-bg">
               {icon}
@@ -109,7 +109,7 @@ export default function GlowCard({
           )}
         </div>
         {badge && (
-          <span className={`rounded-full px-2 py-0.5 font-mono text-[11px] font-medium ${activeTone.badge}`}>
+          <span className={`shrink-0 rounded-full px-2 py-0.5 font-mono text-[11px] font-medium whitespace-nowrap ${activeTone.badge}`}>
             {badge}
           </span>
         )}
@@ -121,9 +121,9 @@ export default function GlowCard({
           {value}
         </div>
         {description && (
-          <p className="mt-1.5 text-xs leading-relaxed text-muted">
+          <div className="mt-1.5 text-xs leading-relaxed text-muted">
             {description}
-          </p>
+          </div>
         )}
       </div>
 
@@ -139,11 +139,12 @@ export default function GlowCard({
 
   if (href) {
     return (
-      <Link href={href} className="block h-full outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-2xl">
+      <Link href={href} className={`block h-full rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-accent ${colClasses}`}>
         {content}
       </Link>
     );
   }
 
-  return content;
+  // Tanpa href, kartu itu sendiri yang jadi anak grid, jadi lebar kolom dipasang di pembungkus.
+  return <div className={`h-full ${colClasses}`}>{content}</div>;
 }

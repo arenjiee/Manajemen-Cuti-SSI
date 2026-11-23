@@ -58,6 +58,10 @@ test("dashboardAdmin mengembalikan seluruh field metrik, tabel, dan filter masa 
     },
     // 10. pengajuan
     { rows: [{ bulan_ini: 7, menunggu: 3 }] },
+    // 11. divisi (ringkasKapasitasDivisi → petaKapasitas): kosong = tanpa query okupansi
+    { rows: [] },
+    // 12. hari_libur (petaKapasitas → muatHariLibur)
+    { rows: [] },
   ]);
 
   const res = await dashboardAdmin(db, { hari: "2026-11-20" });
@@ -69,6 +73,9 @@ test("dashboardAdmin mengembalikan seluruh field metrik, tabel, dan filter masa 
   assert.equal(res.hariLiburTahunIni, 15);
   assert.equal(res.pengajuanBulanIni, 7);
   assert.equal(res.pengajuanMenunggu, 3);
+
+  // Chart kapasitas: tanpa divisi = ringkasan kosong
+  assert.deepEqual(res.kapasitas, []);
 
   // tanpaDivisi
   assert.equal(res.tanpaDivisi.total, 2);

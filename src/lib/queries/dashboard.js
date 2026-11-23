@@ -4,6 +4,7 @@ import { rentangMinggu, rentangBulan, labelBulan } from "../periode.js";
 import { ringkasanKuota } from "./kuota.js";
 import { STATUS } from "./detail.js";
 import { daftarDivisi } from "./divisi.js";
+import { ringkasKapasitasDivisi } from "./kapasitas.js";
 
 // Setiap fungsi menerima { hari } opsional ("YYYY-MM-DD") agar tes tidak bergantung pada jam sistem.
 function konteks(opts) {
@@ -17,7 +18,7 @@ const ROLE_KOSONG = () => ({ admin: 0, karyawan: 0, ketua_divisi: 0, hrd: 0 });
 export async function dashboardAdmin(db, opts) {
   const { hari, tahun } = konteks(opts);
   const bulan = rentangBulan(hari);
-  const [role, nonaktif, divisi, jenis, libur, tanpaDivisi, divisiTanpaKetua, cutiHariIni, baru, pengajuan] = await Promise.all([
+  const [role, nonaktif, divisi, jenis, libur, tanpaDivisi, divisiTanpaKetua, cutiHariIni, baru, pengajuan, kapasitas] = await Promise.all([
     db.query("SELECT role, count(*)::int AS n FROM users WHERE deleted_at IS NULL AND aktif GROUP BY role"),
     db.query("SELECT count(*)::int AS n FROM users WHERE deleted_at IS NULL AND NOT aktif"),
     db.query("SELECT count(*)::int AS n FROM divisi WHERE deleted_at IS NULL"),
@@ -64,6 +65,7 @@ export async function dashboardAdmin(db, opts) {
        FROM pengajuan_cuti`,
       [bulan.dari, bulan.sampai]
     ),
+    ringkasKapasitasDivisi(db, bulan),
   ]);
   const karyawanTanpaDivisi = tanpaDivisi.rows.filter((u) => u.role === "karyawan").length;
   const ketuaTanpaDivisi = tanpaDivisi.rows.filter((u) => u.role === "ketua_divisi").length;
@@ -85,6 +87,7 @@ export async function dashboardAdmin(db, opts) {
       rows: tanpaDivisi.rows,
     },
     divisiTanpaKetua: divisiTanpaKetua.rows,
+    kapasitas,
     cutiHariIni: cutiHariIni.rows,
     bulan: { ...bulan, label: labelBulan(hari) },
     masaKerjaDiBawah1Tahun: baru.rows
@@ -191,7 +194,7 @@ export async function dashboardKetua(db, userId, opts) {
 export async function dashboardHrd(db, opts) {
   const { hari } = konteks(opts);
   const bulan = { ...rentangBulan(hari), label: labelBulan(hari) };
-  const [final, cuti, pengajuan, divisi] = await Promise.all([
+  const [final, cuti, pengajuan, divisi, kapasitas] = await Promise.all([
     // Syarat sama persis dengan antreanHrd().
     db.query("SELECT count(*)::int AS n FROM pengajuan_cuti WHERE tahap = 'hrd' AND status IN ('Pending','Approved by Leader')"),
     db.query(
@@ -204,8 +207,10 @@ export async function dashboardHrd(db, opts) {
     ),
     db.query("SELECT count(*)::int AS n FROM pengajuan_cuti WHERE tanggal_pengajuan BETWEEN $1 AND $2", [bulan.dari, bulan.sampai]),
     daftarDivisi(db, {}),
+    ringkasKapasitasDivisi(db, bulan),
   ]);
   return {
+    kapasitas,
     pengajuanBulanIni: pengajuan.rows[0].n,
     divisi: divisi.map((d) => ({ ...d, cutiBulanIni: new Set(cuti.rows.filter((c) => c.divisi_nama === d.nama).map((c) => c.user_id)).size })),
     menungguFinal: final.rows[0].n,

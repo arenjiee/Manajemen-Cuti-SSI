@@ -53,3 +53,16 @@ export async function petaKapasitas(db, { dari, sampai }) {
   }
   return hasil;
 }
+
+// Ringkasan per divisi untuk chart dashboard: puncak orang cuti bersamaan pada satu hari kerja
+// dibanding batas harian. Memakai petaKapasitas, jadi aturannya identik dengan halaman Kapasitas.
+export async function ringkasKapasitasDivisi(db, { dari, sampai }) {
+  const peta = await petaKapasitas(db, { dari, sampai });
+  return peta
+    .map((p) => {
+      const puncak = Math.max(0, ...p.harian.filter((h) => h.status !== "akhir_pekan" && h.status !== "libur").map((h) => h.terisi));
+      const status = p.jumlahAnggota === 0 ? "kosong" : puncak >= p.batas ? "penuh" : puncak > 0 && puncak + 1 >= p.batas ? "hampir" : "aman";
+      return { id: p.id, nama: p.nama, jumlahAnggota: p.jumlahAnggota, batas: p.batas, persen: p.persen, puncak, hariPenuh: p.hariPenuh, status };
+    })
+    .sort((a, b) => b.puncak / b.batas - a.puncak / a.batas || a.nama.localeCompare(b.nama));
+}
