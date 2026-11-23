@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 
-export default function Modal({ buka, onTutup, judul, children }) {
+export default function Modal({ buka, onTutup, judul, children, terkunci = false }) {
   const ref = useRef(null);
   useEffect(() => {
     const d = ref.current;
@@ -14,7 +14,12 @@ export default function Modal({ buka, onTutup, judul, children }) {
     <dialog
       ref={ref}
       onClose={onTutup}
-      onClick={(e) => e.target === ref.current && onTutup()}
+      onCancel={(e) => {
+        if (terkunci) e.preventDefault();
+      }}
+      onClick={(e) => {
+        if (!terkunci && e.target === ref.current) onTutup();
+      }}
       className="m-auto w-full max-w-md rounded-2xl border border-line bg-surface p-0 text-ink backdrop:bg-black/70"
     >
       <div className="p-6">

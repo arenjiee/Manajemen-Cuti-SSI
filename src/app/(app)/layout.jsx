@@ -5,6 +5,7 @@ import pool from "@/lib/db";
 import { jumlahBelumDibaca } from "@/lib/queries/riwayat";
 import { ringkasanShell } from "@/lib/queries/shell";
 import AppShell from "@/components/AppShell";
+import ToastProvider from "@/components/ToastProvider";
 
 export default async function AppLayout({ children }) {
   const user = await requireRole();
@@ -16,20 +17,22 @@ export default async function AppLayout({ children }) {
   return (
     // useSearchParams di AppShell membutuhkan batas Suspense.
     <Suspense fallback={null}>
-      <AppShell
-        menu={menuUntukRole(user.role)}
-        user={{
-          id: user.id,
-          nama: user.nama_lengkap,
-          email: user.email,
-          peran: NAMA_ROLE[user.role],
-          fotoKey: user.foto_key,
-        }}
-        ringkasan={ringkasan}
-        notifikasi={notifikasi}
-      >
-        {children}
-      </AppShell>
+      <ToastProvider>
+        <AppShell
+          menu={menuUntukRole(user.role)}
+          user={{
+            id: user.id,
+            nama: user.nama_lengkap,
+            email: user.email,
+            peran: NAMA_ROLE[user.role],
+            fotoKey: user.foto_key,
+          }}
+          ringkasan={ringkasan}
+          notifikasi={notifikasi}
+        >
+          {children}
+        </AppShell>
+      </ToastProvider>
     </Suspense>
   );
 }
