@@ -1,12 +1,38 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
 
-export default function TabelPilih({ label, baris }) {
-  const [terpilih, setTerpilih] = useState(() => new Set());
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import Modal from "./Modal";
+import { useToast } from "./ToastProvider";
+import { btnDanger, btnGhost, btnPrimary } from "./ui";
+import { Trash2 } from "lucide-react";
+
+export default function TabelPilih({
+  label,
+  baris,
+  hapusAction,
+  hapusLabel = "Hapus terpilih",
+  pesanHapus,
+  idField = "ids",
+  extraFields = {},
+  selectName,
+  selectForm,
+  defaultSelectAll = false,
+  onSelectChange,
+}) {
+  const router = useRouter();
+  const tampilToast = useToast();
+
+  const semuaId = baris.map((b) => b.id);
+  const [terpilih, setTerpilih] = useState(() => (defaultSelectAll ? new Set(semuaId) : new Set()));
+  const [modalBuka, setModalBuka] = useState(false);
+  const [targetHapus, setTargetHapus] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [errorPesan, setErrorPesan] = useState("");
+
   const semuaRef = useRef(null);
   const semuaMobileRef = useRef(null);
 
-  const semuaId = baris.map((b) => b.id);
   const jumlahTerpilih = semuaId.filter((id) => terpilih.has(id)).length;
   const semuaTerpilih = baris.length > 0 && jumlahTerpilih === baris.length;
   const sebagian = jumlahTerpilih > 0 && !semuaTerpilih;
@@ -15,6 +41,12 @@ export default function TabelPilih({ label, baris }) {
     if (semuaRef.current) semuaRef.current.indeterminate = sebagian;
     if (semuaMobileRef.current) semuaMobileRef.current.indeterminate = sebagian;
   }, [sebagian]);
+
+  useEffect(() => {
+    if (onSelectChange) {
+      onSelectChange(Array.from(terpilih));
+    }
+  }, [terpilih, onSelectChange]);
 
   function toggleSemua() {
     setTerpilih(semuaTerpilih ? new Set() : new Set(semuaId));
@@ -29,8 +61,134 @@ export default function TabelPilih({ label, baris }) {
     });
   }
 
+  function konfirmasiHapus(ids) {
+    setErrorPesan("");
+    setTargetHapus(ids);
+    setModalBuka(true);
+  }
+
+  async function eksekusiHapus() {
+    if (targetHapus.length === 0) return;
+    setLoading(true);
+    setErrorPesan("");
+    try {
+      const fd = new FormData();
+      targetHapus.forEach((id) => fd.append(idField, String(id)));
+      Object.entries(extraFields).forEach(([k, v]) => fd.append(k, String(v ?? "")));
+
+      const res = await fetch(hapusAction, {
+        method: "POST",
+        body: fd,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        setErrorPesan(data.message || data.pesan || "Gagal menghapus data.");
+        setLoading(false);
+        return;
+      }
+
+      setLoading(false);
+      setModalBuka(false);
+      setTerpilih((prev) => {
+        const next = new Set(prev);
+        targetHapus.forEach((id) => next.delete(id));
+        return next;
+      });
+      tampilToast(data.message || data.pesan || "Data berhasil dihapus.", "sukses");
+      router.refresh();
+    } catch {
+      setErrorPesan("Terjadi kesalahan jaringan.");
+      setLoading(false);
+    }
+  }
+
   return (
-    <>
+    <div className="space-y-4">
+      {/* Hidden inputs untuk integrasi form native (misal: kirim pengingat kuota hangus) */}
+      {selectName && (
+        <div className="hidden" aria-hidden="true">
+          {Array.from(terpilih).map((id) => (
+            <input
+              key={id}
+              type="hidden"
+              name={selectName}
+              value={id}
+              form={selectForm}
+              suppressHydrationWarning
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Toolbar Seleksi & Bulk Action */}
+      {jumlahTerpilih > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-surface p-4 text-sm shadow-sm">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="inline-flex items-center justify-center rounded-full bg-accent/15 px-3 py-1 font-mono text-xs font-semibold text-accent">
+              {jumlahTerpilih} dipilih
+            </span>
+            {jumlahTerpilih < baris.length ? (
+              <button
+                type="button"
+                onClick={() => setTerpilih(new Set(semuaId))}
+                className="text-xs text-muted transition-colors hover:text-ink hover:underline"
+                suppressHydrationWarning
+              >
+                Pilih semua ({baris.length})
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setTerpilih(new Set())}
+                className="text-xs text-muted transition-colors hover:text-ink hover:underline"
+                suppressHydrationWarning
+              >
+                Batalkan pilihan
+              </button>
+            )}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {hapusAction && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => konfirmasiHapus(Array.from(terpilih))}
+                  className={`${btnDanger} flex items-center gap-1.5`}
+                  suppressHydrationWarning
+                >
+                  <Trash2 className="h-4 w-4" />
+                  {hapusLabel} ({jumlahTerpilih})
+                </button>
+                {jumlahTerpilih < baris.length && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTerpilih(new Set(semuaId));
+                      konfirmasiHapus(semuaId);
+                    }}
+                    className={`${btnDanger} opacity-85 hover:opacity-100 flex items-center gap-1.5`}
+                    suppressHydrationWarning
+                  >
+                    Hapus semua ({baris.length})
+                  </button>
+                )}
+              </>
+            )}
+            {selectForm && (
+              <button
+                type="submit"
+                form={selectForm}
+                className={btnPrimary}
+                suppressHydrationWarning
+              >
+                Kirim pengingat ({jumlahTerpilih})
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Desktop view: table */}
       <div className="hidden overflow-hidden rounded-2xl border border-line bg-surface md:block">
         <div className="overflow-x-auto">
@@ -44,6 +202,7 @@ export default function TabelPilih({ label, baris }) {
                     checked={semuaTerpilih}
                     onChange={toggleSemua}
                     aria-label="Pilih semua baris"
+                    suppressHydrationWarning
                     className="h-4 w-4 cursor-pointer accent-accent"
                   />
                 </th>
@@ -63,6 +222,7 @@ export default function TabelPilih({ label, baris }) {
                       checked={terpilih.has(b.id)}
                       onChange={() => toggleSatu(b.id)}
                       aria-label="Pilih baris"
+                      suppressHydrationWarning
                       className="h-4 w-4 cursor-pointer accent-accent"
                     />
                   </td>
@@ -79,17 +239,23 @@ export default function TabelPilih({ label, baris }) {
       </div>
 
       {/* Mobile view: cards */}
-      <div className="md:hidden">
-        <label className="mb-3 flex items-center gap-2 text-sm font-medium">
-          <input
-            ref={semuaMobileRef}
-            type="checkbox"
-            checked={semuaTerpilih}
-            onChange={toggleSemua}
-            className="h-4 w-4 cursor-pointer accent-accent"
-          />
-          Pilih semua
-        </label>
+      <div className="md:hidden space-y-3">
+        <div className="flex items-center justify-between">
+          <label className="flex items-center gap-2 text-sm font-medium">
+            <input
+              ref={semuaMobileRef}
+              type="checkbox"
+              checked={semuaTerpilih}
+              onChange={toggleSemua}
+              suppressHydrationWarning
+              className="h-4 w-4 cursor-pointer accent-accent"
+            />
+            Pilih semua
+          </label>
+          {jumlahTerpilih > 0 && (
+            <span className="font-mono text-xs text-muted">{jumlahTerpilih} dipilih</span>
+          )}
+        </div>
         <ul className="space-y-3">
           {baris.map((b) => (
             <li key={b.id} className="space-y-2 rounded-2xl border border-line bg-surface p-4 text-sm">
@@ -98,6 +264,7 @@ export default function TabelPilih({ label, baris }) {
                   type="checkbox"
                   checked={terpilih.has(b.id)}
                   onChange={() => toggleSatu(b.id)}
+                  suppressHydrationWarning
                   className="h-4 w-4 cursor-pointer accent-accent"
                 />
                 <span className="font-mono text-[11px] tracking-wide text-muted uppercase">Pilih</span>
@@ -112,6 +279,59 @@ export default function TabelPilih({ label, baris }) {
           ))}
         </ul>
       </div>
-    </>
+
+      {/* Modal Konfirmasi Hapus */}
+      {hapusAction && (
+        <Modal
+          buka={modalBuka}
+          onTutup={() => {
+            if (!loading) {
+              setModalBuka(false);
+              setErrorPesan("");
+            }
+          }}
+          judul="Konfirmasi Hapus"
+          terkunci={loading}
+        >
+          <p className="text-sm text-muted">
+            {targetHapus.length === baris.length
+              ? `Hapus seluruh data (${targetHapus.length} item)? Tindakan ini tidak dapat dibatalkan.`
+              : pesanHapus
+                ? pesanHapus.replace("{count}", String(targetHapus.length))
+                : `Hapus ${targetHapus.length} data yang dipilih? Tindakan ini tidak dapat dibatalkan.`}
+          </p>
+
+          {errorPesan && (
+            <p role="alert" className="mt-3 rounded-lg border border-bad/30 bg-bad/10 p-3 text-xs text-bad">
+              {errorPesan}
+            </p>
+          )}
+
+          <div className="mt-6 flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                setModalBuka(false);
+                setErrorPesan("");
+              }}
+              disabled={loading}
+              className={btnGhost}
+              suppressHydrationWarning
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              onClick={eksekusiHapus}
+              disabled={loading}
+              className={btnDanger}
+              suppressHydrationWarning
+            >
+              {loading ? "Menghapus..." : "Ya, hapus"}
+            </button>
+          </div>
+        </Modal>
+      )}
+    </div>
   );
 }

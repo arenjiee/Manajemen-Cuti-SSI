@@ -2,7 +2,21 @@ import { Fragment } from "react";
 import EmptyState from "./EmptyState";
 import TabelPilih from "./TabelPilih";
 
-export default function DataTable({ kolom, rows, kosong = "Belum ada data.", selectable = false }) {
+export default function DataTable({
+  kolom,
+  rows,
+  kosong = "Belum ada data.",
+  selectable = false,
+  hapusAction,
+  hapusLabel,
+  pesanHapus,
+  idField,
+  extraFields,
+  selectName,
+  selectForm,
+  defaultSelectAll = false,
+  onSelectChange,
+}) {
   if (rows.length === 0) {
     return <EmptyState title="Tidak ada data" description={kosong} />;
   }
@@ -19,6 +33,15 @@ export default function DataTable({ kolom, rows, kosong = "Belum ada data.", sel
           id: r.id ?? i,
           cells: kolom.map((k) => <Fragment key={k.label}>{sel(k, r)}</Fragment>),
         }))}
+        hapusAction={hapusAction}
+        hapusLabel={hapusLabel}
+        pesanHapus={pesanHapus}
+        idField={idField}
+        extraFields={extraFields}
+        selectName={selectName}
+        selectForm={selectForm}
+        defaultSelectAll={defaultSelectAll}
+        onSelectChange={onSelectChange}
       />
     );
   }

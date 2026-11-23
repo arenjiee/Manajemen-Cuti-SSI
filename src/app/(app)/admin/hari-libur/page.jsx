@@ -96,7 +96,14 @@ export default async function HariLiburPage({ searchParams }) {
       </section>
 
       <FilterBar fields={[{ name: "tahun", label: "Tahun", type: "number", placeholder: String(tahunAktif) }]} values={sp} resetHref="/admin/hari-libur" />
-      <DataTable kolom={kolom} rows={rows} kosong="Belum ada hari libur." />
+      <DataTable
+        kolom={kolom}
+        rows={rows}
+        kosong="Belum ada hari libur."
+        selectable
+        hapusAction="/api/admin/hari-libur/hapus"
+        hapusPesan="Hapus {count} hari libur yang dipilih?"
+      />
 
       <Section title="Tambah hari libur manual" className="max-w-xl border-t border-line pt-6">
         <FormAction action="/api/admin/hari-libur" redirectTo="/admin/hari-libur" label="Tambah">

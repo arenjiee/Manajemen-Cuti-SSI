@@ -72,7 +72,17 @@ export default async function DetailDivisiPage({ params, searchParams }) {
       </section>
 
       <Section title="Anggota">
-        <DataTable kolom={kolom} rows={anggota} kosong="Divisi belum memiliki anggota." selectable />
+        <DataTable
+          kolom={kolom}
+          rows={anggota}
+          kosong="Divisi belum memiliki anggota."
+          selectable
+          hapusAction="/api/admin/divisi/anggota/keluar"
+          hapusLabel="Keluarkan anggota"
+          hapusPesan="Keluarkan {count} anggota dari divisi? Akun tidak dihapus."
+          extraFields={{ divisiId: d.id }}
+          idField="userId"
+        />
         <form action={`/api/admin/divisi/${d.id}/anggota`} method="POST" className="flex flex-wrap items-end gap-3">
           <input type="hidden" name="divisiId" value={d.id} />
           <label className="min-w-56"><span className={labelCls}>Tambah anggota</span>

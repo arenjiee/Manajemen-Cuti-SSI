@@ -23,7 +23,6 @@ export default async function KuotaHangusPage({ searchParams }) {
   const pasti = d.rows.filter((r) => r.risiko === "pasti").length;
 
   const kolom = [
-    { label: "", render: (r) => <input type="checkbox" name="ids" value={r.id} form="form-pengingat" defaultChecked aria-label={`Pilih ${r.nama}`} suppressHydrationWarning className="h-4 w-4" /> },
     { label: "Nama", render: (r) => <div><p className="font-medium">{r.nama}</p><p className="text-xs text-muted">{NAMA_ROLE[r.role]} · {r.divisiNama ?? "Tanpa divisi"}</p></div> },
     { label: "Kuota", render: (r) => `${formatHari(r.kuotaAwal)} hari` },
     { label: "Terpakai", render: (r) => `${formatHari(r.terpakai)} hari` },
@@ -74,6 +73,10 @@ export default async function KuotaHangusPage({ searchParams }) {
             ? "Tidak ada karyawan dengan sisa kuota melebihi ambang."
             : `Peringatan belum aktif. Periode peringatan kuota hangus dimulai bulan ke-${d.bulanMulai}.`
         }
+        selectable
+        selectName="ids"
+        selectForm="form-pengingat"
+        defaultSelectAll
       />
     </div>
   );

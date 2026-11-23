@@ -8,19 +8,33 @@ export async function POST(request) {
   const g = await guardApi(["admin"], request);
   if (g.error) return g.error;
 
-  let idRaw = null;
+  let ids = [];
   const contentType = request.headers.get("content-type") || "";
 
   if (contentType.includes("application/json")) {
     const body = await request.json().catch(() => ({}));
-    idRaw = body.id;
+    if (Array.isArray(body.ids)) {
+      ids = body.ids.map(parseId).filter((x) => x != null);
+    } else if (body.id != null) {
+      const parsed = parseId(body.id);
+      if (parsed != null) ids = [parsed];
+    }
   } else {
     const fd = await request.formData().catch(() => null);
-    idRaw = fd?.get("id");
+    if (fd) {
+      const rawIds = [...fd.getAll("ids"), ...fd.getAll("id")];
+      if (rawIds.length > 0) {
+        ids = rawIds
+          .flatMap((x) => String(x).split(","))
+          .map(parseId)
+          .filter((x) => x != null);
+      }
+    }
   }
 
-  const id = parseId(idRaw);
-  if (id != null) {
+  ids = [...new Set(ids)];
+
+  for (const id of ids) {
     await hapusHariLibur(pool, id);
   }
 
@@ -29,6 +43,7 @@ export async function POST(request) {
     return NextResponse.redirect(new URL("/admin/hari-libur", request.url), 303);
   }
 
-  return NextResponse.json({ ok: true, message: "Hari libur berhasil dihapus." });
+  const pesan = ids.length > 1 ? `${ids.length} hari libur berhasil dihapus.` : "Hari libur berhasil dihapus.";
+  return NextResponse.json({ ok: true, message: pesan });
 }
 
