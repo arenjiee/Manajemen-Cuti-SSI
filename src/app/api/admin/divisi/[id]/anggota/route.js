@@ -1,43 +1,66 @@
-import { NextResponse } from "next/server";
 import pool from "@/lib/db";
-import { guardApi } from "@/lib/guard";
-import { tambahAnggota } from "@/lib/queries/divisi";
+import { withRole } from "@/lib/with-role";
+import { ok, fail, readBody, parseIdList } from "@/lib/http";
 import { parseId } from "@/lib/id";
+import { tambahAnggota, keluarkanAnggota, keluarkanKetua } from "@/lib/queries/divisi";
 
-export async function POST(request, { params }) {
-  const g = await guardApi(["admin"], request);
-  if (g.error) return g.error;
+// POST   /api/admin/divisi/[id]/anggota   body: { userId }    -> tambah satu anggota
+// DELETE /api/admin/divisi/[id]/anggota   body: { userId }    -> keluarkan satu/banyak (userId bisa berulang)
 
-  const { id: rawId } = await params;
-  const divisiId = parseId(rawId);
-  if (divisiId == null) {
-    return NextResponse.json({ ok: false, message: "ID divisi tidak valid." }, { status: 400 });
-  }
+export const POST = withRole(["admin"], async ({ request, params }) => {
+  const divisiId = parseId(params.id);
+  if (divisiId == null) return fail("ID divisi tidak valid.");
 
-  let userId = null;
-  const contentType = request.headers.get("content-type") || "";
-
-  if (contentType.includes("application/json")) {
-    const body = await request.json().catch(() => ({}));
-    userId = parseId(body.userId);
-  } else {
-    const fd = await request.formData().catch(() => null);
-    userId = parseId(fd?.get("userId"));
-  }
-
-  if (userId == null) {
-    return NextResponse.json({ ok: false, message: "User ID tidak valid." }, { status: 400 });
-  }
+  const [userId] = parseIdList((await readBody(request)).userId);
+  if (userId == null) return fail("User ID tidak valid.");
 
   const r = await tambahAnggota(pool, divisiId, userId);
-  if (!r.ok) {
-    return NextResponse.json({ ok: false, message: r.pesan }, { status: 400 });
+  return r.ok ? ok({ message: "Anggota berhasil ditambahkan." }) : fail(r.pesan);
+});
+
+export const DELETE = withRole(["admin"], async ({ request, params }) => {
+  const divisiId = parseId(params.id);
+  if (divisiId == null) return fail("ID divisi tidak valid.");
+
+  const b = await readBody(request);
+  const userIds = parseIdList(b.userId ?? b.userIds ?? b.ids);
+  if (userIds.length === 0) return fail("User ID tidak valid.");
+
+  let sukses = 0;
+  let adaKetua = false;
+  const gagal = [];
+
+  for (const userId of userIds) {
+    const u = (
+      await pool.query(
+        "SELECT role, divisi_id FROM users WHERE id=$1 AND deleted_at IS NULL",
+        [userId]
+      )
+    ).rows[0];
+
+    if (!u || u.divisi_id !== divisiId) {
+      gagal.push("Pengguna bukan anggota divisi ini.");
+      continue;
+    }
+
+    const isKetua = u.role === "ketua_divisi";
+    const r = isKetua ? await keluarkanKetua(pool, divisiId) : await keluarkanAnggota(pool, userId);
+    if (r.ok) {
+      sukses++;
+      if (isKetua) adaKetua = true;
+    } else {
+      gagal.push(r.pesan);
+    }
   }
 
-  const acceptsHtml = request.headers.get("accept")?.includes("text/html");
-  if (acceptsHtml) {
-    return NextResponse.redirect(new URL(`/admin/divisi/${divisiId}`, request.url), 303);
-  }
+  if (sukses === 0) return fail(gagal[0] || "Gagal mengeluarkan anggota.");
 
-  return NextResponse.json({ ok: true, message: "Anggota berhasil ditambahkan." });
-}
+  let message;
+  if (userIds.length === 1) {
+    message = adaKetua ? "Ketua divisi berhasil dikeluarkan." : "Anggota berhasil dikeluarkan.";
+  } else {
+    message = `${sukses} anggota berhasil dikeluarkan.`;
+    if (gagal.length > 0) message += ` (${gagal.length} dilewati: ${gagal[0]})`;
+  }
+  return ok({ message, sukses, dilewati: gagal.length });
+});

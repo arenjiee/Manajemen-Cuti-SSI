@@ -13,6 +13,7 @@ export default function TabelPilih({
   header,
   baris,
   hapusAction,
+  hapusMethod = "POST",
   hapusLabel = "Hapus terpilih",
   pesanHapus,
   idField = "ids",
@@ -89,7 +90,7 @@ export default function TabelPilih({
       Object.entries(extraFields).forEach(([k, v]) => fd.append(k, String(v ?? "")));
 
       const res = await fetch(hapusAction, {
-        method: "POST",
+        method: hapusMethod,
         body: fd,
       });
       const data = await res.json().catch(() => ({}));

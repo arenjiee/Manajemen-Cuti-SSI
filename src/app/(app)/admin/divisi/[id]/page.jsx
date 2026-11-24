@@ -35,8 +35,9 @@ export default async function DetailDivisiPage({ params }) {
       label: "Aksi",
       render: (a) => (
         <TombolKonfirmasi
-          action="/api/admin/divisi/anggota/keluar"
-          fields={{ divisiId: d.id, userId: a.id }}
+          action={`/api/admin/divisi/${d.id}/anggota`}
+          method="DELETE"
+          fields={{ userId: a.id }}
           label={a.role === "ketua_divisi" ? "Keluarkan Ketua" : "Keluarkan"}
           pesan={
             a.role === "ketua_divisi"
@@ -59,21 +60,21 @@ export default async function DetailDivisiPage({ params }) {
 
       <section className="max-w-xl space-y-4">
         <Section title="Edit divisi">
-          <FormAction action={`/api/admin/divisi/${d.id}`} batalHref="/admin/divisi" label="Simpan perubahan" className="space-y-4 rounded-2xl border border-line bg-surface p-6">
-          <input type="hidden" name="id" value={d.id} />
-          <label className="block"><span className={labelCls}>Nama divisi</span><input name="nama" defaultValue={d.nama} required maxLength={NAMA_DIVISI_MAKS} className={inputCls} /></label>
-          <label className="block"><span className={labelCls}>Deskripsi</span><AutoTextarea name="deskripsi" rows={2} defaultValue={d.deskripsi ?? ""} maxLength={DESKRIPSI_DIVISI_MAKS} className={inputCls} /></label>
-          <label className="block"><span className={labelCls}>Ketua divisi</span>
-            <select name="ketuaId" defaultValue={d.ketua_id ?? ""} className={selectCls}>
-              <option value="">-- Tanpa Ketua Divisi --</option>
-              {ketuaOpsi.map((k) => <option key={k.id} value={k.id}>{k.nama_lengkap}</option>)}
-            </select>
-            <span className="mt-1.5 block text-xs text-muted">Mengganti atau mengosongkan ketua akan mengeluarkan ketua saat ini dari divisi ini. Akunnya tidak dihapus.</span>
-          </label>
-          <p className="text-xs text-muted">
-            Batas cuti bersamaan ({d.max_persen_cuti}%) diatur di <Link href="/kapasitas" className="underline underline-offset-2 hover:text-ink">Kapasitas Tim</Link>.
-          </p>
-        </FormAction>
+          <FormAction action={`/api/admin/divisi/${d.id}`} method="PUT" batalHref="/admin/divisi" label="Simpan perubahan" className="space-y-4 rounded-2xl border border-line bg-surface p-6">
+            <input type="hidden" name="id" value={d.id} />
+            <label className="block"><span className={labelCls}>Nama divisi</span><input name="nama" defaultValue={d.nama} required maxLength={NAMA_DIVISI_MAKS} className={inputCls} /></label>
+            <label className="block"><span className={labelCls}>Deskripsi</span><AutoTextarea name="deskripsi" rows={2} defaultValue={d.deskripsi ?? ""} maxLength={DESKRIPSI_DIVISI_MAKS} className={inputCls} /></label>
+            <label className="block"><span className={labelCls}>Ketua divisi</span>
+              <select name="ketuaId" defaultValue={d.ketua_id ?? ""} className={selectCls}>
+                <option value="">-- Tanpa Ketua Divisi --</option>
+                {ketuaOpsi.map((k) => <option key={k.id} value={k.id}>{k.nama_lengkap}</option>)}
+              </select>
+              <span className="mt-1.5 block text-xs text-muted">Mengganti atau mengosongkan ketua akan mengeluarkan ketua saat ini dari divisi ini. Akunnya tidak dihapus.</span>
+            </label>
+            <p className="text-xs text-muted">
+              Batas cuti bersamaan ({d.max_persen_cuti}%) diatur di <Link href="/kapasitas" className="underline underline-offset-2 hover:text-ink">Kapasitas Tim</Link>.
+            </p>
+          </FormAction>
         </Section>
       </section>
 
@@ -83,10 +84,10 @@ export default async function DetailDivisiPage({ params }) {
           rows={anggota}
           kosong="Divisi belum memiliki anggota."
           selectable
-          hapusAction="/api/admin/divisi/anggota/keluar"
+          hapusAction={`/api/admin/divisi/${d.id}/anggota`}
+          hapusMethod="DELETE"
           hapusLabel="Keluarkan anggota"
           hapusPesan="Keluarkan {count} anggota dari divisi? Akun tidak dihapus."
-          extraFields={{ divisiId: d.id }}
           idField="userId"
         />
         <FormTambahAnggota divisiId={d.id} kandidat={bebas} />
@@ -94,7 +95,7 @@ export default async function DetailDivisiPage({ params }) {
 
       <Section title="Hapus divisi" eyebrow="Aksi berbahaya">
         <p className="mb-3 text-sm text-muted">{anggota.length > 0 ? `${anggota.length} anggota (termasuk ketua) akan menjadi tanpa divisi; akun mereka tetap ada.` : "Divisi ini belum memiliki anggota."}</p>
-        <TombolKonfirmasi action="/api/admin/divisi/hapus" fields={{ id: d.id }} label="Hapus divisi" konfirmasi={2}
+        <TombolKonfirmasi action={`/api/admin/divisi/${d.id}`} method="DELETE" redirectTo="/admin/divisi" label="Hapus divisi" konfirmasi={2}
           pesan={`Hapus divisi ${d.nama}?${anggota.length > 0 ? ` ${anggota.length} anggota akan menjadi tanpa divisi.` : ""}`} className={btnDanger} />
       </Section>
     </div>

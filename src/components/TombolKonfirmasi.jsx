@@ -16,6 +16,7 @@ export default function TombolKonfirmasi({
   konfirmasi = 1,
   className,
   onSuccess,
+  redirectTo,
 }) {
   const router = useRouter();
   const tampilToast = useToast();
@@ -54,7 +55,11 @@ export default function TombolKonfirmasi({
       setBuka(false);
       tampilToast(data.message || data.pesan || "Tindakan berhasil.", "sukses");
       if (onSuccess) onSuccess(data);
-      else router.refresh();
+      else if (redirectTo) {
+        // Selaraskan dengan FormAction: pastikan data halaman tujuan tidak berasal dari cache.
+        router.push(redirectTo);
+        router.refresh();
+      } else router.refresh();
     } catch {
       setErrorPesan("Terjadi kesalahan jaringan.");
       setLoading(false);
@@ -69,7 +74,6 @@ export default function TombolKonfirmasi({
     jalankan();
   }
 
-  // Server action: pertahankan perilaku form native (belum dipakai di halaman mana pun).
   if (!isUrl) {
     return (
       <form action={action} suppressHydrationWarning>

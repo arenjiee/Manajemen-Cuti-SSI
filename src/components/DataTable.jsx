@@ -9,6 +9,7 @@ export default function DataTable({
   kosong = "Belum ada data.",
   selectable = false,
   hapusAction,
+  hapusMethod,
   hapusLabel,
   pesanHapus,
   idField,
@@ -51,6 +52,7 @@ export default function DataTable({
           cells: kolom.map((k) => <Fragment key={k.label}>{sel(k, r)}</Fragment>),
         }))}
         hapusAction={hapusAction}
+        hapusMethod={hapusMethod}
         hapusLabel={hapusLabel}
         pesanHapus={pesanHapus}
         idField={idField}

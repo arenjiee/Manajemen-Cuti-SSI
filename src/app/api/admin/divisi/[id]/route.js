@@ -1,73 +1,31 @@
-import { NextResponse } from "next/server";
 import pool from "@/lib/db";
-import { guardApi } from "@/lib/guard";
-import { ambilDivisi, ubahDivisi } from "@/lib/queries/divisi";
+import { withRole } from "@/lib/with-role";
+import { ok, fail, readBody, s, num } from "@/lib/http";
 import { parseId } from "@/lib/id";
+import { ambilDivisi, ubahDivisi, hapusDivisi } from "@/lib/queries/divisi";
 
-export async function GET(request, { params }) {
-  const g = await guardApi(["admin", "hrd"], request);
-  if (g.error) return g.error;
-
-  const { id: rawId } = await params;
-  const id = parseId(rawId);
-  if (id == null) {
-    return NextResponse.json({ ok: false, message: "ID tidak valid." }, { status: 400 });
-  }
-
+export const GET = withRole(["admin", "hrd"], async ({ params }) => {
+  const id = parseId(params.id);
+  if (id == null) return fail("ID tidak valid.");
   const divisi = await ambilDivisi(pool, id);
-  if (!divisi) {
-    return NextResponse.json({ ok: false, message: "Divisi tidak ditemukan." }, { status: 404 });
-  }
+  return divisi ? ok({ data: divisi }) : fail("Divisi tidak ditemukan.", 404);
+});
 
-  return NextResponse.json({ ok: true, data: divisi });
-}
-
-export async function POST(request, { params }) {
-  return handleUpdate(request, params);
-}
-
-export async function PUT(request, { params }) {
-  return handleUpdate(request, params);
-}
-
-async function handleUpdate(request, params) {
-  const g = await guardApi(["admin"], request);
-  if (g.error) return g.error;
-
-  const { id: rawId } = await params;
-  const id = parseId(rawId);
-  if (id == null) {
-    return NextResponse.json({ ok: false, message: "ID tidak valid." }, { status: 400 });
-  }
-
-  let body = {};
-  const contentType = request.headers.get("content-type") || "";
-
-  if (contentType.includes("application/json")) {
-    body = await request.json().catch(() => ({}));
-  } else {
-    const fd = await request.formData().catch(() => null);
-    if (fd) {
-      body = {
-        nama: fd.get("nama"),
-        deskripsi: fd.get("deskripsi"),
-        ketuaId: fd.get("ketuaId"),
-      };
-    }
-  }
-
-  const s = (v) => String(v ?? "").trim();
-  const num = (v) => (v != null && v !== "" && !Number.isNaN(Number(v)) ? Number(v) : null);
-
+export const PUT = withRole(["admin"], async ({ request, params }) => {
+  const id = parseId(params.id);
+  if (id == null) return fail("ID tidak valid.");
+  const b = await readBody(request);
   const r = await ubahDivisi(pool, id, {
-    nama: s(body.nama),
-    deskripsi: s(body.deskripsi),
-    ketuaId: num(body.ketuaId),
+    nama: s(b.nama),
+    deskripsi: s(b.deskripsi),
+    ketuaId: num(b.ketuaId),
   });
+  return r.ok ? ok({ message: "Divisi berhasil diperbarui." }) : fail(r.pesan);
+});
 
-  if (!r.ok) {
-    return NextResponse.json({ ok: false, message: r.pesan }, { status: 400 });
-  }
-
-  return NextResponse.json({ ok: true, message: "Divisi berhasil diperbarui." });
-}
+export const DELETE = withRole(["admin"], async ({ params }) => {
+  const id = parseId(params.id);
+  if (id == null) return fail("ID tidak valid.");
+  const r = await hapusDivisi(pool, id);
+  return r.ok ? ok({ message: "Divisi berhasil dihapus." }) : fail(r.pesan);
+});
