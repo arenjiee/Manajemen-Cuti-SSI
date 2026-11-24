@@ -15,7 +15,10 @@ export default async function DivisiPage({ searchParams }) {
   await requireRole(["admin"]);
   const sp = await searchParams;
   const [rows, semua] = await Promise.all([daftarDivisi(pool, sp), daftarDivisi(pool, {})]);
-  const ketuaOpsi = semua.filter((d) => d.ketua_id).map((d) => ({ value: d.ketua_id, label: d.ketua_nama }));
+  const ketuaOpsi = [
+    { value: "none", label: "Tanpa ketua" },
+    ...semua.filter((d) => d.ketua_id).map((d) => ({ value: d.ketua_id, label: d.ketua_nama })),
+  ];
 
   const fields = [
     { name: "q", label: "Nama divisi" },
@@ -29,7 +32,7 @@ export default async function DivisiPage({ searchParams }) {
     { label: "Divisi", render: (d) => <div><p className="font-medium">{d.nama}</p><p className="text-xs text-muted">{d.deskripsi}</p></div> },
     { label: "Ketua", render: (d) => d.ketua_nama ?? "-" },
     { label: "Anggota", key: "jumlah_anggota" },
-    { label: "Batas cuti", render: (d) => `${d.max_persen_cuti}% · ${d.batas_harian} orang/hari` },
+    { label: "Maks. cuti bersamaan", render: (d) => `${d.batas_harian} orang per hari (${d.max_persen_cuti}%)` },
     { label: "Dibentuk", render: (d) => formatTanggal(String(d.created_at.toISOString?.() ?? d.created_at).slice(0, 10)) },
     { label: "Aksi", render: (d) => <TautanDetail href={`/admin/divisi/${d.id}`} /> },
   ];

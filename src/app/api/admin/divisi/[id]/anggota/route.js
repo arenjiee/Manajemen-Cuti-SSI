@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { guardApi } from "@/lib/guard";
-import { tambahAnggota, keluarkanAnggota } from "@/lib/queries/divisi";
+import { tambahAnggota, pindahAnggota, keluarkanAnggota } from "@/lib/queries/divisi";
 import { parseId } from "@/lib/id";
 
 export async function POST(request, { params }) {
@@ -15,21 +15,24 @@ export async function POST(request, { params }) {
   }
 
   let userId = null;
+  let pindah = false;
   const contentType = request.headers.get("content-type") || "";
 
   if (contentType.includes("application/json")) {
     const body = await request.json().catch(() => ({}));
     userId = parseId(body.userId);
+    pindah = body.pindah === true || body.pindah === "1";
   } else {
     const fd = await request.formData().catch(() => null);
     userId = parseId(fd?.get("userId"));
+    pindah = fd?.get("pindah") === "1";
   }
 
   if (userId == null) {
     return NextResponse.json({ ok: false, message: "User ID tidak valid." }, { status: 400 });
   }
 
-  const r = await tambahAnggota(pool, divisiId, userId);
+  const r = pindah ? await pindahAnggota(pool, divisiId, userId) : await tambahAnggota(pool, divisiId, userId);
   if (!r.ok) {
     return NextResponse.json({ ok: false, message: r.pesan }, { status: 400 });
   }
@@ -39,7 +42,7 @@ export async function POST(request, { params }) {
     return NextResponse.redirect(new URL(`/admin/divisi/${divisiId}`, request.url), 303);
   }
 
-  return NextResponse.json({ ok: true, message: "Anggota berhasil ditambahkan." });
+  return NextResponse.json({ ok: true, message: pindah ? `Anggota berhasil dipindahkan dari divisi ${r.dari}.` : "Anggota berhasil ditambahkan." });
 }
 
 export async function DELETE(request) {

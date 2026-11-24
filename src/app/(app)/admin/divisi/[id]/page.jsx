@@ -1,7 +1,8 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/guard";
 import pool from "@/lib/db";
-import { ambilDivisi, anggotaDivisi, calonKetua, karyawanTanpaDivisi } from "@/lib/queries/divisi";
+import { ambilDivisi, anggotaDivisi, calonKetua, karyawanTanpaDivisi, karyawanDivisiLain } from "@/lib/queries/divisi";
 import { formatTanggal } from "@/lib/format";
 import DataTable from "@/components/DataTable";
 import FormAction from "@/components/FormAction";
@@ -20,7 +21,8 @@ export default async function DetailDivisiPage({ params }) {
   if (!/^\d+$/.test(id)) notFound();
   const d = await ambilDivisi(pool, Number(id));
   if (!d) notFound();
-  const [anggota, calon, bebas] = await Promise.all([anggotaDivisi(pool, d.id), calonKetua(pool), karyawanTanpaDivisi(pool)]);
+  const [anggota, calon, bebas, dariLain] = await Promise.all([anggotaDivisi(pool, d.id), calonKetua(pool), karyawanTanpaDivisi(pool), karyawanDivisiLain(pool, d.id)]);
+  const kandidat = [...bebas.map((k) => ({ ...k, divisi_nama: null })), ...dariLain];
   const nonaktif = anggota.filter((a) => !a.aktif).length;
   const ketuaOpsi = [...(d.ketua_id ? [{ id: d.ketua_id, nama_lengkap: d.ketua_nama }] : []), ...calon];
 
@@ -52,7 +54,7 @@ export default async function DetailDivisiPage({ params }) {
       <TombolKembali href="/admin/divisi" label="Kembali ke Divisi" />
       <PageHeader
         title={d.nama}
-        description={`Ketua: ${d.ketua_nama ?? "-"} · ${d.jumlah_anggota} anggota aktif${nonaktif ? ` (+${nonaktif} nonaktif)` : ""} · Batas cuti ${d.max_persen_cuti}% (${d.batas_harian} orang/hari)`}
+        description={`Ketua: ${d.ketua_nama ?? "-"} · ${d.jumlah_anggota} anggota aktif${nonaktif ? ` (+${nonaktif} nonaktif)` : ""} · Maks. cuti bersamaan ${d.batas_harian} orang per hari (${d.max_persen_cuti}%)`}
       />
 
       <section className="max-w-xl space-y-4">
@@ -66,7 +68,11 @@ export default async function DetailDivisiPage({ params }) {
               <option value="">-- Tanpa Ketua Divisi --</option>
               {ketuaOpsi.map((k) => <option key={k.id} value={k.id}>{k.nama_lengkap}</option>)}
             </select>
+            <span className="mt-1.5 block text-xs text-muted">Mengganti atau mengosongkan ketua akan mengeluarkan ketua saat ini dari divisi ini. Akunnya tidak dihapus.</span>
           </label>
+          <p className="text-xs text-muted">
+            Batas cuti bersamaan ({d.max_persen_cuti}%) diatur di <Link href="/kapasitas" className="underline underline-offset-2 hover:text-ink">Kapasitas Tim</Link>.
+          </p>
         </FormAction>
         </Section>
       </section>
@@ -83,13 +89,13 @@ export default async function DetailDivisiPage({ params }) {
           extraFields={{ divisiId: d.id }}
           idField="userId"
         />
-        <FormTambahAnggota divisiId={d.id} kandidat={bebas} />
+        <FormTambahAnggota divisiId={d.id} kandidat={kandidat} />
       </Section>
 
       <Section title="Hapus divisi" eyebrow="Aksi berbahaya">
-        <p className="mb-3 text-sm text-muted">Anggota kehilangan atribut divisi; akun mereka tetap ada.</p>
+        <p className="mb-3 text-sm text-muted">{anggota.length > 0 ? `${anggota.length} anggota (termasuk ketua) akan menjadi tanpa divisi; akun mereka tetap ada.` : "Divisi ini belum memiliki anggota."}</p>
         <TombolKonfirmasi action="/api/admin/divisi/hapus" fields={{ id: d.id }} label="Hapus divisi" konfirmasi={2}
-          pesan={`Hapus divisi ${d.nama}?`} className={btnDanger} />
+          pesan={`Hapus divisi ${d.nama}?${anggota.length > 0 ? ` ${anggota.length} anggota akan menjadi tanpa divisi.` : ""}`} className={btnDanger} />
       </Section>
     </div>
   );

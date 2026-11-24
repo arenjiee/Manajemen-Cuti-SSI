@@ -88,8 +88,11 @@ export async function daftarDivisi(db, f = {}) {
   const p = [];
   const tambah = (sql, v) => { p.push(v); w.push(sql.replace("?", `$${p.length}`)); };
   if (f.q) tambah("nama ILIKE ?", `%${f.q}%`);
-  const ketuaId = parseId(f.ketuaId);
-  if (ketuaId != null) tambah("ketua_id = ?", ketuaId);
+  if (f.ketuaId === "none") w.push("ketua_id IS NULL");
+  else {
+    const ketuaId = parseId(f.ketuaId);
+    if (ketuaId != null) tambah("ketua_id = ?", ketuaId);
+  }
   const sql = `SELECT * FROM (
       SELECT d.id, d.nama, d.deskripsi, d.max_persen_cuti, d.created_at, d.ketua_id, k.nama_lengkap AS ketua_nama,
              (SELECT count(*)::int FROM users u WHERE u.divisi_id = d.id AND u.deleted_at IS NULL AND u.aktif) AS jumlah_anggota
@@ -134,6 +137,20 @@ export async function tambahAnggota(db, divisiId, userId) {
   return { ok: true };
 }
 
+export async function pindahAnggota(db, divisiId, userId) {
+  const d = (await db.query("SELECT id FROM divisi WHERE id=$1 AND deleted_at IS NULL", [divisiId])).rows[0];
+  if (!d) return gagal("Divisi tidak ditemukan.");
+  const u = (await db.query(
+    "SELECT u.role, u.aktif, u.divisi_id, dv.nama AS divisi_nama FROM users u LEFT JOIN divisi dv ON dv.id=u.divisi_id WHERE u.id=$1 AND u.deleted_at IS NULL", [userId])).rows[0];
+  if (!u || u.role !== "karyawan" || !u.aktif) return gagal("Hanya karyawan aktif yang dapat dipindahkan.");
+  if (!u.divisi_id) return gagal("Karyawan belum tergabung di divisi mana pun. Gunakan Tambah anggota.");
+  if (u.divisi_id === divisiId) return gagal("Karyawan sudah menjadi anggota divisi ini.");
+  const n = (await db.query("SELECT count(*)::int n FROM pengajuan_cuti WHERE pengaju_id=$1 AND status='Pending' AND tahap='leader'", [userId])).rows[0].n;
+  if (n > 0) return gagal(`Karyawan masih punya pengajuan cuti yang menunggu verifikasi Ketua Divisi ${u.divisi_nama}. Selesaikan dulu sebelum dipindahkan.`);
+  await db.query("UPDATE users SET divisi_id=$1 WHERE id=$2", [divisiId, userId]);
+  return { ok: true, dari: u.divisi_nama };
+}
+
 export async function keluarkanAnggota(db, userId) {
   const u = (await db.query("SELECT role FROM users WHERE id=$1 AND deleted_at IS NULL", [userId])).rows[0];
   if (!u) return gagal("Pengguna tidak ditemukan.");
@@ -159,6 +176,13 @@ export async function calonKetua(db) {
      WHERE role='ketua_divisi' AND deleted_at IS NULL AND aktif
        AND NOT EXISTS (SELECT 1 FROM divisi d WHERE d.ketua_id=u.id AND d.deleted_at IS NULL)
      ORDER BY nama_lengkap`);
+  return r.rows;
+}
+
+export async function karyawanDivisiLain(db, divisiId) {
+  const r = await db.query(
+    `SELECT u.id, u.nama_lengkap, dv.nama AS divisi_nama FROM users u JOIN divisi dv ON dv.id=u.divisi_id AND dv.deleted_at IS NULL
+     WHERE u.role='karyawan' AND u.deleted_at IS NULL AND u.aktif AND u.divisi_id <> $1 ORDER BY u.nama_lengkap`, [divisiId]);
   return r.rows;
 }
 
