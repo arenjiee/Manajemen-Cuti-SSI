@@ -89,7 +89,7 @@ export default function ModalSaran({ buka, onTutup }) {
             <button
               type="button"
               onClick={handleTutup}
-              className="absolute top-5 right-5 flex h-8 w-8 items-center justify-center rounded-full text-muted transition hover:bg-ink/5 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className="absolute top-5 right-5 flex h-10 w-10 md:h-8 md:w-8 items-center justify-center rounded-full text-muted transition hover:bg-ink/5 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               aria-label="Tutup modal"
             >
               <X size={18} />
@@ -129,7 +129,7 @@ export default function ModalSaran({ buka, onTutup }) {
                 )}
 
                 <div>
-                  <label className="mb-2 block font-mono text-[11px] font-semibold text-muted uppercase tracking-wider">
+                  <label className="mb-2 block text-xs font-semibold text-muted">
                     Kategori
                   </label>
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -156,7 +156,7 @@ export default function ModalSaran({ buka, onTutup }) {
                 <div>
                   <label
                     htmlFor="input-saran-pesan"
-                    className="mb-2 block font-mono text-[11px] font-semibold text-muted uppercase tracking-wider"
+                    className="mb-2 block text-xs font-semibold text-muted"
                   >
                     Isi Pesan
                   </label>
@@ -167,7 +167,7 @@ export default function ModalSaran({ buka, onTutup }) {
                     value={pesan}
                     onChange={(e) => setPesan(e.target.value)}
                     placeholder="Tuliskan saran, kendala teknis, atau tanggapan Anda di sini..."
-                    className="w-full rounded-2xl border border-line bg-chrome/40 p-3.5 text-sm text-ink placeholder:text-muted focus:border-accent focus:bg-surface focus:outline-none focus:ring-1 focus:ring-accent"
+                    className="w-full rounded-2xl border border-line-strong bg-chrome/40 p-3.5 text-base md:text-sm text-ink placeholder:text-muted focus:border-accent focus:bg-surface focus:outline-none focus:ring-1 focus:ring-accent"
                   />
                 </div>
 

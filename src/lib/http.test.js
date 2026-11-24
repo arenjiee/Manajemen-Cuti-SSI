@@ -49,3 +49,22 @@ test("parseIdList: berbagai bentuk, buang tidak valid & duplikat", () => {
   assert.deepEqual(parseIdList(null), []);
   assert.deepEqual(parseIdList("-1"), []);
 });
+
+import { toList, wantsHtml, redirect303 } from "./http.js";
+
+test("toList", () => {
+  assert.deepEqual(toList(["1", 2]), ["1", "2"]);
+  assert.deepEqual(toList("7"), ["7"]);
+  assert.deepEqual(toList(undefined), []);
+  assert.deepEqual(toList(""), []);
+});
+
+test("wantsHtml dan redirect303", () => {
+  const html = new Request("http://x.test/api/a", { headers: { accept: "text/html,application/xhtml+xml" } });
+  const json = new Request("http://x.test/api/a", { headers: { accept: "*/*" } });
+  assert.equal(wantsHtml(html), true);
+  assert.equal(wantsHtml(json), false);
+  const r = redirect303(html, "/notifikasi");
+  assert.equal(r.status, 303);
+  assert.equal(r.headers.get("location"), "http://x.test/notifikasi");
+});

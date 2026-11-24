@@ -37,7 +37,7 @@ export default function KapasitasChart({ data }) {
                   <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-ink/10" role="presentation">
                     <div className={`h-full rounded-full ${g.batang}`} style={{ width: `${lebar}%` }} />
                   </div>
-                  <span className={`w-28 shrink-0 text-right font-mono text-[11px] uppercase ${g.teks}`}>{g.label}</span>
+                  <span className={`w-28 shrink-0 text-right text-xs font-medium ${g.teks}`}>{g.label}</span>
                 </div>
               </Link>
             </li>

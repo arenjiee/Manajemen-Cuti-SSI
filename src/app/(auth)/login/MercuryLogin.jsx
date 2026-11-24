@@ -43,9 +43,9 @@ export default function MercuryLogin() {
   }
 
   const group = "relative mb-[30px] transition-transform duration-[400ms] ease-[cubic-bezier(0.2,1,0.3,1)] focus-within:translate-x-2.5 motion-reduce:transition-none motion-reduce:focus-within:translate-x-0";
-  const label = "mb-2 block font-mono text-xs text-muted uppercase";
+  const label = "mb-2 block text-xs font-semibold text-muted";
   const input =
-    "peer w-full border-0 border-b border-line bg-transparent py-3 text-lg text-ink outline-none transition-colors duration-[400ms] placeholder:text-muted focus:border-accent [&:-webkit-autofill]:[-webkit-text-fill-color:var(--ink)] [&:-webkit-autofill]:[box-shadow:inset_0_0_0_1000px_var(--bg)]";
+    "peer w-full border-0 border-b border-line-strong bg-transparent py-3 text-lg text-ink outline-none transition-colors duration-[400ms] placeholder:text-muted focus:border-accent [&:-webkit-autofill]:[-webkit-text-fill-color:var(--ink)] [&:-webkit-autofill]:[box-shadow:inset_0_0_0_1000px_var(--bg)]";
   const glow =
     "pointer-events-none absolute bottom-0 left-0 h-0.5 w-0 bg-accent shadow-[0_0_15px_var(--accent)] transition-[width] duration-[600ms] ease-[cubic-bezier(0.2,1,0.3,1)] peer-focus:w-full motion-reduce:transition-none";
 
@@ -95,7 +95,7 @@ export default function MercuryLogin() {
             className="mb-6 block h-8 w-auto select-none dark:hidden"
             draggable={false}
           />
-          <span className="mb-2.5 block font-mono text-[11px] tracking-[3px] text-muted uppercase">PT SSI · Cabang Makassar</span>
+          <span className="mb-2.5 block text-xs font-semibold tracking-wide text-muted">PT SSI · Cabang Makassar</span>
           <h1 className="-ml-[3px] font-sans text-[length:clamp(2.4rem,11vw,3.4rem)] leading-[0.92] font-bold tracking-[-0.04em] text-ink">
             MANAJEMEN<br />CUTI
           </h1>
@@ -157,7 +157,7 @@ export default function MercuryLogin() {
           </div>
         </form>
 
-        <footer className="mt-10 flex justify-between gap-4 font-mono text-[11px] text-muted">
+        <footer className="mt-10 flex justify-between gap-4 text-xs text-muted">
           <span>LeaveSync 2026</span>
           <a
             href="https://wa.me/6283892122629?text=Halo%20Admin%2C%20saya%20lupa%20password%20akun%20LeaveSync"

@@ -11,7 +11,7 @@ export default function HeaderUrut({ label, href, arah }) {
       href={href}
       scroll={false}
       aria-label={`Urutkan berdasarkan ${label}`}
-      className={`inline-flex items-center gap-1.5 rounded-md uppercase outline-none transition-colors hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${arah ? "text-ink" : ""}`}
+      className={`inline-flex items-center gap-1.5 rounded-md outline-none transition-colors hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${arah ? "text-ink" : ""}`}
     >
       {label}
       <Ikon className={`h-3.5 w-3.5 ${arah ? "" : "opacity-40"}`} aria-hidden="true" />

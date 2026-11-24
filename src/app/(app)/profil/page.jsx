@@ -76,7 +76,7 @@ export default async function ProfilPage({ searchParams }) {
       </section>
 
       <Section title="Ubah profil">
-        <FormAction action="/api/profil" label="Simpan profil" className="space-y-4">
+        <FormAction action="/api/profil" method="PUT" label="Simpan profil" className="space-y-4">
           <input type="hidden" name="id" value={p.id} />
           <L t="Nama lengkap"><input name="nama_lengkap" defaultValue={p.nama_lengkap} required className={inputCls} /></L>
           <L t="Username"><input name="username" defaultValue={p.username} required className={inputCls} /></L>

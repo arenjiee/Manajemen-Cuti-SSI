@@ -12,7 +12,7 @@ import { IkonMenu } from "./nav-icons";
 import { bersihkanTabs, cocokkanMenu, sinkronkanHref, tambahTab, tutupKanan, tutupKiri, tutupLain, tutupSemua, tutupTab } from "@/lib/tabs";
 
 const PEGAS = { type: "spring", stiffness: 300, damping: 30 };
-const tombolIkon = "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted transition hover:bg-ink/5 hover:text-ink";
+const tombolIkon = "flex h-10 w-10 md:h-8 md:w-8 shrink-0 items-center justify-center rounded-lg text-muted transition hover:bg-ink/5 hover:text-ink";
 
 function Brand({ ciut }) {
   return (
@@ -74,7 +74,7 @@ function RingkasanTopbar({ ringkasan }) {
         <Link key={label} href={href} className="group flex h-9 items-center gap-2 rounded-lg border border-line bg-bg/50 px-2.5 text-xs text-muted transition hover:border-ink/30 hover:bg-ink/5 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
           <Ikon className="h-3.5 w-3.5" aria-hidden />
           <span className="whitespace-nowrap">{label}</span>
-          <span className="min-w-5 rounded bg-ink/10 px-1.5 py-0.5 text-center font-mono text-[11px] font-semibold text-ink">{nilai}</span>
+          <span className="min-w-5 rounded bg-ink/10 px-1.5 py-0.5 text-center text-xs font-semibold text-ink">{nilai}</span>
           <ChevronRight className="h-3 w-3 opacity-0 transition group-hover:opacity-100" aria-hidden />
         </Link>
       ))}
@@ -103,13 +103,13 @@ function TopBar({
         <Menu className="h-5 w-5" />
       </button>
       <div className="min-w-0 flex-1">
-        <p className="hidden text-[11px] font-medium tracking-[0.16em] text-muted uppercase sm:block">{user.peran}</p>
+        <p className="hidden text-xs font-semibold text-muted sm:block">{user.peran}</p>
         <h1 className="truncate font-display text-base font-semibold">{halaman}</h1>
       </div>
       <RingkasanTopbar ringkasan={ringkasan} />
-      <Link href="/notifikasi" aria-label={notifikasi > 0 ? `${notifikasi} notifikasi belum dibaca` : "Notifikasi"} className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted transition hover:bg-ink/5 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
+      <Link href="/notifikasi" aria-label={notifikasi > 0 ? `${notifikasi} notifikasi belum dibaca` : "Notifikasi"} className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-muted transition hover:bg-ink/5 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
         <Bell className="h-4 w-4" aria-hidden />
-        {notifikasi > 0 && <span className="absolute top-1 right-1 flex min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] leading-4 font-bold text-accent-ink">{notifikasi > 9 ? "9+" : notifikasi}</span>}
+        {notifikasi > 0 && <span className="absolute top-1 right-1 flex min-w-5 items-center justify-center rounded-full bg-accent px-1 text-xs leading-5 font-bold text-accent-ink">{notifikasi > 9 ? "9+" : notifikasi}</span>}
       </Link>
       <UserMenu
         user={{

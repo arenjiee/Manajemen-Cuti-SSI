@@ -103,13 +103,13 @@ export default function GlowCard({
             </span>
           )}
           {label && (
-            <span className="font-mono text-[11px] tracking-wider text-muted uppercase">
+            <span className="text-xs font-semibold text-muted">
               {label}
             </span>
           )}
         </div>
         {badge && (
-          <span className={`shrink-0 rounded-full px-2 py-0.5 font-mono text-[11px] font-medium whitespace-nowrap ${activeTone.badge}`}>
+          <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold whitespace-nowrap ${activeTone.badge}`}>
             {badge}
           </span>
         )}

@@ -1,24 +1,18 @@
-import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import pool from "@/lib/db";
-import { guardApi } from "@/lib/guard";
+import { withRole } from "@/lib/with-role";
+import { ok, wantsHtml, redirect303 } from "@/lib/http";
 import { tandaiDibaca } from "@/lib/queries/riwayat";
 import { tautanInternal } from "@/lib/tautan";
 
-export async function POST(request, { params }) {
-  const g = await guardApi(null, request);
-  if (g.error) return g.error;
-
-  const { id } = await params;
-  const r = await tandaiDibaca(pool, g.user.id, String(id));
+// Dipakai <form method="POST"> bawaan di halaman notifikasi (tanpa JS) -> redirect ke tautan notifikasi.
+export const POST = withRole(null, async ({ request, params, user }) => {
+  const r = await tandaiDibaca(pool, user.id, String(params.id));
   revalidatePath("/", "layout");
 
-  const acceptsHtml = request.headers.get("accept")?.includes("text/html");
-  if (acceptsHtml) {
+  if (wantsHtml(request)) {
     const tujuan = r.ok ? tautanInternal(r.link) : null;
-    return NextResponse.redirect(new URL(tujuan ?? "/notifikasi", request.url), 303);
+    return redirect303(request, tujuan ?? "/notifikasi");
   }
-
-  return NextResponse.json({ ok: true, link: r.ok ? r.link : null });
-}
-
+  return ok({ link: r.ok ? r.link : null });
+});

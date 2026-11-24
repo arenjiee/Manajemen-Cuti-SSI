@@ -206,14 +206,14 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
               <span>🎉</span>
               <span>{sim.hariLiburTerlewati.length} Hari Libur Terdeteksi</span>
             </div>
-            <ul className="space-y-1 text-muted text-[11px] pl-4 list-disc">
+            <ul className="space-y-1 text-muted text-xs pl-4 list-disc">
               {sim.hariLiburTerlewati.map((hl) => (
                 <li key={hl.tanggal}>
                   <span className="font-medium text-ink">{formatTanggal(hl.tanggal)}</span>: {hl.keterangan} ({hl.jenis === "cuti_bersama" ? "Cuti Bersama" : "Libur Nasional"})
                 </li>
               ))}
             </ul>
-            <p className="text-[10px] text-muted italic">Tanggal di atas bebas potong kuota (tidak dihitung sebagai hari cuti).</p>
+            <p className="text-xs text-muted">Tanggal di atas bebas potong kuota (tidak dihitung sebagai hari cuti).</p>
           </div>
         )}
 
@@ -243,7 +243,7 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
             {hariLiburMendatang?.length > 0 && (
               <div className="border-t border-line pt-3 space-y-2">
                 <p className="text-xs font-medium text-ink">Libur & Cuti Bersama Terdekat</p>
-                <ul className="space-y-1.5 text-[11px]">
+                <ul className="space-y-1.5 text-xs">
                   {hariLiburMendatang.map((h) => {
                     const isCuti = h.jenis === "cuti_bersama";
                     return (
@@ -258,9 +258,9 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
                       >
                         <div className="min-w-0 flex-1">
                           <p className="font-medium text-ink truncate">{h.keterangan}</p>
-                          <p className="text-muted text-[10px]">{formatTanggal(h.tanggal)}</p>
+                          <p className="text-muted text-xs">{formatTanggal(h.tanggal)}</p>
                         </div>
-                        <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium ${isCuti ? "bg-warn/20 text-ink" : "bg-bad/20 text-bad"}`}>
+                        <span className={`shrink-0 rounded px-1.5 py-0.5 text-xs font-medium ${isCuti ? "bg-warn/20 text-ink" : "bg-bad/20 text-bad"}`}>
                           {isCuti ? "Cuti Bersama" : "Libur Nasional"}
                         </span>
                       </li>
@@ -269,7 +269,7 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
                 </ul>
               </div>
             )}
-            <p className="text-[11px] text-muted">Pilih tanggal di kalender atau form untuk melihat simulasi kuota dan rekan pengganti.</p>
+            <p className="text-xs text-muted">Pilih tanggal di kalender atau form untuk melihat simulasi kuota dan rekan pengganti.</p>
           </div>
         )}
       </aside>

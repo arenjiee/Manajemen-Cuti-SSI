@@ -196,7 +196,7 @@ export default function TabelPilih({
       <div className="hidden overflow-hidden rounded-2xl border border-line bg-surface md:block">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-line bg-bg/40 font-mono text-[11px] tracking-wider text-muted uppercase">
+            <thead className="border-b border-line bg-bg/40 text-xs font-semibold text-muted">
               <tr>
                 <th className="w-12 px-5 py-3.5">
                   <input
@@ -270,11 +270,11 @@ export default function TabelPilih({
                   suppressHydrationWarning
                   className="h-4 w-4 cursor-pointer accent-accent"
                 />
-                <span className="font-mono text-[11px] tracking-wide text-muted uppercase">Pilih</span>
+                <span className="text-xs font-semibold text-muted">Pilih</span>
               </label>
               {label.map((l, i) => (
                 <div key={l} className="flex items-center justify-between gap-4 border-b border-line/40 pb-1.5 last:border-0 last:pb-0">
-                  <span className="font-mono text-[11px] tracking-wide text-muted uppercase">{l}</span>
+                  <span className="text-xs font-semibold text-muted">{l}</span>
                   <span className="text-right text-ink font-medium">{b.cells[i]}</span>
                 </div>
               ))}

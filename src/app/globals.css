@@ -24,8 +24,9 @@
   --bg: #050505;
   --surface: #0f0f0f;
   --ink: #f2f2f2;
-  --ink-muted: rgba(255, 255, 255, 0.55);
+  --ink-muted: rgba(255, 255, 255, 0.62);
   --line: rgba(255, 255, 255, 0.12);
+  --line-strong: rgba(255, 255, 255, 0.4);
   --accent: #e0e0e0;
   --accent-ink: #050505;
   --chrome: #161616;
@@ -51,14 +52,15 @@
   --bg: #f8fafc;
   --surface: #ffffff;
   --ink: #0f172a;
-  --ink-muted: rgba(15, 23, 42, 0.6);
+  --ink-muted: rgba(15, 23, 42, 0.68);
   --line: rgba(15, 23, 42, 0.12);
+  --line-strong: rgba(15, 23, 42, 0.5);
   --accent: #0f172a;
   --accent-ink: #ffffff;
   --chrome: #eef2f6;
-  --ok: oklch(0.62 0.17 150);
-  --warn: oklch(0.65 0.16 75);
-  --bad: oklch(0.58 0.2 25);
+  --ok: oklch(0.46 0.17 150);
+  --warn: oklch(0.49 0.16 75);
+  --bad: oklch(0.5 0.2 25);
 
   /* Variabel tambahan kompatibilitas shadcn/ui */
   --background: var(--bg);
@@ -78,14 +80,15 @@
     --bg: #f8fafc;
     --surface: #ffffff;
     --ink: #0f172a;
-    --ink-muted: rgba(15, 23, 42, 0.6);
+    --ink-muted: rgba(15, 23, 42, 0.68);
     --line: rgba(15, 23, 42, 0.12);
+    --line-strong: rgba(15, 23, 42, 0.5);
     --accent: #0f172a;
     --accent-ink: #ffffff;
     --chrome: #eef2f6;
-    --ok: oklch(0.62 0.17 150);
-    --warn: oklch(0.65 0.16 75);
-    --bad: oklch(0.58 0.2 25);
+    --ok: oklch(0.46 0.17 150);
+    --warn: oklch(0.49 0.16 75);
+    --bad: oklch(0.5 0.2 25);
 
     --background: var(--bg);
     --foreground: var(--ink);
@@ -99,12 +102,20 @@
   }
 }
 
+@theme {
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.4;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.5;
+}
+
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-ink: var(--ink);
   --color-muted: var(--ink-muted);
   --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
   --color-accent: var(--accent);
   --color-accent-ink: var(--accent-ink);
   --color-ok: var(--ok);
@@ -125,7 +136,7 @@ body {
   background-attachment: fixed;
   color: var(--ink);
   font-family: var(--font-sans);
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
   -webkit-font-smoothing: antialiased;
 }
 

@@ -1,20 +1,13 @@
-import { NextResponse } from "next/server";
 import pool from "@/lib/db";
-import { guardApi } from "@/lib/guard";
+import { withRole } from "@/lib/with-role";
+import { ok } from "@/lib/http";
 import { notifikasiUser, jumlahBelumDibaca } from "@/lib/queries/riwayat";
 
-export async function GET(request) {
-  const g = await guardApi(null, request);
-  if (g.error) return g.error;
-
-  const url = new URL(request.url);
-  const hanyaBelum = url.searchParams.get("tampil") === "belum";
-
+export const GET = withRole(null, async ({ request, user }) => {
+  const hanyaBelum = new URL(request.url).searchParams.get("tampil") === "belum";
   const [rows, belum] = await Promise.all([
-    notifikasiUser(pool, g.user.id, { hanyaBelum }),
-    jumlahBelumDibaca(pool, g.user.id),
+    notifikasiUser(pool, user.id, { hanyaBelum }),
+    jumlahBelumDibaca(pool, user.id),
   ]);
-
-  return NextResponse.json({ ok: true, data: rows, belumDibaca: belum });
-}
-
+  return ok({ data: rows, belumDibaca: belum });
+});
