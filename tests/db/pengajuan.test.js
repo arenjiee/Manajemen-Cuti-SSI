@@ -162,6 +162,16 @@ test("cuti setengah hari: wajib cuti tahunan, wajib jam mulai & selesai, dan nom
   assert.equal(rJamSalah.ok, false);
   assert.match(rJamSalah.pesan, /setelah jam mulai/i);
 
+  // Rentang jam lebih dari 4 jam ditolak
+  const rJamLebih = await simpanPengajuan(pool, ids.b, input({ mulai: hariKerja(6), selesai: hariKerja(6), setengahHari: true, jamMulai: "08:00", jamSelesai: "12:30" }));
+  assert.equal(rJamLebih.ok, false);
+  assert.match(rJamLebih.pesan, /maksimal 4 jam/i);
+
+  // Format jam tidak valid ditolak
+  const rJamFormat = await simpanPengajuan(pool, ids.c, input({ mulai: hariKerja(7), selesai: hariKerja(7), setengahHari: true, jamMulai: "8.00", jamSelesai: "12:00" }));
+  assert.equal(rJamFormat.ok, false);
+  assert.match(rJamFormat.pesan, /Format jam/i);
+
   // Valid tersimpan dengan jam
   const rOk = await simpanPengajuan(pool, ids.a, input({ mulai: tgl, selesai: tgl, setengahHari: true, jamMulai: "08:00", jamSelesai: "12:00", nomorDarurat: "081234567890" }));
   assert.equal(rOk.ok, true);

@@ -3,10 +3,10 @@ import { ambilJenis } from "./jenis-cuti.js";
 import { muatHariLibur } from "./hari-libur.js";
 import { okupansiDivisi } from "./kapasitas.js";
 import { ambilLampiranUpload, tautkanLampiran } from "./lampiran.js";
-import { hariIni, tanggalValid, selisihHari } from "../leave/tanggal.js";
+import { hariIni, tanggalValid, selisihHari, jamValid, selisihMenit } from "../leave/tanggal.js";
 import { kandidatRekan } from "../leave/rekan.js";
 import { hitungBatasHarian } from "../leave/kapasitas.js";
-import { validasiPengajuan, MAKS_RENTANG_HARI } from "../leave/validasi.js";
+import { validasiPengajuan, MAKS_RENTANG_HARI, MAKS_JAM_SETENGAH_HARI } from "../leave/validasi.js";
 import { formatRentang } from "../format.js";
 
 const AKTIF = "('Pending','Approved by Leader','Approved')";
@@ -108,8 +108,14 @@ export async function simpanPengajuan(pool, pengajuId, input, lampiranId = null)
     if (!input.jamMulai || !input.jamSelesai) {
       return gagal("BENTUK_DATA", "Jam mulai dan jam selesai cuti setengah hari wajib diisi.");
     }
+    if (!jamValid(input.jamMulai) || !jamValid(input.jamSelesai)) {
+      return gagal("BENTUK_DATA", "Format jam tidak valid. Gunakan format HH:MM.");
+    }
     if (input.jamMulai >= input.jamSelesai) {
       return gagal("BENTUK_DATA", "Jam selesai cuti setengah hari harus setelah jam mulai.");
+    }
+    if (selisihMenit(input.jamMulai, input.jamSelesai) > MAKS_JAM_SETENGAH_HARI * 60) {
+      return gagal("BENTUK_DATA", `Rentang jam cuti setengah hari maksimal ${MAKS_JAM_SETENGAH_HARI} jam.`);
     }
   }
   return denganTransaksi(pool, async (c) => {

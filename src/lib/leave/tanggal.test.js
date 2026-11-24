@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { tanggalValid, hariIni, tambahHari, selisihHari, hariDalamRentang, adalahAkhirPekan } from "./tanggal.js";
+import { tanggalValid, hariIni, tambahHari, selisihHari, hariDalamRentang, adalahAkhirPekan, jamValid, selisihMenit } from "./tanggal.js";
 
 test("tanggalValid menolak tanggal mustahil dan format salah", () => {
   assert.equal(tanggalValid("2026-02-28"), true);
@@ -31,4 +31,21 @@ test("adalahAkhirPekan", () => {
   assert.equal(adalahAkhirPekan("2026-03-07"), true);
   assert.equal(adalahAkhirPekan("2026-03-08"), true);
   assert.equal(adalahAkhirPekan("2026-03-02"), false);
+});
+
+test("jamValid menerima HH:mm (dan HH:mm:ss) yang wajar", () => {
+  assert.equal(jamValid("08:00"), true);
+  assert.equal(jamValid("23:59"), true);
+  assert.equal(jamValid("08:00:30"), true);
+  assert.equal(jamValid("24:00"), false);
+  assert.equal(jamValid("8.00"), false);
+  assert.equal(jamValid("08:60"), false);
+  assert.equal(jamValid(null), false);
+});
+
+test("selisihMenit menghitung selisih waktu", () => {
+  assert.equal(selisihMenit("08:00", "12:00"), 240);
+  assert.equal(selisihMenit("08:00", "12:30"), 270);
+  assert.equal(selisihMenit("13:00", "09:00"), -240);
+  assert.equal(selisihMenit("08:15:30", "09:45:00"), 90);
 });

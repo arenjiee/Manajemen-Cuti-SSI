@@ -37,3 +37,19 @@ export function adalahAkhirPekan(s) {
   const hari = new Date(keUtc(s)).getUTCDay();
   return hari === 0 || hari === 6;
 }
+
+const POLA_JAM = /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/;
+
+export function jamValid(s) {
+  return typeof s === "string" && POLA_JAM.test(s);
+}
+
+function keMenit(s) {
+  const [h, m] = s.split(":").map(Number);
+  return h * 60 + m;
+}
+
+// Selisih menit antara dua jam "HH:mm" atau "HH:mm:ss". Positif jika jamSelesai setelah jamMulai.
+export function selisihMenit(jamMulai, jamSelesai) {
+  return keMenit(jamSelesai) - keMenit(jamMulai);
+}

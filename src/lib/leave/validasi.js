@@ -1,4 +1,4 @@
-import { tanggalValid, selisihHari } from "./tanggal.js";
+import { tanggalValid, selisihHari, jamValid, selisihMenit } from "./tanggal.js";
 import { hariKerjaDalamRentang, hitungTotalHari } from "./hitung-hari.js";
 import { adaOverlap } from "./overlap.js";
 import { sisaKuota } from "./kuota.js";
@@ -8,6 +8,7 @@ import { cekAturanJenis } from "./aturan-jenis.js";
 export const LAMPIRAN_MIME = ["application/pdf", "image/jpeg", "image/png"];
 export const LAMPIRAN_MAKS = 2 * 1024 * 1024;
 export const MAKS_RENTANG_HARI = 366;
+export const MAKS_JAM_SETENGAH_HARI = 4;
 
 const gagal = (kode, pesan) => ({ ok: false, kode, pesan });
 
@@ -23,8 +24,16 @@ export function validasiPengajuan(input, k) {
   if (setengah && k.jenis && k.jenis.kode !== "tahunan") {
     return gagal("BENTUK_DATA", "Cuti setengah hari hanya berlaku untuk Cuti Tahunan.");
   }
-  if (setengah && input.jamMulai && input.jamSelesai && input.jamMulai >= input.jamSelesai) {
-    return gagal("BENTUK_DATA", "Jam selesai cuti setengah hari harus setelah jam mulai.");
+  if (setengah && input.jamMulai && input.jamSelesai) {
+    if (!jamValid(input.jamMulai) || !jamValid(input.jamSelesai)) {
+      return gagal("BENTUK_DATA", "Format jam tidak valid. Gunakan format HH:MM.");
+    }
+    if (input.jamMulai >= input.jamSelesai) {
+      return gagal("BENTUK_DATA", "Jam selesai cuti setengah hari harus setelah jam mulai.");
+    }
+    if (selisihMenit(input.jamMulai, input.jamSelesai) > MAKS_JAM_SETENGAH_HARI * 60) {
+      return gagal("BENTUK_DATA", `Rentang jam cuti setengah hari maksimal ${MAKS_JAM_SETENGAH_HARI} jam.`);
+    }
   }
   if (!input.alasan || !String(input.alasan).trim()) return gagal("BENTUK_DATA", "Alasan cuti wajib diisi.");
   if (k.pengaju.divisiId == null) return gagal("TANPA_DIVISI", "Anda belum tergabung di divisi mana pun. Hubungi Admin.");

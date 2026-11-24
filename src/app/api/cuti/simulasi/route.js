@@ -10,6 +10,8 @@ export const POST = withRole(["karyawan", "ketua_divisi"], async ({ request, use
     mulai: s(b.mulai),
     selesai: s(b.selesai),
     setengahHari: bool(b.setengahHari),
+    jamMulai: s(b.jamMulai),
+    jamSelesai: s(b.jamSelesai),
     handoverId: num(b.handoverId),
   });
   return Response.json(hasil);

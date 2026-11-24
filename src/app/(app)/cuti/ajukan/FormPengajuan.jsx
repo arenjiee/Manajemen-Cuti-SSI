@@ -60,6 +60,8 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
             mulai,
             selesai,
             setengahHari: isTahunan && set半分,
+            jamMulai: isTahunan && set半分 ? jamMulai : "",
+            jamSelesai: isTahunan && set半分 ? jamSelesai : "",
             handoverId,
           }),
         });
@@ -72,7 +74,7 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
       }
     }, 350);
     return () => clearTimeout(t);
-  }, [jenisId, mulai, selesai, set半分, isTahunan, handoverId]);
+  }, [jenisId, mulai, selesai, set半分, isTahunan, jamMulai, jamSelesai, handoverId]);
 
   const punyaSim = Boolean(mulai && selesai && sim);
   const opsiRekan = punyaSim ? sim.kandidatRekan.map((r) => ({ id: r.id, nama_lengkap: r.nama })) : rekan;
@@ -203,27 +205,30 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
               <span>Cuti setengah hari (0,5 hari)</span>
             </label>
             {set半分 && (
-              <div className="grid gap-3 pt-1 sm:grid-cols-2">
-                <L t="Jam mulai">
-                  <input
-                    name="jamMulai"
-                    type="time"
-                    required
-                    value={jamMulai}
-                    onChange={(e) => setJamMulai(e.target.value)}
-                    className={inputCls}
-                  />
-                </L>
-                <L t="Jam selesai">
-                  <input
-                    name="jamSelesai"
-                    type="time"
-                    required
-                    value={jamSelesai}
-                    onChange={(e) => setJamSelesai(e.target.value)}
-                    className={inputCls}
-                  />
-                </L>
+              <div className="space-y-2 pt-1">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <L t="Jam mulai">
+                    <input
+                      name="jamMulai"
+                      type="time"
+                      required
+                      value={jamMulai}
+                      onChange={(e) => setJamMulai(e.target.value)}
+                      className={inputCls}
+                    />
+                  </L>
+                  <L t="Jam selesai">
+                    <input
+                      name="jamSelesai"
+                      type="time"
+                      required
+                      value={jamSelesai}
+                      onChange={(e) => setJamSelesai(e.target.value)}
+                      className={inputCls}
+                    />
+                  </L>
+                </div>
+                <p className="text-xs text-muted">Rentang jam maksimal 4 jam.</p>
               </div>
             )}
           </div>

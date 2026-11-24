@@ -45,7 +45,7 @@ export async function simulasiPengajuan(db, pengajuId, input) {
   } else {
     if (k.jenis.potongKuota) hasil.sisaSetelah = sisaKuota(k.pengaju.kuotaAwal, k.terpakaiPotongKuota + hasil.totalHari);
     const dipilih = parseId(input.handoverId);
-    const v = validasiPengajuan({ mulai, selesai, setengahHari: setengah, alasan: "-", handoverId: k.kandidatRekan.includes(dipilih) ? dipilih : (k.kandidatRekan[0] ?? null) }, k);
+    const v = validasiPengajuan({ mulai, selesai, setengahHari: setengah, jamMulai: input.jamMulai, jamSelesai: input.jamSelesai, alasan: "-", handoverId: k.kandidatRekan.includes(dipilih) ? dipilih : (k.kandidatRekan[0] ?? null) }, k);
     if (v.ok) hasil.ok = true;
     else { hasil.kode = v.kode; hasil.pesan = v.pesan; }
   }

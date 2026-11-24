@@ -38,6 +38,25 @@ test("bentuk data: tanggal mustahil, terbalik, setengah hari beda tanggal, alasa
   gagal(validasiPengajuan(input({ alasan: "  " }), ctx()), "BENTUK_DATA");
 });
 
+test("cuti setengah hari: jam wajib valid, selesai > mulai, dan maksimal 4 jam", () => {
+  const setengah = (jamMulai, jamSelesai) => input({ mulai: "2026-11-16", selesai: "2026-11-16", setengahHari: true, jamMulai, jamSelesai });
+  // tepat 4 jam lolos
+  const ok = validasiPengajuan(setengah("08:00", "12:00"), ctx());
+  assert.equal(ok.ok, true);
+  assert.equal(ok.totalHari, 0.5);
+  // 4 jam 30 menit ditolak
+  const lebih = validasiPengajuan(setengah("08:00", "12:30"), ctx());
+  gagal(lebih, "BENTUK_DATA");
+  assert.match(lebih.pesan, /maksimal 4 jam/i);
+  // jam selesai <= jam mulai ditolak
+  gagal(validasiPengajuan(setengah("12:00", "08:00"), ctx()), "BENTUK_DATA");
+  gagal(validasiPengajuan(setengah("08:00", "08:00"), ctx()), "BENTUK_DATA");
+  // format jam tidak valid ditolak
+  const format = validasiPengajuan(setengah("8.00", "12:00"), ctx());
+  gagal(format, "BENTUK_DATA");
+  assert.match(format.pesan, /format jam/i);
+});
+
 test("pengaju tanpa divisi ditolak lebih dulu (Review Focus 5)", () => {
   gagal(validasiPengajuan(input({ mulai: "2026-11-10" }), ctx({ pengaju: { id: 1, divisiId: null, tanggalBergabung: "2022-01-01", kuotaAwal: 12 } })), "TANPA_DIVISI");
 });
