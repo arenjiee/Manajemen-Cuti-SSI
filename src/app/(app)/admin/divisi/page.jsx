@@ -20,8 +20,6 @@ export default async function DivisiPage({ searchParams }) {
   const fields = [
     { name: "q", label: "Nama divisi" },
     { name: "ketuaId", label: "Ketua divisi", type: "select", options: ketuaOpsi },
-    { name: "minAnggota", label: "Anggota min.", type: "number" },
-    { name: "maxAnggota", label: "Anggota maks.", type: "number" },
     { name: "urut", label: "Urutkan", type: "select", options: [
       { value: "nama_asc", label: "Nama A–Z" }, { value: "nama_desc", label: "Nama Z–A" },
       { value: "anggota", label: "Jumlah anggota" }, { value: "dibuat", label: "Terbaru dibuat" },

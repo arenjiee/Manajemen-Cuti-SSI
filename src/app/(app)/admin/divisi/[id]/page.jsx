@@ -11,16 +11,17 @@ import PageHeader from "@/components/PageHeader";
 import PresenceBadge from "@/components/PresenceBadge";
 import Section from "@/components/Section";
 import TombolKonfirmasi from "@/components/TombolKonfirmasi";
-import { btnDanger, btnPrimary, inputCls, labelCls, selectCls } from "@/components/ui";
+import { btnDanger, inputCls, labelCls, selectCls } from "@/components/ui";
+import FormTambahAnggota from "./FormTambahAnggota";
 
-export default async function DetailDivisiPage({ params, searchParams }) {
+export default async function DetailDivisiPage({ params }) {
   await requireRole(["admin"]);
   const { id } = await params;
   if (!/^\d+$/.test(id)) notFound();
   const d = await ambilDivisi(pool, Number(id));
   if (!d) notFound();
-  const sp = await searchParams;
   const [anggota, calon, bebas] = await Promise.all([anggotaDivisi(pool, d.id), calonKetua(pool), karyawanTanpaDivisi(pool)]);
+  const nonaktif = anggota.filter((a) => !a.aktif).length;
   const ketuaOpsi = [...(d.ketua_id ? [{ id: d.ketua_id, nama_lengkap: d.ketua_nama }] : []), ...calon];
 
   const kolom = [
@@ -51,9 +52,8 @@ export default async function DetailDivisiPage({ params, searchParams }) {
       <TombolKembali href="/admin/divisi" label="Kembali ke Divisi" />
       <PageHeader
         title={d.nama}
-        description={`Ketua: ${d.ketua_nama ?? "-"} · ${anggota.length} anggota · Batas cuti ${d.max_persen_cuti}% (${d.batas_harian} orang/hari)`}
+        description={`Ketua: ${d.ketua_nama ?? "-"} · ${d.jumlah_anggota} anggota aktif${nonaktif ? ` (+${nonaktif} nonaktif)` : ""} · Batas cuti ${d.max_persen_cuti}% (${d.batas_harian} orang/hari)`}
       />
-      {sp.error && <p role="alert" className="rounded-2xl border border-bad/30 bg-bad/10 px-4 py-3 text-sm text-bad">{sp.error}</p>}
 
       <section className="max-w-xl space-y-4">
         <Section title="Edit divisi">
@@ -83,16 +83,7 @@ export default async function DetailDivisiPage({ params, searchParams }) {
           extraFields={{ divisiId: d.id }}
           idField="userId"
         />
-        <form action={`/api/admin/divisi/${d.id}/anggota`} method="POST" className="flex flex-wrap items-end gap-3">
-          <input type="hidden" name="divisiId" value={d.id} />
-          <label className="min-w-56"><span className={labelCls}>Tambah anggota</span>
-            <select name="userId" required defaultValue="" className={selectCls}>
-              <option value="" disabled>Pilih karyawan tanpa divisi</option>
-              {bebas.map((k) => <option key={k.id} value={k.id}>{k.nama_lengkap}</option>)}
-            </select>
-          </label>
-          <button className={btnPrimary} disabled={bebas.length === 0}>Tambahkan</button>
-        </form>
+        <FormTambahAnggota divisiId={d.id} kandidat={bebas} />
       </Section>
 
       <Section title="Hapus divisi" eyebrow="Aksi berbahaya">
