@@ -18,10 +18,18 @@ export async function GET(request, { params }) {
       return Response.json({ message: "Berkas tidak tersedia di server" }, { status: 404 });
     }
   }
+
+  // Preview memakai inline (buka di viewer), unduh memaksa attachment.
+  const unduh = new URL(request.url).searchParams.get("download") === "1";
+  const namaAsli = String(l.nama_asli || "lampiran");
+  // Nama ASCII aman untuk browser lama + filename* UTF-8 untuk nama beraksen/non-ASCII.
+  const namaAscii = namaAsli.replace(/[^\x20-\x7E]/g, "_").replace(/["\\]/g, "_");
+  const disposisi = `${unduh ? "attachment" : "inline"}; filename="${namaAscii}"; filename*=UTF-8''${encodeURIComponent(namaAsli)}`;
+
   return new Response(data, {
     headers: {
       "Content-Type": l.file_mime || l.mime,
-      "Content-Disposition": `inline; filename="${encodeURIComponent(l.nama_asli)}"`,
+      "Content-Disposition": disposisi,
       "X-Content-Type-Options": "nosniff",
       "Cache-Control": "private, no-store",
     },

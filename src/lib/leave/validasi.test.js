@@ -115,12 +115,14 @@ test("kapasitas: Tahunan diblokir saat penuh, Sakit tidak", () => {
   assert.equal(s.ok, true);
 });
 
-test("lampiran: Sakit wajib; tipe dan ukuran divalidasi", () => {
+test("lampiran: Sakit wajib; hanya PDF dengan ukuran maksimal 2 MB", () => {
   const s = (lampiran) => validasiPengajuan(input({ mulai: "2026-11-09", selesai: "2026-11-09" }), ctx({ jenis: SAKIT, lampiran }));
   gagal(s(null), "LAMPIRAN_WAJIB");
   gagal(s({ mime: "application/zip", ukuran: 1000 }), "LAMPIRAN_INVALID");
-  gagal(s({ mime: "image/png", ukuran: 2 * 1024 * 1024 + 1 }), "LAMPIRAN_INVALID");
-  assert.equal(s({ mime: "image/jpeg", ukuran: 2 * 1024 * 1024 }).ok, true);
+  gagal(s({ mime: "image/png", ukuran: 1000 }), "LAMPIRAN_INVALID");
+  gagal(s({ mime: "image/jpeg", ukuran: 1000 }), "LAMPIRAN_INVALID");
+  gagal(s({ mime: "application/pdf", ukuran: 2 * 1024 * 1024 + 1 }), "LAMPIRAN_INVALID");
+  assert.equal(s({ mime: "application/pdf", ukuran: 2 * 1024 * 1024 }).ok, true);
 });
 
 test("rentang lebih dari 366 hari ditolak sebelum perhitungan lain", () => {

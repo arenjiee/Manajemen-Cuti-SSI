@@ -13,6 +13,7 @@ import Section from "@/components/Section";
 import TombolKembali from "@/components/TombolKembali";
 import PageHeader from "@/components/PageHeader";
 import BatalkanCuti from "./BatalkanCuti";
+import PreviewLampiran from "./PreviewLampiran";
 import { btnPrimary } from "@/components/ui";
 
 export const metadata = { title: "Detail Cuti | LeaveSync" };
@@ -105,13 +106,7 @@ export default async function DetailCutiPage({ params, searchParams }) {
         <Section title="Lampiran">
           <div className="space-y-3">
             {p.lampiran.map((l) => (
-              <div key={l.id} className="rounded-2xl border border-line bg-surface p-4 text-sm">
-                <a href={`/api/lampiran/${l.id}`} target="_blank" rel="noreferrer" className="text-accent hover:underline">{l.nama_asli}</a>
-                {l.mime.startsWith("image/") && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={`/api/lampiran/${l.id}`} alt={`Lampiran ${l.nama_asli}`} className="mt-3 max-h-72 rounded-lg border border-line" />
-                )}
-              </div>
+              <PreviewLampiran key={l.id} id={l.id} nama={l.nama_asli} mime={l.mime} ukuran={l.ukuran} />
             ))}
           </div>
         </Section>

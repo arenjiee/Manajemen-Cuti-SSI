@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { formatTanggal, formatHari, formatRentang } from "./format.js";
+import { formatTanggal, formatHari, formatRentang, formatUkuran } from "./format.js";
 
 test("formatTanggal dari string YYYY-MM-DD tanpa pergeseran zona", () => {
   assert.equal(formatTanggal("2026-11-09"), "9 Nov 2026");
@@ -15,6 +15,16 @@ test("formatHari memakai koma desimal", () => {
 test("formatRentang", () => {
   assert.equal(formatRentang("2026-11-09", "2026-11-09"), "9 Nov 2026");
   assert.equal(formatRentang("2026-11-09", "2026-11-13"), "9 Nov 2026 – 13 Nov 2026");
+});
+
+test("formatUkuran memakai B, KB, dan MB", () => {
+  assert.equal(formatUkuran(0), "-");
+  assert.equal(formatUkuran(null), "-");
+  assert.equal(formatUkuran(512), "512 B");
+  assert.equal(formatUkuran(1024), "1 KB");
+  assert.equal(formatUkuran(1536), "2 KB");
+  assert.equal(formatUkuran(1024 * 1024), "1.0 MB");
+  assert.equal(formatUkuran(2 * 1024 * 1024), "2.0 MB");
 });
 
 test("formatWaktu memakai zona Asia/Makassar", async () => {

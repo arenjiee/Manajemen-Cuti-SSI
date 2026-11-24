@@ -5,7 +5,7 @@ import { sisaKuota } from "./kuota.js";
 import { cekKapasitas } from "./kapasitas.js";
 import { cekAturanJenis } from "./aturan-jenis.js";
 
-export const LAMPIRAN_MIME = ["application/pdf", "image/jpeg", "image/png"];
+export const LAMPIRAN_MIME = ["application/pdf"];
 export const LAMPIRAN_MAKS = 2 * 1024 * 1024;
 export const MAKS_RENTANG_HARI = 366;
 export const MAKS_JAM_SETENGAH_HARI = 4;
@@ -83,7 +83,7 @@ export function validasiPengajuan(input, k) {
   // 10. lampiran
   if (k.jenis.wajibLampiran && !k.lampiran) return gagal("LAMPIRAN_WAJIB", `${k.jenis.nama} wajib melampirkan dokumen.`);
   if (k.lampiran && (!LAMPIRAN_MIME.includes(k.lampiran.mime) || k.lampiran.ukuran > LAMPIRAN_MAKS)) {
-    return gagal("LAMPIRAN_INVALID", "Lampiran harus PDF, JPG, atau PNG dengan ukuran maksimal 2 MB.");
+    return gagal("LAMPIRAN_INVALID", "Lampiran harus PDF dengan ukuran maksimal 2 MB.");
   }
 
   return { ok: true, totalHari };

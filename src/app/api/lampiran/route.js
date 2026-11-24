@@ -17,7 +17,7 @@ export async function POST(request) {
 
   const buf = Buffer.from(await berkas.arrayBuffer());
   const mime = deteksiMime(buf);
-  if (!mime) return NextResponse.json({ message: "Berkas harus PDF, JPG, atau PNG." }, { status: 415 });
+  if (mime !== "application/pdf") return NextResponse.json({ message: "Berkas harus berformat PDF." }, { status: 415 });
 
   const storageKey = `${randomUUID()}${ekstensiDari(mime)}`;
 

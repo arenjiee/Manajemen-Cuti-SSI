@@ -115,7 +115,7 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
       if (rej.errors.some((e) => e.code === "file-too-large")) {
         setUnggah({ loading: false, error: "Ukuran berkas melebihi batas 2 MB." });
       } else if (rej.errors.some((e) => e.code === "file-invalid-type")) {
-        setUnggah({ loading: false, error: "Format berkas harus PDF, JPG, atau PNG." });
+        setUnggah({ loading: false, error: "Format berkas harus PDF." });
       } else {
         setUnggah({ loading: false, error: rej.errors[0]?.message || "Berkas tidak valid." });
       }
@@ -144,8 +144,6 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
     onDrop,
     accept: {
       "application/pdf": [".pdf"],
-      "image/jpeg": [".jpg", ".jpeg"],
-      "image/png": [".png"],
     },
     maxSize: 2 * 1024 * 1024,
     multiple: false,
@@ -312,7 +310,7 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
               <p className="mt-2 text-sm font-medium text-ink">
                 {isDragActive ? "Lepaskan berkas di sini" : "Tarik & lepas berkas ke sini, atau klik untuk memilih"}
               </p>
-              <p className="mt-1 text-xs text-muted">Format: PDF, JPG, atau PNG (Maks. 2 MB)</p>
+              <p className="mt-1 text-xs text-muted">Format: PDF (Maks. 2 MB)</p>
             </div>
           )}
 
