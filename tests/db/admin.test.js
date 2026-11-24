@@ -4,7 +4,7 @@ import { testPool, resetDb } from "../helpers/db.js";
 import { autentikasi } from "../../src/lib/auth-core.js";
 import bcrypt from "bcryptjs";
 import { buatUser, ubahUser, hapusUser, daftarUser } from "../../src/lib/queries/users.js";
-import { buatDivisi, ubahDivisi, hapusDivisi, daftarDivisi, anggotaDivisi, tambahAnggota, pindahAnggota, keluarkanAnggota, calonKetua } from "../../src/lib/queries/divisi.js";
+import { buatDivisi, ubahDivisi, hapusDivisi, daftarDivisi, anggotaDivisi, tambahAnggota, keluarkanAnggota, calonKetua } from "../../src/lib/queries/divisi.js";
 
 const pool = testPool();
 let hash;
@@ -157,23 +157,17 @@ test("anggota: tambah hanya karyawan tanpa divisi; keluarkan tidak menghapus aku
   assert.equal((await daftarUser(pool, {})).length >= 3, true);
 });
 
-test("pindahAnggota: pindah antar divisi; tolak ketua, tanpa divisi, divisi sama, dan pengajuan menunggu", async () => {
+test("buatDivisi & ubahDivisi: nama > 100 karakter dan deskripsi > 500 karakter ditolak", async () => {
   const k = await user({ username: "ktuD", email: "k@x.id", role: "ketua_divisi" });
+  const panjangNama = await buatDivisi(pool, { nama: "A".repeat(101), ketuaId: k });
+  assert.equal(panjangNama.ok, false);
+  assert.match(panjangNama.pesan, /100/);
+  const panjangDesk = await buatDivisi(pool, { nama: "FLM", deskripsi: "x".repeat(501), ketuaId: k });
+  assert.equal(panjangDesk.ok, false);
+  assert.match(panjangDesk.pesan, /500/);
   const d = (await buatDivisi(pool, { nama: "FLM", ketuaId: k })).id;
-  const k2 = await user({ username: "ktuB", email: "k2@x.id", role: "ketua_divisi" });
-  const d2 = (await buatDivisi(pool, { nama: "CIT", ketuaId: k2 })).id;
-  const m = await user({ username: "mem1", email: "m@x.id" });
-  assert.equal((await pindahAnggota(pool, d2, m)).ok, false);
-  await tambahAnggota(pool, d, m);
-  assert.equal((await pindahAnggota(pool, d, m)).ok, false);
-  assert.equal((await pindahAnggota(pool, d2, k)).ok, false);
-  await pengajuan(m, "Pending", "leader", d);
-  assert.match((await pindahAnggota(pool, d2, m)).pesan, /menunggu/i);
-  await pool.query("DELETE FROM pengajuan_cuti");
-  const r = await pindahAnggota(pool, d2, m);
-  assert.equal(r.ok, true);
-  assert.equal(r.dari, "FLM");
-  assert.deepEqual((await anggotaDivisi(pool, d2)).map((a) => a.username).sort(), ["ktuB", "mem1"]);
+  assert.equal((await ubahDivisi(pool, d, { nama: "B".repeat(101), ketuaId: k })).ok, false);
+  assert.equal((await ubahDivisi(pool, d, { nama: "FLM", deskripsi: "x".repeat(500), ketuaId: k })).ok, true);
 });
 
 test("daftarDivisi: filter ketua 'none' menampilkan divisi tanpa ketua; ketuaId tidak valid diabaikan", async () => {

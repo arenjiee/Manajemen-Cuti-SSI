@@ -1,6 +1,6 @@
 import { requireRole } from "@/lib/guard";
 import pool from "@/lib/db";
-import { calonKetua } from "@/lib/queries/divisi";
+import { calonKetua, NAMA_DIVISI_MAKS, DESKRIPSI_DIVISI_MAKS } from "@/lib/queries/divisi";
 import FormAction from "@/components/FormAction";
 import TombolKembali from "@/components/TombolKembali";
 import AutoTextarea from "@/components/AutoTextarea";
@@ -18,8 +18,8 @@ export default async function BaruDivisiPage() {
         description="Buat unit organisasi dan tetapkan ketua divisi."
       />
       <FormAction action="/api/admin/divisi" redirectTo="/admin/divisi" batalHref="/admin/divisi" label="Buat divisi" className="space-y-4 rounded-2xl border border-line bg-surface p-6">
-        <label className="block"><span className={labelCls}>Nama divisi</span><input name="nama" required className={inputCls} /></label>
-        <label className="block"><span className={labelCls}>Deskripsi (opsional)</span><AutoTextarea name="deskripsi" rows={2} className={inputCls} /></label>
+        <label className="block"><span className={labelCls}>Nama divisi</span><input name="nama" required maxLength={NAMA_DIVISI_MAKS} className={inputCls} /></label>
+        <label className="block"><span className={labelCls}>Deskripsi (opsional)</span><AutoTextarea name="deskripsi" rows={2} maxLength={DESKRIPSI_DIVISI_MAKS} className={inputCls} /></label>
         <label className="block"><span className={labelCls}>Ketua divisi</span>
           <select name="ketuaId" required className={selectCls} defaultValue="">
             <option value="" disabled>Pilih ketua</option>

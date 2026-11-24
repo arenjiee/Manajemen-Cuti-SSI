@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/guard";
 import pool from "@/lib/db";
-import { ambilDivisi, anggotaDivisi, calonKetua, karyawanTanpaDivisi, karyawanDivisiLain } from "@/lib/queries/divisi";
+import { ambilDivisi, anggotaDivisi, calonKetua, karyawanTanpaDivisi, NAMA_DIVISI_MAKS, DESKRIPSI_DIVISI_MAKS } from "@/lib/queries/divisi";
 import { formatTanggal } from "@/lib/format";
 import DataTable from "@/components/DataTable";
 import FormAction from "@/components/FormAction";
@@ -21,13 +21,13 @@ export default async function DetailDivisiPage({ params }) {
   if (!/^\d+$/.test(id)) notFound();
   const d = await ambilDivisi(pool, Number(id));
   if (!d) notFound();
-  const [anggota, calon, bebas, dariLain] = await Promise.all([anggotaDivisi(pool, d.id), calonKetua(pool), karyawanTanpaDivisi(pool), karyawanDivisiLain(pool, d.id)]);
-  const kandidat = [...bebas.map((k) => ({ ...k, divisi_nama: null })), ...dariLain];
+  const [anggota, calon, bebas] = await Promise.all([anggotaDivisi(pool, d.id), calonKetua(pool), karyawanTanpaDivisi(pool)]);
   const nonaktif = anggota.filter((a) => !a.aktif).length;
   const ketuaOpsi = [...(d.ketua_id ? [{ id: d.ketua_id, nama_lengkap: d.ketua_nama }] : []), ...calon];
 
   const kolom = [
     { label: "Nama", render: (a) => a.nama_lengkap },
+    { label: "Username", render: (a) => <span className="font-mono text-xs text-muted">{a.username}</span> },
     { label: "Peran", render: (a) => (a.role === "ketua_divisi" ? "Ketua Divisi" : "Anggota") },
     { label: "Status", render: (a) => <PresenceBadge aktif={a.aktif} sedangCuti={a.sedang_cuti} /> },
     { label: "Bergabung", render: (a) => formatTanggal(a.tanggal_bergabung) },
@@ -61,8 +61,8 @@ export default async function DetailDivisiPage({ params }) {
         <Section title="Edit divisi">
           <FormAction action={`/api/admin/divisi/${d.id}`} batalHref="/admin/divisi" label="Simpan perubahan" className="space-y-4 rounded-2xl border border-line bg-surface p-6">
           <input type="hidden" name="id" value={d.id} />
-          <label className="block"><span className={labelCls}>Nama divisi</span><input name="nama" defaultValue={d.nama} required className={inputCls} /></label>
-          <label className="block"><span className={labelCls}>Deskripsi</span><AutoTextarea name="deskripsi" rows={2} defaultValue={d.deskripsi ?? ""} className={inputCls} /></label>
+          <label className="block"><span className={labelCls}>Nama divisi</span><input name="nama" defaultValue={d.nama} required maxLength={NAMA_DIVISI_MAKS} className={inputCls} /></label>
+          <label className="block"><span className={labelCls}>Deskripsi</span><AutoTextarea name="deskripsi" rows={2} defaultValue={d.deskripsi ?? ""} maxLength={DESKRIPSI_DIVISI_MAKS} className={inputCls} /></label>
           <label className="block"><span className={labelCls}>Ketua divisi</span>
             <select name="ketuaId" defaultValue={d.ketua_id ?? ""} className={selectCls}>
               <option value="">-- Tanpa Ketua Divisi --</option>
@@ -89,7 +89,7 @@ export default async function DetailDivisiPage({ params }) {
           extraFields={{ divisiId: d.id }}
           idField="userId"
         />
-        <FormTambahAnggota divisiId={d.id} kandidat={kandidat} />
+        <FormTambahAnggota divisiId={d.id} kandidat={bebas} />
       </Section>
 
       <Section title="Hapus divisi" eyebrow="Aksi berbahaya">

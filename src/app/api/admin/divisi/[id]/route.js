@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { guardApi } from "@/lib/guard";
-import { ambilDivisi, ubahDivisi, hapusDivisi } from "@/lib/queries/divisi";
+import { ambilDivisi, ubahDivisi } from "@/lib/queries/divisi";
 import { parseId } from "@/lib/id";
 
 export async function GET(request, { params }) {
@@ -71,22 +71,3 @@ async function handleUpdate(request, params) {
 
   return NextResponse.json({ ok: true, message: "Divisi berhasil diperbarui." });
 }
-
-export async function DELETE(request, { params }) {
-  const g = await guardApi(["admin"], request);
-  if (g.error) return g.error;
-
-  const { id: rawId } = await params;
-  const id = parseId(rawId);
-  if (id == null) {
-    return NextResponse.json({ ok: false, message: "ID tidak valid." }, { status: 400 });
-  }
-
-  const r = await hapusDivisi(pool, id);
-  if (!r.ok) {
-    return NextResponse.json({ ok: false, message: r.pesan }, { status: 400 });
-  }
-
-  return NextResponse.json({ ok: true, message: "Divisi berhasil dihapus." });
-}
-

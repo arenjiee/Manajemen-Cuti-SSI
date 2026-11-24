@@ -4,6 +4,15 @@ import { parseId } from "../id.js";
 
 const gagal = (pesan) => ({ ok: false, pesan });
 
+export const NAMA_DIVISI_MAKS = 100;
+export const DESKRIPSI_DIVISI_MAKS = 500;
+
+function cekTeks(nama, deskripsi) {
+  if (nama.trim().length > NAMA_DIVISI_MAKS) return `Nama divisi maksimal ${NAMA_DIVISI_MAKS} karakter.`;
+  if (String(deskripsi ?? "").length > DESKRIPSI_DIVISI_MAKS) return `Deskripsi maksimal ${DESKRIPSI_DIVISI_MAKS} karakter.`;
+  return null;
+}
+
 function pesanUnik(e) {
   if (e.code !== "23505") throw e;
   if (String(e.constraint).includes("nama")) return gagal("Nama divisi sudah dipakai.");
@@ -23,6 +32,8 @@ async function cekKetua(db, ketuaId, kecualiDivisiId = null) {
 
 export async function buatDivisi(db, { nama, deskripsi, ketuaId }) {
   if (!nama?.trim()) return gagal("Nama divisi wajib diisi.");
+  const errTeks = cekTeks(nama, deskripsi);
+  if (errTeks) return gagal(errTeks);
   const err = await cekKetua(db, ketuaId);
   if (err) return gagal(err);
   try {
@@ -38,6 +49,8 @@ export async function buatDivisi(db, { nama, deskripsi, ketuaId }) {
 
 export async function ubahDivisi(db, id, { nama, deskripsi, ketuaId }) {
   if (!nama?.trim()) return gagal("Nama divisi wajib diisi.");
+  const errTeks = cekTeks(nama, deskripsi);
+  if (errTeks) return gagal(errTeks);
   const lama = (await db.query("SELECT ketua_id FROM divisi WHERE id=$1 AND deleted_at IS NULL", [id])).rows[0];
   if (!lama) return gagal("Divisi tidak ditemukan.");
 
@@ -137,20 +150,6 @@ export async function tambahAnggota(db, divisiId, userId) {
   return { ok: true };
 }
 
-export async function pindahAnggota(db, divisiId, userId) {
-  const d = (await db.query("SELECT id FROM divisi WHERE id=$1 AND deleted_at IS NULL", [divisiId])).rows[0];
-  if (!d) return gagal("Divisi tidak ditemukan.");
-  const u = (await db.query(
-    "SELECT u.role, u.aktif, u.divisi_id, dv.nama AS divisi_nama FROM users u LEFT JOIN divisi dv ON dv.id=u.divisi_id WHERE u.id=$1 AND u.deleted_at IS NULL", [userId])).rows[0];
-  if (!u || u.role !== "karyawan" || !u.aktif) return gagal("Hanya karyawan aktif yang dapat dipindahkan.");
-  if (!u.divisi_id) return gagal("Karyawan belum tergabung di divisi mana pun. Gunakan Tambah anggota.");
-  if (u.divisi_id === divisiId) return gagal("Karyawan sudah menjadi anggota divisi ini.");
-  const n = (await db.query("SELECT count(*)::int n FROM pengajuan_cuti WHERE pengaju_id=$1 AND status='Pending' AND tahap='leader'", [userId])).rows[0].n;
-  if (n > 0) return gagal(`Karyawan masih punya pengajuan cuti yang menunggu verifikasi Ketua Divisi ${u.divisi_nama}. Selesaikan dulu sebelum dipindahkan.`);
-  await db.query("UPDATE users SET divisi_id=$1 WHERE id=$2", [divisiId, userId]);
-  return { ok: true, dari: u.divisi_nama };
-}
-
 export async function keluarkanAnggota(db, userId) {
   const u = (await db.query("SELECT role FROM users WHERE id=$1 AND deleted_at IS NULL", [userId])).rows[0];
   if (!u) return gagal("Pengguna tidak ditemukan.");
@@ -176,13 +175,6 @@ export async function calonKetua(db) {
      WHERE role='ketua_divisi' AND deleted_at IS NULL AND aktif
        AND NOT EXISTS (SELECT 1 FROM divisi d WHERE d.ketua_id=u.id AND d.deleted_at IS NULL)
      ORDER BY nama_lengkap`);
-  return r.rows;
-}
-
-export async function karyawanDivisiLain(db, divisiId) {
-  const r = await db.query(
-    `SELECT u.id, u.nama_lengkap, dv.nama AS divisi_nama FROM users u JOIN divisi dv ON dv.id=u.divisi_id AND dv.deleted_at IS NULL
-     WHERE u.role='karyawan' AND u.deleted_at IS NULL AND u.aktif AND u.divisi_id <> $1 ORDER BY u.nama_lengkap`, [divisiId]);
   return r.rows;
 }
 
