@@ -1,49 +1,23 @@
-import { NextResponse } from "next/server";
 import pool from "@/lib/db";
-import { guardApi } from "@/lib/guard";
-import { daftarHariLibur, buatHariLibur } from "@/lib/queries/hari-libur";
+import { withRole } from "@/lib/with-role";
+import { ok, fail, readBody, parseIdList } from "@/lib/http";
+import { parseHariLibur } from "@/lib/parsers";
+import { daftarHariLibur, buatHariLibur, hapusHariLibur } from "@/lib/queries/hari-libur";
 
-const parseForm = (body) => ({
-  tanggal: String(body.tanggal ?? "").trim(),
-  keterangan: String(body.keterangan ?? "").trim(),
-  jenis: String(body.jenis ?? "").trim(),
+export const GET = withRole(null, async ({ request }) => {
+  const tahun = new URL(request.url).searchParams.get("tahun") || undefined;
+  return ok({ data: await daftarHariLibur(pool, { tahun }) });
 });
 
-export async function GET(request) {
-  const g = await guardApi(null, request);
-  if (g.error) return g.error;
+export const POST = withRole(["admin"], async ({ request }) => {
+  const r = await buatHariLibur(pool, parseHariLibur(await readBody(request)));
+  return r.ok ? ok({ id: r.id }, 201) : fail(r.pesan);
+});
 
-  const url = new URL(request.url);
-  const tahun = url.searchParams.get("tahun") || undefined;
-  const data = await daftarHariLibur(pool, { tahun });
-  return NextResponse.json({ ok: true, data });
-}
-
-export async function POST(request) {
-  const g = await guardApi(["admin"], request);
-  if (g.error) return g.error;
-
-  let raw = {};
-  const contentType = request.headers.get("content-type") || "";
-
-  if (contentType.includes("application/json")) {
-    raw = await request.json().catch(() => ({}));
-  } else {
-    const fd = await request.formData().catch(() => null);
-    if (fd) {
-      raw = {
-        tanggal: fd.get("tanggal"),
-        keterangan: fd.get("keterangan"),
-        jenis: fd.get("jenis"),
-      };
-    }
-  }
-
-  const r = await buatHariLibur(pool, parseForm(raw));
-  if (!r.ok) {
-    return NextResponse.json({ ok: false, message: r.pesan }, { status: 400 });
-  }
-
-  return NextResponse.json({ ok: true, id: r.id }, { status: 201 });
-}
-
+export const DELETE = withRole(["admin"], async ({ request }) => {
+  const b = await readBody(request);
+  const ids = parseIdList(b.ids ?? b.id);
+  if (ids.length === 0) return fail("ID tidak valid.");
+  for (const id of ids) await hapusHariLibur(pool, id);
+  return ok({ message: ids.length > 1 ? `${ids.length} hari libur berhasil dihapus.` : "Hari libur berhasil dihapus." });
+});

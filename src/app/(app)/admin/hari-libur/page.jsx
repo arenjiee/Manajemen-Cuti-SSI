@@ -43,8 +43,8 @@ export default async function HariLiburPage({ searchParams }) {
       <div className="flex items-center gap-4 pl-2">
         <TautanDetail href={`/admin/hari-libur/${h.id}`} label="Edit" />
         <TombolKonfirmasi
-          action="/api/admin/hari-libur/hapus"
-          fields={{ id: h.id }}
+          action={`/api/admin/hari-libur/${h.id}`}
+          method="DELETE"
           label="Hapus"
           pesan={`Hapus hari libur ${formatTanggal(h.tanggal)}?`}
           className={`${btnDanger} ml-1`}
@@ -101,7 +101,8 @@ export default async function HariLiburPage({ searchParams }) {
         rows={rows}
         kosong="Belum ada hari libur."
         selectable
-        hapusAction="/api/admin/hari-libur/hapus"
+        hapusAction="/api/admin/hari-libur"
+        hapusMethod="DELETE"
         hapusPesan="Hapus {count} hari libur yang dipilih?"
       />
 

@@ -1,75 +1,55 @@
-import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import pool from "@/lib/db";
-import { guardApi } from "@/lib/guard";
-import { daftarUser, buatUser } from "@/lib/queries/users";
+import { withRole } from "@/lib/with-role";
+import { ok, fail, readBody, parseIdList, s } from "@/lib/http";
+import { daftarUser, buatUser, hapusUser } from "@/lib/queries/users";
 
-export async function GET(request) {
-  const g = await guardApi(["admin"], request);
-  if (g.error) return g.error;
-
-  const url = new URL(request.url);
+export const GET = withRole(["admin"], async ({ request }) => {
+  const q = new URL(request.url).searchParams;
+  const get = (k) => q.get(k) || undefined;
   const filter = {
-    q: url.searchParams.get("q") || undefined,
-    role: url.searchParams.get("role") || undefined,
-    divisiId: url.searchParams.get("divisiId") || undefined,
-    aktif: url.searchParams.get("aktif") || undefined,
-    masaKerja: url.searchParams.get("masaKerja") || undefined,
-    urut: url.searchParams.get("urut") || undefined,
-    arah: url.searchParams.get("arah") || undefined,
+    q: get("q"), role: get("role"), divisiId: get("divisiId"), aktif: get("aktif"),
+    masaKerja: get("masaKerja"), urut: get("urut"), arah: get("arah"),
   };
+  return ok({ data: await daftarUser(pool, filter) });
+});
 
-  const data = await daftarUser(pool, filter);
-  return NextResponse.json({ ok: true, data });
-}
+export const POST = withRole(["admin"], async ({ request }) => {
+  const b = await readBody(request);
+  const password = String(b.password ?? "");
+  if (password.length < 6) return fail("Password minimal 6 karakter.");
 
-export async function POST(request) {
-  const g = await guardApi(["admin"], request);
-  if (g.error) return g.error;
-
-  let body = {};
-  const contentType = request.headers.get("content-type") || "";
-
-  if (contentType.includes("application/json")) {
-    body = await request.json().catch(() => ({}));
-  } else {
-    const fd = await request.formData().catch(() => null);
-    if (fd) {
-      body = {
-        username: fd.get("username"),
-        email: fd.get("email"),
-        password: fd.get("password"),
-        nama_lengkap: fd.get("nama_lengkap"),
-        role: fd.get("role"),
-        tanggal_bergabung: fd.get("tanggal_bergabung"),
-        kuota_awal: fd.get("kuota_awal"),
-        telepon: fd.get("telepon"),
-      };
-    }
-  }
-
-  const s = (v) => String(v ?? "").trim();
-  const password = String(body.password ?? "");
-  if (password.length < 6) {
-    return NextResponse.json({ ok: false, message: "Password minimal 6 karakter." }, { status: 400 });
-  }
-
-  const kuotaRaw = s(body.kuota_awal);
+  const kuotaRaw = s(b.kuota_awal);
   const r = await buatUser(pool, {
-    username: s(body.username),
-    email: s(body.email),
+    username: s(b.username),
+    email: s(b.email),
     password_hash: await bcrypt.hash(password, 10),
-    nama_lengkap: s(body.nama_lengkap),
-    role: s(body.role),
-    tanggal_bergabung: s(body.tanggal_bergabung),
+    nama_lengkap: s(b.nama_lengkap),
+    role: s(b.role),
+    tanggal_bergabung: s(b.tanggal_bergabung),
     kuota_awal: kuotaRaw === "" ? 12 : Number(kuotaRaw),
-    telepon: s(body.telepon) || null,
+    telepon: s(b.telepon) || null,
   });
+  return r.ok ? ok({ id: r.id }, 201) : fail(r.pesan);
+});
 
-  if (!r.ok) {
-    return NextResponse.json({ ok: false, message: r.pesan }, { status: 400 });
+export const DELETE = withRole(["admin"], async ({ request }) => {
+  const b = await readBody(request);
+  const ids = parseIdList(b.ids ?? b.id);
+  if (ids.length === 0) return fail("ID tidak valid.");
+
+  let sukses = 0;
+  const gagal = [];
+  for (const id of ids) {
+    const r = await hapusUser(pool, id);
+    if (r.ok) sukses++;
+    else gagal.push(r.pesan);
   }
 
-  return NextResponse.json({ ok: true, id: r.id }, { status: 201 });
-}
+  if (sukses === 0) return fail(gagal[0] || "Semua pengguna yang dipilih gagal dihapus.");
+  if (ids.length === 1) return ok({ message: "Pengguna berhasil dihapus." });
 
+  let message = `${sukses} pengguna berhasil dihapus.`;
+  if (gagal.length > 0) message += ` (${gagal.length} dilewati: ${gagal[0]})`;
+  return ok({ message, sukses, dilewati: gagal.length });
+});

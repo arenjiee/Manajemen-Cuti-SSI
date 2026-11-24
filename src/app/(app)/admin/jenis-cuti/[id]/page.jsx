@@ -20,7 +20,7 @@ export default async function EditJenisPage({ params }) {
         title={`Edit ${j.nama}`}
         description="Atur kuota, periode pengajuan, dan ketentuan dokumen."
       />
-      <FormAction action={`/api/admin/jenis-cuti/${j.id}`} redirectTo="/admin/jenis-cuti" batalHref="/admin/jenis-cuti" label="Simpan perubahan" className="space-y-4 rounded-2xl border border-line bg-surface p-6">
+      <FormAction action={`/api/admin/jenis-cuti/${j.id}`} method="PUT" redirectTo="/admin/jenis-cuti" batalHref="/admin/jenis-cuti" label="Simpan perubahan" className="space-y-4 rounded-2xl border border-line bg-surface p-6">
         <FormJenis j={j} />
       </FormAction>
     </div>

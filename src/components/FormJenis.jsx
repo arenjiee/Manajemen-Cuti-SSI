@@ -54,6 +54,7 @@ export default function FormJenis({ j }) {
       </label>
       {j && (
         <label className="flex items-center gap-2 text-sm">
+          <input type="hidden" name="aktif" value="false" />
           <input type="checkbox" name="aktif" defaultChecked={j.aktif} suppressHydrationWarning /> Aktif
         </label>
       )}

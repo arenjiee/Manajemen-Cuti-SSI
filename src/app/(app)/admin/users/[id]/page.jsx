@@ -31,7 +31,7 @@ export default async function EditUserPage({ params }) {
       <Link href={`/profil?id=${u.id}&from=${encodeURIComponent(`/admin/users/${u.id}`)}`} className="inline-flex items-center gap-1 text-sm font-medium text-accent transition hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
         Lihat profil, foto, dan kuota <Panah arah="kanan" />
       </Link>
-      <FormAction action={`/api/admin/users/${u.id}`} redirectTo="/admin/users" batalHref="/admin/users" label="Simpan perubahan" className="space-y-4 rounded-2xl border border-line bg-surface p-6">
+      <FormAction action={`/api/admin/users/${u.id}`} method="PUT" redirectTo="/admin/users" batalHref="/admin/users" label="Simpan perubahan" className="space-y-4 rounded-2xl border border-line bg-surface p-6">
         <input type="hidden" name="id" value={u.id} />
         <L t="Nama lengkap"><input name="nama_lengkap" defaultValue={u.nama_lengkap} required className={inputCls} /></L>
         <div className="grid gap-4 sm:grid-cols-2">

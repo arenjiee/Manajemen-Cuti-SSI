@@ -20,7 +20,6 @@ export default async function UsersPage({ searchParams }) {
   await requireRole(["admin"]);
   const sp = await searchParams;
   const urut = typeof sp.urut === "string" ? sp.urut : "";
-  // Tanpa arah eksplisit, tanggal bergabung terbaru dulu; kolom lain A-Z (sama dengan query).
   const arah = sp.arah === "desc" || sp.arah === "asc" ? sp.arah : urut === "bergabung" ? "desc" : "asc";
   const [rows, divisi] = await Promise.all([daftarUser(pool, { ...sp, arah }), daftarDivisi(pool, {})]);
 
@@ -31,7 +30,6 @@ export default async function UsersPage({ searchParams }) {
     { name: "masaKerja", label: "Masa kerja", type: "select", options: [{ value: "lt1", label: "Di bawah 1 tahun" }, { value: "gte1", label: "≥ 1 tahun" }] },
   ];
   const q = typeof sp.q === "string" ? sp.q : "";
-  // Parameter yang dipertahankan saat urutan/pencarian berubah (hanya string, bukan array).
   const paramFilter = Object.fromEntries(
     ["role", "divisiId", "aktif", "masaKerja"].map((k) => [k, typeof sp[k] === "string" ? sp[k] : ""])
   );
@@ -49,8 +47,8 @@ export default async function UsersPage({ searchParams }) {
         <TautanDetail href={`/admin/users/${u.id}`} label="Edit" />
         {ROLE_DAPAT_DIHAPUS.includes(u.role) && (
           <TombolKonfirmasi
-            action="/api/admin/users/hapus"
-            fields={{ id: u.id }}
+            action={`/api/admin/users/${u.id}`}
+            method="DELETE"
             label="Hapus"
             pesan={`Hapus pengguna ${u.nama_lengkap}?`}
             className={`${btnDanger} ml-1`}
@@ -82,7 +80,8 @@ export default async function UsersPage({ searchParams }) {
         kosong="Tidak ada pengguna yang cocok dengan filter."
         selectable
         sort={{ basePath: "/admin/users", params: { ...paramFilter, q }, urut, arah }}
-        hapusAction="/api/admin/users/hapus"
+        hapusAction="/api/admin/users"
+        hapusMethod="DELETE"
         hapusPesan="Hapus {count} pengguna yang dipilih? Akun akan dinonaktifkan."
       />
     </div>

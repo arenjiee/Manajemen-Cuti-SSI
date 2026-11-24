@@ -43,8 +43,8 @@ export default async function JenisCutiPage({ searchParams }) {
         <TautanDetail href={`/admin/jenis-cuti/${j.id}`} label="Edit" />
         {!j.isSystem && (
           <TombolKonfirmasi
-            action="/api/admin/jenis-cuti/hapus"
-            fields={{ id: j.id }}
+            action={`/api/admin/jenis-cuti/${j.id}`}
+            method="DELETE"
             label="Hapus"
             pesan={`Hapus jenis cuti ${j.nama}?`}
             className={`${btnDanger} ml-1`}

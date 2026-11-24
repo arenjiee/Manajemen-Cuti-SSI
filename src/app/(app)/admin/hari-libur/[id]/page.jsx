@@ -19,7 +19,7 @@ export default async function EditLiburPage({ params }) {
         title="Edit Hari Libur"
         description="Tanggal ini dikecualikan dari perhitungan hari cuti."
       />
-      <FormAction action={`/api/admin/hari-libur/${h.id}`} redirectTo="/admin/hari-libur" batalHref="/admin/hari-libur" label="Simpan perubahan" className="space-y-4 rounded-2xl border border-line bg-surface p-6">
+      <FormAction action={`/api/admin/hari-libur/${h.id}`} method="PUT" redirectTo="/admin/hari-libur" batalHref="/admin/hari-libur" label="Simpan perubahan" className="space-y-4 rounded-2xl border border-line bg-surface p-6">
         <FormLibur h={h} />
       </FormAction>
     </div>
