@@ -20,7 +20,6 @@ import {
   FileCheck2,
   FileText,
   Gauge,
-  Hourglass,
   Plus,
   ShieldAlert,
   ShieldCheck,
@@ -450,14 +449,6 @@ async function DashAdmin() {
           description={`Kalender hari libur tahun ${d.bulan.label.slice(-4)}`}
           tone="default"
           href="/admin/hari-libur"
-        />
-        <GlowCard
-          icon={ikon(Hourglass)}
-          label="Kuota Hangus"
-          value="Pengingat Cuti"
-          description="Kirim pengingat sisa cuti berisiko hangus"
-          tone="default"
-          href="/kuota-hangus"
         />
       </div>
 
