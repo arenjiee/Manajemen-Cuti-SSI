@@ -27,7 +27,6 @@ export default async function KuotaHangusPage({ searchParams }) {
     { label: "Kuota", render: (r) => `${formatHari(r.kuotaAwal)} hari` },
     { label: "Terpakai", render: (r) => `${formatHari(r.terpakai)} hari` },
     { label: "Sisa", render: (r) => <strong className={r.risiko === "pasti" ? "text-bad" : "text-warn"}>{formatHari(r.sisa)} hari</strong> },
-    { label: "Risiko", render: (r) => (r.risiko === "pasti" ? "Pasti hangus" : "Waspada") },
     { label: "Pengingat terakhir", render: (r) => (r.pengingatTerakhir ? formatWaktu(r.pengingatTerakhir) : "Belum pernah") },
   ];
 
