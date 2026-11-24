@@ -27,7 +27,7 @@ export default async function DetailDivisiPage({ params }) {
 
   const kolom = [
     { label: "Nama", render: (a) => a.nama_lengkap },
-    { label: "Username", render: (a) => <span className="font-mono text-xs text-muted">{a.username}</span> },
+    { label: "Username", render: (a) => <span className="text-sm text-muted">{a.username}</span> },
     { label: "Peran", render: (a) => (a.role === "ketua_divisi" ? "Ketua Divisi" : "Anggota") },
     { label: "Status", render: (a) => <PresenceBadge aktif={a.aktif} sedangCuti={a.sedang_cuti} /> },
     { label: "Bergabung", render: (a) => formatTanggal(a.tanggal_bergabung) },
@@ -69,9 +69,9 @@ export default async function DetailDivisiPage({ params }) {
                 <option value="">-- Tanpa Ketua Divisi --</option>
                 {ketuaOpsi.map((k) => <option key={k.id} value={k.id}>{k.nama_lengkap}</option>)}
               </select>
-              <span className="mt-1.5 block text-xs text-muted">Mengganti atau mengosongkan ketua akan mengeluarkan ketua saat ini dari divisi ini. Akunnya tidak dihapus.</span>
+              <span className="mt-1.5 block text-sm text-muted">Mengganti atau mengosongkan ketua akan mengeluarkan ketua saat ini dari divisi ini. Akunnya tidak dihapus.</span>
             </label>
-            <p className="text-xs text-muted">
+            <p className="text-sm text-muted">
               Batas cuti bersamaan ({d.max_persen_cuti}%) diatur di <Link href="/kapasitas" className="underline underline-offset-2 hover:text-ink">Kapasitas Tim</Link>.
             </p>
           </FormAction>

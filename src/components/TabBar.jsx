@@ -60,7 +60,7 @@ function ChromeTab({ tab, menu, aktif, bisaTutup, tetanggaKananAktif, onActivate
       )}
       <div className="relative flex min-w-0 flex-1 items-center gap-2">
         <IkonMenu href={item?.href} className="h-4 w-4 shrink-0" aria-hidden />
-        <span className="flex-1 truncate font-medium select-none">{label}</span>
+        <span className="flex-1 truncate font-medium select-none" title={label}>{label}</span>
         {bisaTutup && (
           <button
             type="button"
@@ -70,7 +70,7 @@ function ChromeTab({ tab, menu, aktif, bisaTutup, tetanggaKananAktif, onActivate
             onClick={(e) => { e.stopPropagation(); onClose(); }}
             className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-ink/10 hover:text-ink ${aktif ? "" : "opacity-0 group-hover:opacity-100 max-md:opacity-100"}`}
           >
-            <X className="h-3 w-3" />
+            <X className="h-3.5 w-3.5" />
           </button>
         )}
       </div>

@@ -57,7 +57,7 @@ export default async function KapasitasPage({ searchParams }) {
                 <header className="flex items-start justify-between gap-3">
                   <div>
                     <h3 className="font-display text-xl font-semibold text-ink">{p.nama}</h3>
-                    <p className="mt-0.5 text-xs text-muted">Ketua: {p.ketuaNama ?? "-"} · {p.jumlahAnggota} anggota aktif</p>
+                    <p className="mt-0.5 text-sm text-muted">Ketua: {p.ketuaNama ?? "-"} · {p.jumlahAnggota} anggota aktif</p>
                   </div>
                 </header>
                 <p className="mt-2 text-sm">

@@ -45,7 +45,7 @@ const RincianAngka = ({ items }) => (
     {items.map(([label, n]) => (
       <div key={label}>
         <dd className="font-display text-lg font-semibold text-ink tabular-nums">{n}</dd>
-        <dt className="text-xs text-muted">{label}</dt>
+        <dt className="text-xs font-semibold text-muted">{label}</dt>
       </div>
     ))}
   </dl>
@@ -54,7 +54,7 @@ const RincianAngka = ({ items }) => (
 const kolomPeriode = { label: "Periode", render: (r) => formatRentang(r.tanggal_mulai, r.tanggal_selesai) };
 const kolomHari = { label: "Hari", render: (r) => formatHari(r.total_hari) };
 const TautanAksi = ({ href, children, className = "" }) => (
-  <Link href={href} className={`${linkCls} text-xs ${className}`}>
+  <Link href={href} className={`${linkCls} text-sm ${className}`}>
     <span>{children}</span>
     <Panah arah="kanan" />
   </Link>
@@ -534,7 +534,7 @@ async function DashAdmin() {
             {
               label: "Berhak Cuti Tahunan",
               render: (u) => (
-                <span className="font-mono text-xs text-accent">
+                <span className="text-sm font-semibold tabular-nums text-accent">
                   {formatTanggal(u.layakTahunan)}
                 </span>
               ),

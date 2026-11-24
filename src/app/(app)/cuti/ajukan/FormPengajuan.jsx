@@ -185,7 +185,7 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
             {jenis.map((j) => <option key={j.id} value={j.id}>{j.nama}</option>)}
           </select>
         </L>
-        {terpilih && <p className="-mt-3 text-xs text-muted">{hint(terpilih)}</p>}
+        {terpilih && <p className="-mt-3 text-sm text-muted">{hint(terpilih)}</p>}
 
         {isTahunan && (
           <div className="space-y-3 rounded-xl border border-line/60 bg-ink/5 p-3.5">
@@ -226,7 +226,7 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
                     />
                   </L>
                 </div>
-                <p className="text-xs text-muted">Rentang jam maksimal 4 jam.</p>
+                <p className="text-sm text-muted">Rentang jam maksimal 4 jam.</p>
               </div>
             )}
           </div>
@@ -248,7 +248,7 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
             {opsiRekan.map((r) => <option key={r.id} value={r.id}>{r.nama_lengkap}</option>)}
           </select>
         </L>
-        {punyaSim && opsiRekan.length === 0 && <p className="-mt-3 text-xs text-bad">Tidak ada rekan yang tersedia pada tanggal tersebut.</p>}
+        {punyaSim && opsiRekan.length === 0 && <p className="-mt-3 text-sm text-bad">Tidak ada rekan yang tersedia pada tanggal tersebut.</p>}
         <L t="Catatan tugas untuk rekan pengganti"><AutoTextarea name="catatanTugas" rows={2} placeholder="Tuliskan serah terima tugas pekerjaan..." className={inputCls} /></L>
         <div className="grid gap-4 sm:grid-cols-2">
           <L t="Alamat selama cuti"><input name="alamatCuti" className={inputCls} /></L>
@@ -283,8 +283,8 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
               <div className="flex items-center gap-2.5 min-w-0">
                 <FileText className="h-5 w-5 shrink-0 text-ok" />
                 <div className="min-w-0">
-                  <p className="truncate font-medium text-ink">{lampiran.nama}</p>
-                  <p className="text-xs text-ok">Berkas berhasil diunggah</p>
+                  <p className="truncate font-medium text-ink" title={lampiran.nama}>{lampiran.nama}</p>
+                  <p className="text-sm text-ok">Berkas berhasil diunggah</p>
                 </div>
               </div>
               <button
@@ -310,12 +310,12 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
               <p className="mt-2 text-sm font-medium text-ink">
                 {isDragActive ? "Lepaskan berkas di sini" : "Tarik & lepas berkas ke sini, atau klik untuk memilih"}
               </p>
-              <p className="mt-1 text-xs text-muted">Format: PDF (Maks. 2 MB)</p>
+              <p className="mt-1 text-sm text-muted">Format: PDF (Maks. 2 MB)</p>
             </div>
           )}
 
-          {unggah.loading && <p className="text-xs text-muted">Mengunggah…</p>}
-          {unggah.error && <p role="alert" className="text-xs text-bad">{unggah.error}</p>}
+          {unggah.loading && <p className="text-sm text-muted">Mengunggah…</p>}
+          {unggah.error && <p role="alert" className="text-sm text-bad">{unggah.error}</p>}
         </div>
 
         {errorPesan && <p role="alert" className="rounded-lg bg-bad/10 px-3 py-2 text-sm text-bad">{errorPesan}</p>}
@@ -342,25 +342,25 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
             </div>
           </dl>
         )}
-        {simMuat && <p className="text-xs text-muted">Menghitung simulasi…</p>}
+        {simMuat && <p className="text-sm text-muted">Menghitung simulasi…</p>}
         {punyaSim && !simMuat && (sim.ok
           ? <p role="status" className="rounded-lg bg-ok/10 px-3 py-2 text-sm text-ok">Tanggal ini memenuhi syarat untuk diajukan.</p>
           : sim.pesan && <p role="alert" className="rounded-lg bg-bad/10 px-3 py-2 text-sm text-bad">{sim.pesan}</p>)}
 
         {punyaSim && sim.hariLiburTerlewati?.length > 0 && (
-          <div className="rounded-xl border border-line bg-ink/5 p-3 text-xs space-y-2">
+          <div className="rounded-xl border border-line bg-ink/5 p-3 text-sm space-y-2">
             <div className="flex items-center gap-1.5 font-medium text-ink">
               <span>🎉</span>
               <span>{sim.hariLiburTerlewati.length} Hari Libur Terdeteksi</span>
             </div>
-            <ul className="space-y-1 text-muted text-xs pl-4 list-disc">
+            <ul className="space-y-1 text-muted text-sm pl-4 list-disc">
               {sim.hariLiburTerlewati.map((hl) => (
                 <li key={hl.tanggal}>
                   <span className="font-medium text-ink">{formatTanggal(hl.tanggal)}</span>: {hl.keterangan} ({hl.jenis === "cuti_bersama" ? "Cuti Bersama" : "Libur Nasional"})
                 </li>
               ))}
             </ul>
-            <p className="text-xs text-muted">Tanggal di atas bebas potong kuota (tidak dihitung sebagai hari cuti).</p>
+            <p className="text-sm text-muted">Tanggal di atas bebas potong kuota (tidak dihitung sebagai hari cuti).</p>
           </div>
         )}
 
@@ -377,7 +377,7 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
         {!punyaSim && (
           <div className="space-y-4 border-t border-line pt-3">
             <div>
-              <p className="text-xs font-medium text-ink mb-2">Kalender & Hari Libur</p>
+              <p className="text-sm font-semibold text-ink mb-2">Kalender & Hari Libur</p>
               <KalenderMini
                 kalender={kalenderAwal}
                 mulai={mulai}
@@ -389,8 +389,8 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
 
             {hariLiburMendatang?.length > 0 && (
               <div className="border-t border-line pt-3 space-y-2">
-                <p className="text-xs font-medium text-ink">Libur & Cuti Bersama Terdekat</p>
-                <ul className="space-y-1.5 text-xs">
+                <p className="text-sm font-semibold text-ink">Libur & Cuti Bersama Terdekat</p>
+                <ul className="space-y-1.5 text-sm">
                   {hariLiburMendatang.map((h) => {
                     const isCuti = h.jenis === "cuti_bersama";
                     return (
@@ -404,8 +404,8 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
                         className="flex items-start justify-between gap-2 p-2 rounded-lg border border-line bg-ink/5 hover:border-accent/40 cursor-pointer transition-colors"
                       >
                         <div className="min-w-0 flex-1">
-                          <p className="font-medium text-ink truncate">{h.keterangan}</p>
-                          <p className="text-muted text-xs">{formatTanggal(h.tanggal)}</p>
+                          <p className="font-medium text-ink truncate" title={h.keterangan}>{h.keterangan}</p>
+                          <p className="text-muted text-sm">{formatTanggal(h.tanggal)}</p>
                         </div>
                         <span className={`shrink-0 rounded px-1.5 py-0.5 text-xs font-medium ${isCuti ? "bg-warn/20 text-ink" : "bg-bad/20 text-bad"}`}>
                           {isCuti ? "Cuti Bersama" : "Libur Nasional"}
@@ -416,7 +416,7 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
                 </ul>
               </div>
             )}
-            <p className="text-xs text-muted">Pilih tanggal di kalender atau form untuk melihat simulasi kuota dan rekan pengganti.</p>
+            <p className="text-sm text-muted">Pilih tanggal di kalender atau form untuk melihat simulasi kuota dan rekan pengganti.</p>
           </div>
         )}
       </aside>

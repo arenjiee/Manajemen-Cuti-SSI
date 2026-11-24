@@ -34,7 +34,7 @@ export default async function UsersPage({ searchParams }) {
     ["role", "divisiId", "aktif", "masaKerja"].map((k) => [k, typeof sp[k] === "string" ? sp[k] : ""])
   );
   const kolom = [
-    { label: "Nama", sortKey: "nama", render: (u) => <div><p className="font-medium">{u.nama_lengkap}</p><p className="text-xs text-muted">{u.email}</p></div> },
+    { label: "Nama", sortKey: "nama", render: (u) => <div><p className="font-medium">{u.nama_lengkap}</p><p className="text-sm text-muted">{u.email}</p></div> },
     { label: "Username", key: "username", sortKey: "username" },
     { label: "Role", sortKey: "role", render: (u) => NAMA_ROLE[u.role] },
     { label: "Divisi", sortKey: "divisi", render: (u) => u.divisi_nama ?? "-" },

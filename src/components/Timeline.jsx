@@ -7,7 +7,7 @@ export default function Timeline({ items }) {
         <li key={i} className="relative">
           <span className={`absolute -left-[1.85rem] top-1.5 h-2.5 w-2.5 rounded-full ${TITIK[it.tone] ?? "bg-muted"}`} />
           <p className="text-sm font-medium">{it.judul}</p>
-          {it.waktu && <p className="text-xs text-muted">{it.waktu}</p>}
+          {it.waktu && <p className="text-sm text-muted">{it.waktu}</p>}
           {it.catatan && <p className="mt-1 text-sm text-muted">{it.catatan}</p>}
         </li>
       ))}

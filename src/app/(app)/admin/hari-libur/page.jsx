@@ -68,7 +68,7 @@ export default async function HariLiburPage({ searchParams }) {
           </span>
           <div className="flex-1">
             <h2 className="text-lg font-semibold">Integrasi Kalender Nasional (Liburin)</h2>
-            <p className="mt-1 text-xs text-muted">
+            <p className="mt-1 text-sm text-muted">
               Tarik otomatis seluruh daftar hari libur resmi dan cuti bersama berdasarkan SKB 3 Menteri dari API Liburin (liburin.vercel.app). Tanggal yang sudah ada akan diperbarui tanpa membuat duplikat.
             </p>
           </div>

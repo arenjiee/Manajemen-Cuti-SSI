@@ -23,7 +23,7 @@ export default async function KuotaHangusPage({ searchParams }) {
   const pasti = d.rows.filter((r) => r.risiko === "pasti").length;
 
   const kolom = [
-    { label: "Nama", render: (r) => <div><p className="font-medium">{r.nama}</p><p className="text-xs text-muted">{NAMA_ROLE[r.role]} · {r.divisiNama ?? "Tanpa divisi"}</p></div> },
+    { label: "Nama", render: (r) => <div><p className="font-medium">{r.nama}</p><p className="text-sm text-muted">{NAMA_ROLE[r.role]} · {r.divisiNama ?? "Tanpa divisi"}</p></div> },
     { label: "Kuota", render: (r) => `${formatHari(r.kuotaAwal)} hari` },
     { label: "Terpakai", render: (r) => `${formatHari(r.terpakai)} hari` },
     { label: "Sisa", render: (r) => <strong className={r.risiko === "pasti" ? "text-bad" : "text-warn"}>{formatHari(r.sisa)} hari</strong> },

@@ -55,7 +55,7 @@ export default function FotoProfil({ userId, nama, fotoKey }) {
             </form>
           )}
         </div>
-        <p className="text-xs text-muted">JPG atau PNG, maksimal 2 MB.</p>
+        <p className="text-sm text-muted">JPG atau PNG, maksimal 2 MB.</p>
         {error && <p role="alert" className="text-sm text-bad">{error}</p>}
       </div>
     </div>

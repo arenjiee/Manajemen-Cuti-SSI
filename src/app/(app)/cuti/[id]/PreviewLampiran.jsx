@@ -110,7 +110,7 @@ export default function PreviewLampiran({ id, nama, mime, ukuran }) {
                   rel="noreferrer"
                   className="inline-flex items-center gap-1 text-accent transition-colors hover:underline"
                 >
-                  <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                  <ExternalLink className="h-4 w-4" aria-hidden />
                   Buka di tab baru
                 </a>
               </div>
@@ -119,7 +119,7 @@ export default function PreviewLampiran({ id, nama, mime, ukuran }) {
                 {memuat && (
                   <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-surface/90 backdrop-blur-xs">
                     <Loader2 className="h-6 w-6 animate-spin text-accent" />
-                    <p className="text-xs text-muted">Memuat pratinjau…</p>
+                    <p className="text-sm text-muted">Memuat pratinjau…</p>
                   </div>
                 )}
 
@@ -146,7 +146,7 @@ export default function PreviewLampiran({ id, nama, mime, ukuran }) {
                   </div>
                 ) : (
                   <div className="p-8 text-center">
-                    <p className="text-xs text-muted">
+                    <p className="text-sm text-muted">
                       Preview tidak tersedia untuk tipe berkas ini. Silakan gunakan tombol unduh.
                     </p>
                   </div>

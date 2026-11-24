@@ -97,7 +97,7 @@ export default function TombolKonfirmasi({
       <Modal buka={buka} onTutup={tutupModal} judul={langkah === 0 ? label : "Konfirmasi"} terkunci={loading}>
         <p className="text-sm text-muted">{langkah === 0 ? pesan : PESAN_LANJUT}</p>
         {konfirmasi > 1 && (
-          <p className="mt-2 font-mono text-xs text-muted">
+          <p className="mt-2 text-sm text-muted">
             Langkah {langkah + 1} dari {konfirmasi}
           </p>
         )}

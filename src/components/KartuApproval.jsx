@@ -20,8 +20,8 @@ export default function KartuApproval({ p, action, children, pilih, fromHref }) 
         {pilih}
         <span aria-hidden className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent/10 font-display text-sm font-semibold text-accent">{inisial(p.pengaju_nama)}</span>
         <div className="min-w-0 flex-1">
-          <p className="truncate font-medium text-ink">{p.pengaju_nama}</p>
-          <p className="text-xs text-muted">{p.divisi_nama ?? "Tanpa divisi"} · diajukan {formatTanggal(p.tanggal_pengajuan)}</p>
+          <p className="truncate font-medium text-ink" title={p.pengaju_nama}>{p.pengaju_nama}</p>
+          <p className="text-sm text-muted">{p.divisi_nama ?? "Tanpa divisi"} · diajukan {formatTanggal(p.tanggal_pengajuan)}</p>
         </div>
       </header>
       <div>
@@ -29,9 +29,9 @@ export default function KartuApproval({ p, action, children, pilih, fromHref }) 
         <p className="mt-0.5 text-sm text-muted">{formatRentang(p.tanggal_mulai, p.tanggal_selesai)} · {formatHari(p.total_hari)} hari kerja{p.setengah_hari ? " (setengah hari)" : ""}</p>
       </div>
       <dl className="space-y-2 text-sm">
-        <div><dt className="text-xs text-muted">Alasan</dt><dd>{p.alasan}</dd></div>
-        <div><dt className="text-xs text-muted">Catatan tugas</dt><dd>{p.catatan_tugas || "-"}</dd></div>
-        <div><dt className="text-xs text-muted">Rekan pengganti</dt><dd>{p.handover_nama || "-"}</dd></div>
+        <div><dt className="text-xs font-semibold text-muted">Alasan</dt><dd>{p.alasan}</dd></div>
+        <div><dt className="text-xs font-semibold text-muted">Catatan tugas</dt><dd>{p.catatan_tugas || "-"}</dd></div>
+        <div><dt className="text-xs font-semibold text-muted">Rekan pengganti</dt><dd>{p.handover_nama || "-"}</dd></div>
       </dl>
       {p.lampiran.length > 0 && (
         <p className="text-sm">
@@ -42,7 +42,7 @@ export default function KartuApproval({ p, action, children, pilih, fromHref }) 
       <footer className="mt-auto flex flex-wrap items-center gap-2 pt-2 border-t border-line/50">
         <button onClick={() => setMode("approve")} className={btnPrimary}>Setujui</button>
         <button onClick={() => setMode("reject")} className={btnDanger}>Tolak</button>
-        <Link href={detailHref} className="ml-auto inline-flex items-center gap-1 text-xs font-medium text-accent transition hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
+        <Link href={detailHref} className="ml-auto inline-flex items-center gap-1 text-sm font-medium text-accent transition hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
           Detail <Panah arah="kanan" />
         </Link>
       </footer>

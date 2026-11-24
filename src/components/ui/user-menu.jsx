@@ -139,7 +139,7 @@ export function UserMenu({
       >
         <Face user={user} status={status} size="sm" />
         {showName && (
-          <span className="hidden max-w-[130px] truncate font-display text-xs font-semibold text-ink sm:inline-block">
+          <span title={user.name} className="hidden max-w-[130px] truncate font-display text-sm font-semibold text-ink sm:inline-block">
             {user.name}
           </span>
         )}
@@ -165,7 +165,7 @@ export function UserMenu({
               <Face user={user} status={status} size="md" />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <p className="truncate font-display text-sm font-bold text-ink leading-tight">
+                  <p title={user.name} className="truncate font-display text-sm font-bold text-ink leading-tight">
                     {user.name}
                   </p>
                   {user.plan && (
@@ -196,7 +196,7 @@ export function UserMenu({
                         setOpen(false);
                         item.onSelect?.();
                       }}
-                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-ink transition hover:bg-ink/5 focus-visible:bg-ink/5 focus-visible:outline-none"
+                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-semibold text-ink transition hover:bg-ink/5 focus-visible:bg-ink/5 focus-visible:outline-none"
                     >
                       <span className="flex h-5 w-5 shrink-0 items-center justify-center text-muted">
                         {item.icon}
@@ -254,7 +254,7 @@ export function UserMenu({
               role="menuitem"
               disabled={signingOut}
               onClick={handleSignOut}
-              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-bad transition hover:bg-bad/10 focus-visible:bg-bad/10 focus-visible:outline-none disabled:opacity-50"
+              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-semibold text-bad transition hover:bg-bad/10 focus-visible:bg-bad/10 focus-visible:outline-none disabled:opacity-50"
             >
               <span className="flex h-5 w-5 shrink-0 items-center justify-center">
                 {signingOut ? (

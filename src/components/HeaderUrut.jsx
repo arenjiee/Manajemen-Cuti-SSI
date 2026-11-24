@@ -14,7 +14,7 @@ export default function HeaderUrut({ label, href, arah }) {
       className={`inline-flex items-center gap-1.5 rounded-md outline-none transition-colors hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${arah ? "text-ink" : ""}`}
     >
       {label}
-      <Ikon className={`h-3.5 w-3.5 ${arah ? "" : "opacity-40"}`} aria-hidden="true" />
+      <Ikon className={`h-4 w-4 ${arah ? "" : "opacity-40"}`} aria-hidden="true" />
     </Link>
   );
 }

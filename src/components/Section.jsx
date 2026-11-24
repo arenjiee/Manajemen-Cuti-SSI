@@ -22,7 +22,7 @@ export default function Section({
                 {title}
               </h2>
             )}
-            {description && <p className="mt-0.5 text-xs text-muted">{description}</p>}
+            {description && <p className="mt-0.5 text-sm text-muted">{description}</p>}
           </div>
           {action && <div className="shrink-0">{action}</div>}
         </div>

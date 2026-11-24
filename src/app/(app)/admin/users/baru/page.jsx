@@ -42,7 +42,7 @@ export default async function BaruUserPage() {
             <span className={labelCls}>Kuota cuti awal</span>
             <p className="mt-1 text-sm font-medium text-ink">
               {formatHari(kuotaGlobal)} hari{" "}
-              <span className="text-xs text-muted">(mengikuti jenis Cuti Tahunan)</span>
+              <span className="text-sm text-muted">(mengikuti jenis Cuti Tahunan)</span>
             </p>
           </div>
           <L t="Telepon">

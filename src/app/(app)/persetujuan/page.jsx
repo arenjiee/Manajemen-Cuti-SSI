@@ -41,7 +41,7 @@ export default async function PersetujuanPage({ searchParams }) {
       {antre.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-line bg-surface/40 p-12 text-center">
           <p className="text-sm text-muted">Tidak ada pengajuan yang menunggu persetujuan final saat ini.</p>
-          <div className="mt-3 flex items-center justify-center gap-3 text-xs">
+          <div className="mt-3 flex items-center justify-center gap-3 text-sm">
             <Link href="/dashboard" className="text-accent hover:underline">Ke Dashboard</Link>
             <span className="text-muted">·</span>
             <Link href="/riwayat" className="text-accent hover:underline">Lihat Riwayat</Link>

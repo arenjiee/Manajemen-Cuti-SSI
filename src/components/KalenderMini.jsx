@@ -101,8 +101,8 @@ export default function KalenderMini({
         const labelText = b.label || b.nama || b.bulan;
         return (
           <div key={b.bulan || labelText || bIdx}>
-            <p className="mb-1 text-xs font-medium">{labelText}</p>
-            <div className="grid grid-cols-7 gap-1 text-center text-xs">
+            <p className="mb-1 text-sm font-semibold">{labelText}</p>
+            <div className="grid grid-cols-7 gap-1 text-center text-sm">
               {["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"].map((h) => (
                 <span key={h} className="text-muted">{h}</span>
               ))}
@@ -142,7 +142,7 @@ export default function KalenderMini({
           </div>
         );
       })}
-      <ul className="flex flex-wrap gap-x-3 gap-y-1.5 text-xs text-muted pt-1">
+      <ul className="flex flex-wrap gap-x-3 gap-y-1.5 text-sm text-muted pt-1">
         {LEGENDA.map(([s, l, kotakCls]) => (
           <li key={s} className="flex items-center gap-1.5">
             <span className={`inline-block h-2.5 w-2.5 rounded-sm ${kotakCls}`} />

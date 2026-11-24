@@ -41,7 +41,7 @@ export default function FormJenis({ j }) {
           />
         </label>
       </div>
-      <p className="-mt-2 text-xs text-muted">
+      <p className="-mt-2 text-sm text-muted">
         {isTahunan
           ? "Perubahan kuota Cuti Tahunan akan otomatis menyamakan kuota seluruh pengguna."
           : "Positif = H-n (sebelum mulai). 0 = H-0 (hari H). Negatif = H+n (setelah mulai)."}

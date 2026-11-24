@@ -121,7 +121,7 @@ export default function GlowCard({
           {value}
         </div>
         {description && (
-          <div className="mt-1.5 text-xs leading-relaxed text-muted">
+          <div className="mt-1.5 text-sm leading-relaxed text-muted">
             {description}
           </div>
         )}
@@ -129,7 +129,7 @@ export default function GlowCard({
 
       {/* Card Footer: Action affordance if clickable */}
       {href && (
-        <div className="relative z-10 flex items-center gap-1.5 text-xs font-medium text-accent opacity-80 transition group-hover:opacity-100">
+        <div className="relative z-10 flex items-center gap-1.5 text-sm font-medium text-accent opacity-80 transition group-hover:opacity-100">
           <span>Lihat detail</span>
           <Panah arah="kanan" className="transition-transform group-hover:translate-x-0.5" />
         </div>

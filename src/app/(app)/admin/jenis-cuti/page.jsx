@@ -20,7 +20,7 @@ export default async function JenisCutiPage({ searchParams }) {
   const sp = await searchParams;
   const rows = await daftarJenis(pool);
   const kolom = [
-    { label: "Jenis", render: (j) => <div><p className="font-medium">{j.nama}</p><p className="text-xs text-muted">{j.isSystem ? "Bawaan sistem" : "Kustom"}{j.aktif ? "" : " · nonaktif"}</p></div> },
+    { label: "Jenis", render: (j) => <div><p className="font-medium">{j.nama}</p><p className="text-sm text-muted">{j.isSystem ? "Bawaan sistem" : "Kustom"}{j.aktif ? "" : " · nonaktif"}</p></div> },
     {
       label: "Kuota/tahun",
       render: (j) =>

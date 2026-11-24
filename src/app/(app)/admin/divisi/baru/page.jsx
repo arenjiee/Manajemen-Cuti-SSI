@@ -27,7 +27,7 @@ export default async function BaruDivisiPage() {
           </select>
         </label>
         {calon.length === 0 && <p className="text-sm text-warn">Belum ada Ketua Divisi yang tersedia. Buat pengguna dengan role Ketua Divisi terlebih dahulu.</p>}
-        <p className="text-xs text-muted">Tanggal dibentuk diisi otomatis.</p>
+        <p className="text-sm text-muted">Tanggal dibentuk diisi otomatis.</p>
       </FormAction>
     </div>
   );

@@ -71,13 +71,13 @@ function RingkasanTopbar({ ringkasan }) {
 
   return (
     <div className="hidden items-center gap-2 lg:flex">
-      {ringkasan.divisiNama && <span className="max-w-40 truncate text-xs text-muted">{ringkasan.divisiNama}</span>}
+      {ringkasan.divisiNama && <span className="max-w-40 truncate text-xs text-muted" title={ringkasan.divisiNama}>{ringkasan.divisiNama}</span>}
       {data.map(({ href, ikon: Ikon, label, nilai }) => (
         <Link key={label} href={href} className="group flex h-9 items-center gap-2 rounded-lg border border-line bg-bg/50 px-2.5 text-xs text-muted transition hover:border-ink/30 hover:bg-ink/5 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
-          <Ikon className="h-3.5 w-3.5" aria-hidden />
+          <Ikon className="h-4 w-4" aria-hidden />
           <span className="whitespace-nowrap">{label}</span>
           <span className="min-w-5 rounded bg-ink/10 px-1.5 py-0.5 text-center text-xs font-semibold text-ink">{nilai}</span>
-          <ChevronRight className="h-3 w-3 opacity-0 transition group-hover:opacity-100" aria-hidden />
+          <ChevronRight className="h-3.5 w-3.5 opacity-0 transition group-hover:opacity-100" aria-hidden />
         </Link>
       ))}
     </div>
@@ -106,7 +106,7 @@ function TopBar({
       </button>
       <div className="min-w-0 flex-1">
         <p className="hidden text-xs font-semibold text-muted sm:block">{user.peran}</p>
-        <h1 className="truncate font-display text-base font-semibold">{halaman}</h1>
+        <h1 className="truncate font-display text-base font-semibold" title={halaman}>{halaman}</h1>
       </div>
       <RingkasanTopbar ringkasan={ringkasan} />
       <Link href="/notifikasi" aria-label={notifikasi > 0 ? `${notifikasi} notifikasi belum dibaca` : "Notifikasi"} className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-muted transition hover:bg-ink/5 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">

@@ -34,7 +34,7 @@ export default async function DivisiPage({ searchParams }) {
     ] },
   ];
   const kolom = [
-    { label: "Divisi", render: (d) => <div><p className="font-medium">{d.nama}</p><p className="text-xs text-muted">{d.deskripsi}</p></div> },
+    { label: "Divisi", render: (d) => <div><p className="font-medium">{d.nama}</p><p className="text-sm text-muted">{d.deskripsi}</p></div> },
     { label: "Ketua", render: (d) => d.ketua_nama ?? "-" },
     { label: "Anggota", key: "jumlah_anggota" },
     { label: "Maks. cuti bersamaan", render: (d) => `${d.batas_harian} orang per hari (${d.max_persen_cuti}%)` },

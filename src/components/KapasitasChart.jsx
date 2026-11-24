@@ -28,7 +28,7 @@ export default function KapasitasChart({ data }) {
               >
                 <div className="flex items-baseline justify-between gap-3 text-sm">
                   <span className="font-medium text-ink group-hover:underline">{d.nama}</span>
-                  <span className="font-mono text-xs text-muted">
+                  <span className="text-sm tabular-nums text-muted">
                     <span className="text-ink tabular-nums">{d.puncak}/{d.batas}</span> orang per hari
                     {d.hariPenuh > 0 && <span className="text-bad"> · {d.hariPenuh} hari penuh</span>}
                   </span>
@@ -44,7 +44,7 @@ export default function KapasitasChart({ data }) {
           );
         })}
       </ul>
-      <p className="border-t border-line/60 pt-3 text-xs text-muted">
+      <p className="border-t border-line/60 pt-3 text-sm text-muted">
         Puncak = jumlah orang cuti terbanyak pada satu hari kerja bulan ini. Termasuk pengajuan yang masih menunggu persetujuan,
         sehingga bisa lebih tinggi dari jumlah cuti yang sudah disetujui.
       </p>

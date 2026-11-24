@@ -104,7 +104,7 @@ export default function ModalSaran({ buka, onTutup }) {
                 <h2 className="font-display text-lg font-bold leading-tight text-ink">
                   Saran & Masukan
                 </h2>
-                <p className="mt-0.5 text-xs text-muted">
+                <p className="mt-0.5 text-sm text-muted">
                   Bantu kami meningkatkan kualitas sistem LeaveSync
                 </p>
               </div>
@@ -123,7 +123,7 @@ export default function ModalSaran({ buka, onTutup }) {
             ) : (
               <form onSubmit={handleSubmit} className="mt-6 space-y-4">
                 {error && (
-                  <div className="rounded-xl border border-bad/30 bg-bad/10 p-3 text-xs font-semibold text-bad">
+                  <div className="rounded-xl border border-bad/30 bg-bad/10 p-3 text-sm font-semibold text-bad">
                     {error}
                   </div>
                 )}
@@ -140,7 +140,7 @@ export default function ModalSaran({ buka, onTutup }) {
                           key={item}
                           type="button"
                           onClick={() => setKategori(item)}
-                          className={`rounded-xl border px-2.5 py-2 text-center text-xs font-semibold transition ${
+                          className={`rounded-xl border px-2.5 py-2 text-center text-sm font-semibold transition ${
                             aktif
                               ? "border-accent bg-accent text-accent-ink shadow-sm"
                               : "border-line bg-chrome/50 text-ink hover:border-ink/20 hover:bg-chrome"
@@ -176,14 +176,14 @@ export default function ModalSaran({ buka, onTutup }) {
                     type="button"
                     onClick={handleTutup}
                     disabled={loading}
-                    className="rounded-xl border border-line px-4 py-2 text-xs font-semibold text-ink transition hover:bg-ink/5 disabled:opacity-50"
+                    className="rounded-xl border border-line px-4 py-2 text-sm font-semibold text-ink transition hover:bg-ink/5 disabled:opacity-50"
                   >
                     Batal
                   </button>
                   <button
                     type="submit"
                     disabled={loading || !pesan.trim()}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-accent px-5 py-2 text-xs font-semibold text-accent-ink transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-accent px-5 py-2 text-sm font-semibold text-accent-ink transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {loading && <Loader2 size={14} className="animate-spin" />}
                     {loading ? "Mengirim..." : "Kirim Masukan"}

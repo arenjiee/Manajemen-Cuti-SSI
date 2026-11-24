@@ -46,7 +46,7 @@ export default async function NotifikasiPage({ searchParams }) {
                   {!n.dibaca && <span className="mr-2 rounded-full bg-accent px-2 py-0.5 text-xs text-accent-ink">Baru</span>}
                   {n.pesan}
                 </p>
-                <p className="mt-1 text-xs text-muted">{formatWaktu(n.created_at)}</p>
+                <p className="mt-1 text-sm text-muted">{formatWaktu(n.created_at)}</p>
               </div>
               {(!n.dibaca || tautanInternal(n.link)) && (
                 <form action={`/api/notifikasi/${n.id}/baca`} method="POST">

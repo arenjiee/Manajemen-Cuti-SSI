@@ -95,7 +95,7 @@ export default async function ProfilPage({ searchParams }) {
           <L t="Alamat"><AutoTextarea name="alamat" rows={2} defaultValue={p.alamat ?? ""} className={inputCls} /></L>
           {admin && (
             <div className="rounded-2xl border border-line p-4 space-y-4">
-              <p className="text-xs text-muted">Role hanya dapat diubah oleh Admin:</p>
+              <p className="text-sm text-muted">Role hanya dapat diubah oleh Admin:</p>
               {p.role === "admin" ? (
                 <div className="block">
                   <span className={labelCls}>Role</span>

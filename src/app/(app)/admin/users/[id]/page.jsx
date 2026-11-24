@@ -55,7 +55,7 @@ export default async function EditUserPage({ params }) {
           <span className={labelCls}>Kuota cuti tahunan</span>
           <p className="mt-1 text-sm font-medium text-ink">
             {formatHari(kuotaGlobal)} hari{" "}
-            <span className="text-xs text-muted">(mengikuti jenis Cuti Tahunan)</span>
+            <span className="text-sm text-muted">(mengikuti jenis Cuti Tahunan)</span>
           </p>
         </div>
         {u.role === "admin" ? (
