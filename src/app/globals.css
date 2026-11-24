@@ -146,6 +146,35 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 700; letter-spacing:
 a.text-accent { text-decoration: none; }
 a.text-accent:hover { text-decoration-color: currentColor; }
 
+/* Transisi halus pembukaan dan penutupan dialog modal */
+dialog {
+  transition: opacity 200ms var(--ease), transform 200ms var(--ease), overlay 200ms var(--ease) allow-discrete, display 200ms var(--ease) allow-discrete;
+  opacity: 0;
+  transform: scale(0.96) translateY(4px);
+}
+dialog[open] {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+@starting-style {
+  dialog[open] {
+    opacity: 0;
+    transform: scale(0.96) translateY(4px);
+  }
+}
+dialog::backdrop {
+  background-color: rgb(0 0 0 / 0);
+  transition: background-color 200ms var(--ease), overlay 200ms var(--ease) allow-discrete, display 200ms var(--ease) allow-discrete;
+}
+dialog[open]::backdrop {
+  background-color: rgb(0 0 0 / 0.7);
+}
+@starting-style {
+  dialog[open]::backdrop {
+    background-color: rgb(0 0 0 / 0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     transition-duration: 0.01ms !important;
