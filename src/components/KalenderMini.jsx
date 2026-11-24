@@ -4,17 +4,17 @@ import { formatTanggal } from "@/lib/format";
 
 const WARNA = {
   // Tersedia: emerald jelas dan kontras
-  ok: "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30",
+  ok: "bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 ring-1 ring-emerald-500/30",
   // Hampir penuh: amber tebal dengan ring kuning
-  hampir: "bg-amber-500/25 text-amber-300 ring-1 ring-amber-500/40 font-medium",
+  hampir: "bg-amber-500/25 text-amber-800 dark:text-amber-300 ring-1 ring-amber-500/40 font-medium",
   // Penuh: rose mencolok dengan ring merah
-  penuh: "bg-rose-500/30 text-rose-300 ring-1 ring-rose-500/50 font-bold",
+  penuh: "bg-rose-500/30 text-rose-800 dark:text-rose-300 ring-1 ring-rose-500/50 font-bold",
   // Libur Nasional: biru sky
-  libur: "bg-sky-500/25 text-sky-300 ring-1 ring-sky-500/40 font-semibold",
+  libur: "bg-sky-500/25 text-sky-800 dark:text-sky-300 ring-1 ring-sky-500/40 font-semibold",
   // Cuti Bersama: ungu purple
-  cuti_bersama: "bg-purple-500/25 text-purple-300 ring-1 ring-purple-500/40 font-semibold",
+  cuti_bersama: "bg-purple-500/25 text-purple-800 dark:text-purple-300 ring-1 ring-purple-500/40 font-semibold",
   // Akhir pekan: netral abu-abu
-  akhir_pekan: "bg-white/[0.04] text-muted ring-1 ring-white/5",
+  akhir_pekan: "bg-ink/5 text-muted ring-1 ring-line",
 };
 
 const KET = {
@@ -33,7 +33,7 @@ const LEGENDA = [
   ["penuh", "Penuh", "bg-rose-500/35 ring-1 ring-rose-500/60"],
   ["libur", "Libur Nasional", "bg-sky-500/30 ring-1 ring-sky-500/50"],
   ["cuti_bersama", "Cuti Bersama", "bg-purple-500/30 ring-1 ring-purple-500/50"],
-  ["akhir_pekan", "Akhir pekan", "bg-white/10 ring-1 ring-white/15"],
+  ["akhir_pekan", "Akhir pekan", "bg-ink/10 ring-1 ring-ink/20"],
 ];
 
 export default function KalenderMini({
@@ -102,7 +102,7 @@ export default function KalenderMini({
         return (
           <div key={b.bulan || labelText || bIdx}>
             <p className="mb-1 text-xs font-medium">{labelText}</p>
-            <div className="grid grid-cols-7 gap-1 text-center text-[11px]">
+            <div className="grid grid-cols-7 gap-1 text-center text-xs">
               {["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"].map((h) => (
                 <span key={h} className="text-muted">{h}</span>
               ))}
@@ -132,7 +132,7 @@ export default function KalenderMini({
                     suppressHydrationWarning
                     onClick={() => handleKlik(h.tanggal)}
                     disabled={!onPilihTanggal}
-                    className={`rounded py-1 tabular-nums transition-colors ${warnaCls} ${onPilihTanggal ? "cursor-pointer hover:opacity-90" : "cursor-default"}`}
+                    className={`rounded py-2 tabular-nums transition-colors ${warnaCls} ${onPilihTanggal ? "cursor-pointer hover:opacity-90" : "cursor-default"}`}
                   >
                     {Number(h.tanggal.slice(8))}
                   </button>
@@ -142,7 +142,7 @@ export default function KalenderMini({
           </div>
         );
       })}
-      <ul className="flex flex-wrap gap-x-3 gap-y-1.5 text-[11px] text-muted pt-1">
+      <ul className="flex flex-wrap gap-x-3 gap-y-1.5 text-xs text-muted pt-1">
         {LEGENDA.map(([s, l, kotakCls]) => (
           <li key={s} className="flex items-center gap-1.5">
             <span className={`inline-block h-2.5 w-2.5 rounded-sm ${kotakCls}`} />

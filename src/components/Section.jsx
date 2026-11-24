@@ -13,7 +13,7 @@ export default function Section({
         <div className={`flex flex-wrap items-end justify-between gap-3 ${headerClassName}`}>
           <div className="min-w-0">
             {eyebrow && (
-              <p className="font-mono text-[11px] font-medium tracking-[0.16em] text-muted uppercase">
+              <p className="text-xs font-semibold text-muted">
                 {eyebrow}
               </p>
             )}

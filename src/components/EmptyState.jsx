@@ -16,9 +16,9 @@ export default function EmptyState({
       </span>
       {title && <h3 className="font-display text-base font-semibold text-ink">{title}</h3>}
       {description && (
-        <p className={`${title ? "mt-1" : ""} max-w-sm text-xs leading-relaxed text-muted`}>
+        <div className={`${title ? "mt-1" : ""} max-w-sm text-xs leading-relaxed text-muted`}>
           {description}
-        </p>
+        </div>
       )}
       {action && <div className="mt-4 flex flex-wrap items-center justify-center gap-2">{action}</div>}
     </div>

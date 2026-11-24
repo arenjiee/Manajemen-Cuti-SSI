@@ -1,51 +1,22 @@
-import { NextResponse } from "next/server";
 import pool from "@/lib/db";
-import { guardApi } from "@/lib/guard";
+import { withRole } from "@/lib/with-role";
+import { ok, fail, readBody } from "@/lib/http";
 import { antreanHrd, muatPeringatanHrd, putuskan } from "@/lib/queries/approval";
 
-export async function GET(request) {
-  const g = await guardApi(["hrd"], request);
-  if (g.error) return g.error;
-
+export const GET = withRole(["hrd"], async () => {
   const antre = await antreanHrd(pool);
   const peringatan = await Promise.all(antre.map((p) => muatPeringatanHrd(pool, p.id)));
-  const data = antre.map((p, i) => ({ ...p, peringatan: peringatan[i] }));
+  return ok({ data: antre.map((p, i) => ({ ...p, peringatan: peringatan[i] })) });
+});
 
-  return NextResponse.json({ ok: true, data });
-}
-
-export async function POST(request) {
-  const g = await guardApi(["hrd"], request);
-  if (g.error) return g.error;
-
-  let body = {};
-  const contentType = request.headers.get("content-type") || "";
-
-  if (contentType.includes("application/json")) {
-    body = await request.json().catch(() => ({}));
-  } else {
-    const fd = await request.formData().catch(() => null);
-    if (fd) {
-      body = {
-        id: fd.get("id"),
-        keputusan: fd.get("keputusan"),
-        catatan: fd.get("catatan"),
-      };
-    }
-  }
-
+export const POST = withRole(["hrd"], async ({ request, user }) => {
+  const b = await readBody(request);
   const r = await putuskan(pool, {
-    pengajuanId: String(body.id ?? ""),
-    approverId: g.user.id,
+    pengajuanId: String(b.id ?? ""),
+    approverId: user.id,
     tahap: "hrd",
-    keputusan: String(body.keputusan ?? ""),
-    catatan: String(body.catatan ?? ""),
+    keputusan: String(b.keputusan ?? ""),
+    catatan: String(b.catatan ?? ""),
   });
-
-  if (!r.ok) {
-    return NextResponse.json({ ok: false, message: r.pesan }, { status: 400 });
-  }
-
-  return NextResponse.json({ ok: true, message: "Keputusan berhasil disimpan." });
-}
-
+  return r.ok ? ok({ message: "Keputusan berhasil disimpan." }) : fail(r.pesan);
+});

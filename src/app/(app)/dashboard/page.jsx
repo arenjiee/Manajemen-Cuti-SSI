@@ -45,7 +45,7 @@ const RincianAngka = ({ items }) => (
     {items.map(([label, n]) => (
       <div key={label}>
         <dd className="font-display text-lg font-semibold text-ink tabular-nums">{n}</dd>
-        <dt className="text-[11px] text-muted">{label}</dt>
+        <dt className="text-xs text-muted">{label}</dt>
       </div>
     ))}
   </dl>
@@ -562,7 +562,7 @@ export default async function DashboardPage() {
       {/* Header Sambutan */}
       <header className="flex flex-col gap-1 border-b border-line/60 pb-5 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="font-mono text-xs tracking-wider text-muted uppercase">
+          <p className="text-xs font-semibold text-muted">
             Ringkasan {NAMA_ROLE[user.role]}
           </p>
           <h1 className="mt-1 font-display text-3xl font-bold tracking-tight text-ink md:text-4xl">

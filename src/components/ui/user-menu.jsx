@@ -169,7 +169,7 @@ export function UserMenu({
                     {user.name}
                   </p>
                   {user.plan && (
-                    <span className="shrink-0 rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold text-accent uppercase tracking-wider">
+                    <span className="shrink-0 rounded-full bg-accent/15 px-2 py-0.5 text-xs font-semibold text-accent">
                       {user.plan}
                     </span>
                   )}
@@ -203,7 +203,7 @@ export function UserMenu({
                       </span>
                       <span className="flex-1 text-left">{item.label}</span>
                       {item.keys && (
-                        <span className="flex items-center gap-1 font-mono text-[10px] text-muted">
+                        <span className="flex items-center gap-1 text-xs text-muted">
                           {item.keys.join(" ")}
                         </span>
                       )}
@@ -232,7 +232,7 @@ export function UserMenu({
                           onClick={() => onThemeChange?.(t.value)}
                           title={t.label}
                           aria-label={`Tema ${t.label}`}
-                          className={`flex h-7 w-7 items-center justify-center rounded-md text-xs font-medium transition ${
+                          className={`flex h-9 w-9 md:h-7 md:w-7 items-center justify-center rounded-md text-xs font-medium transition ${
                             isActive
                               ? "bg-surface text-ink shadow-sm"
                               : "text-muted hover:text-ink"
