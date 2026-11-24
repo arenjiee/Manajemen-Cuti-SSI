@@ -65,6 +65,8 @@ CREATE TABLE pengajuan_cuti (
   tanggal_mulai DATE NOT NULL,
   tanggal_selesai DATE NOT NULL,
   setengah_hari BOOLEAN NOT NULL DEFAULT false,
+  jam_mulai TIME,
+  jam_selesai TIME,
   total_hari NUMERIC(4,1) NOT NULL,
   alasan TEXT NOT NULL,
   handover_id INTEGER REFERENCES users(id),

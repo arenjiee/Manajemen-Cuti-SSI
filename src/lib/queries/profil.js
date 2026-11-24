@@ -7,7 +7,7 @@ import { pesanUnik, EMAIL, ROLES, cekUsername } from "./users.js";
 
 const gagal = (pesan) => ({ ok: false, pesan });
 const PEMOHON = ["karyawan", "ketua_divisi"];
-const TELEPON = /^[0-9+()\-\s]{3,30}$/;
+export const TELEPON = /^\d{10,13}$/;
 
 // Pemilik dan Admin. Dipakai bersama oleh ubahProfil, ubahFoto, dan route upload foto.
 export const bolehUbahProfil = (actor, targetId) => actor.role === "admin" || actor.id === targetId;
@@ -50,7 +50,7 @@ function cekData(d) {
   const email = String(d.email ?? "").trim();
   if (!EMAIL.test(email) || email.length > 100) return "Format email tidak valid.";
   const telepon = String(d.telepon ?? "").trim();
-  if (telepon && !TELEPON.test(telepon)) return "Nomor telepon hanya boleh berisi angka, spasi, +, -, dan tanda kurung (maksimal 30 karakter).";
+  if (telepon && !TELEPON.test(telepon)) return "Nomor telepon harus berupa 10–13 digit angka.";
   const alamat = String(d.alamat ?? "").trim();
   if (alamat.length > 500) return "Alamat maksimal 500 karakter.";
   return null;

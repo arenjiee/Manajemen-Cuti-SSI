@@ -98,6 +98,20 @@ export async function simpanPengajuan(pool, pengajuId, input, lampiranId = null)
   if (!tanggalValid(input.mulai) || !tanggalValid(input.selesai)) return gagal("BENTUK_DATA", "Tanggal tidak valid.");
   if (input.selesai < input.mulai) return gagal("BENTUK_DATA", "Tanggal selesai tidak boleh sebelum tanggal mulai.");
   if (selisihHari(input.mulai, input.selesai) > MAKS_RENTANG_HARI) return gagal("BENTUK_DATA", `Rentang tanggal maksimal ${MAKS_RENTANG_HARI} hari.`);
+  if (input.nomorDarurat) {
+    const nd = String(input.nomorDarurat).trim();
+    if (!/^\d{10,13}$/.test(nd)) {
+      return gagal("BENTUK_DATA", "Nomor darurat harus berupa 10–13 digit angka.");
+    }
+  }
+  if (Boolean(input.setengahHari)) {
+    if (!input.jamMulai || !input.jamSelesai) {
+      return gagal("BENTUK_DATA", "Jam mulai dan jam selesai cuti setengah hari wajib diisi.");
+    }
+    if (input.jamMulai >= input.jamSelesai) {
+      return gagal("BENTUK_DATA", "Jam selesai cuti setengah hari harus setelah jam mulai.");
+    }
+  }
   return denganTransaksi(pool, async (c) => {
     const u = (await c.query("SELECT role, divisi_id FROM users WHERE id=$1 AND aktif AND deleted_at IS NULL", [pengajuId])).rows[0];
     if (!u || !["karyawan", "ketua_divisi"].includes(u.role)) return gagal("ROLE", "Hanya Karyawan dan Ketua Divisi yang dapat mengajukan cuti.");
@@ -117,10 +131,14 @@ export async function simpanPengajuan(pool, pengajuId, input, lampiranId = null)
     const tahap = u.role === "ketua_divisi" ? "hrd" : "leader";
     const ins = await c.query(
       `INSERT INTO pengajuan_cuti (pengaju_id, divisi_id, jenis_id, tanggal_pengajuan, tanggal_mulai, tanggal_selesai, setengah_hari,
-         total_hari, alasan, handover_id, catatan_tugas, alamat_cuti, nomor_darurat, status, tahap)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'Pending',$14) RETURNING id`,
-      [pengajuId, u.divisi_id, k.jenis.id, k.hariIni, input.mulai, input.selesai, Boolean(input.setengahHari), v.totalHari,
-       String(input.alasan).trim(), Number(input.handoverId), input.catatanTugas || null, input.alamatCuti || null, input.nomorDarurat || null, tahap]
+         jam_mulai, jam_selesai, total_hari, alasan, handover_id, catatan_tugas, alamat_cuti, nomor_darurat, status, tahap)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,'Pending',$16) RETURNING id`,
+      [pengajuId, u.divisi_id, k.jenis.id, k.hariIni, input.mulai, input.selesai, Boolean(input.setengahHari),
+       Boolean(input.setengahHari) ? (input.jamMulai || null) : null,
+       Boolean(input.setengahHari) ? (input.jamSelesai || null) : null,
+       v.totalHari,
+       String(input.alasan).trim(), Number(input.handoverId), input.catatanTugas || null, input.alamatCuti || null,
+       input.nomorDarurat ? String(input.nomorDarurat).trim() : null, tahap]
     );
     const id = ins.rows[0].id;
     if (lampiran) await tautkanLampiran(c, lampiran.id, id);

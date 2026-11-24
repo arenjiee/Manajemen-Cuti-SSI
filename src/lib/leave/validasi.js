@@ -20,6 +20,12 @@ export function validasiPengajuan(input, k) {
   if (selesai < mulai) return gagal("BENTUK_DATA", "Tanggal selesai tidak boleh sebelum tanggal mulai.");
   if (selisihHari(mulai, selesai) > MAKS_RENTANG_HARI) return gagal("BENTUK_DATA", `Rentang tanggal maksimal ${MAKS_RENTANG_HARI} hari.`);
   if (setengah && mulai !== selesai) return gagal("BENTUK_DATA", "Cuti setengah hari hanya untuk satu tanggal.");
+  if (setengah && k.jenis && k.jenis.kode !== "tahunan") {
+    return gagal("BENTUK_DATA", "Cuti setengah hari hanya berlaku untuk Cuti Tahunan.");
+  }
+  if (setengah && input.jamMulai && input.jamSelesai && input.jamMulai >= input.jamSelesai) {
+    return gagal("BENTUK_DATA", "Jam selesai cuti setengah hari harus setelah jam mulai.");
+  }
   if (!input.alasan || !String(input.alasan).trim()) return gagal("BENTUK_DATA", "Alasan cuti wajib diisi.");
   if (k.pengaju.divisiId == null) return gagal("TANPA_DIVISI", "Anda belum tergabung di divisi mana pun. Hubungi Admin.");
 

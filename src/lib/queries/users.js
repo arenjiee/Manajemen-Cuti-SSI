@@ -31,6 +31,7 @@ export async function ambilUserAktif(db, id) {
 
 export const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const USERNAME = /^[A-Za-z0-9._-]{3,50}$/;
+export const TELEPON = /^\d{10,13}$/;
 export const ROLES = ["admin", "karyawan", "ketua_divisi", "hrd"];
 // Admin sengaja tidak ada: sistem hanya boleh punya satu akun Admin (hasil seed).
 export const ROLES_DAPAT_DIBERIKAN = ["karyawan", "ketua_divisi", "hrd"];
@@ -58,6 +59,10 @@ function cekUser(d, { periksaUsername = true } = {}) {
   if (!d.nama_lengkap?.trim()) return "Nama lengkap wajib diisi.";
   if (!d.email?.trim()) return "Email wajib diisi.";
   if (!EMAIL.test(d.email.trim())) return "Format email tidak valid.";
+  if (d.telepon) {
+    const t = String(d.telepon).trim();
+    if (!TELEPON.test(t)) return "Nomor telepon harus berupa 10–13 digit angka.";
+  }
   if (!ROLES.includes(d.role)) return "Role tidak valid.";
   return null;
 }

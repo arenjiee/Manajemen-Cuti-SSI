@@ -5,8 +5,10 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import { Bell, CalendarRange, ChevronRight, ClipboardCheck, Menu, MessageSquarePlus, PanelLeft, ShieldCheck, UserRound, Users, X } from "lucide-react";
 import TabBar from "./TabBar";
+import Modal from "./Modal";
 import ModalSaran from "./ModalSaran";
 import UserMenu from "./ui/user-menu";
+import { btnDanger, btnGhost } from "./ui";
 import { useTheme } from "@/lib/theme";
 import { IkonMenu } from "./nav-icons";
 import { bersihkanTabs, cocokkanMenu, sinkronkanHref, tambahTab, tutupKanan, tutupKiri, tutupLain, tutupSemua, tutupTab } from "@/lib/tabs";
@@ -175,6 +177,8 @@ export default function AppShell({ menu, user, children, ringkasan, notifikasi }
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const [modalSaranBuka, setModalSaranBuka] = useState(false);
+  const [modalKeluarBuka, setModalKeluarBuka] = useState(false);
+  const [keluarLoading, setKeluarLoading] = useState(false);
   const qs = useSearchParams().toString();
   const sekarang = qs ? `${pathname}?${qs}` : pathname;
   const kunci = `leavesync-tab:${user.id}`;
@@ -247,10 +251,17 @@ export default function AppShell({ menu, user, children, ringkasan, notifikasi }
     });
   }
 
-  async function keluar() {
+  function konfirmasiKeluar() {
+    setModalKeluarBuka(true);
+  }
+
+  async function eksekusiKeluar() {
+    setKeluarLoading(true);
     setSiap(false);
     try { localStorage.removeItem(kunci); } catch {}
-    await fetch("/api/logout", { method: "POST" });
+    try {
+      await fetch("/api/logout", { method: "POST" });
+    } catch {}
     router.replace("/login");
     router.refresh();
   }
@@ -290,7 +301,7 @@ export default function AppShell({ menu, user, children, ringkasan, notifikasi }
             theme={theme}
             onThemeChange={setTheme}
             onBukaSaran={() => setModalSaranBuka(true)}
-            onKeluar={keluar}
+            onKeluar={konfirmasiKeluar}
             router={router}
           />
           <TabBar
@@ -332,6 +343,37 @@ export default function AppShell({ menu, user, children, ringkasan, notifikasi }
           buka={modalSaranBuka}
           onTutup={() => setModalSaranBuka(false)}
         />
+
+        <Modal
+          buka={modalKeluarBuka}
+          onTutup={() => !keluarLoading && setModalKeluarBuka(false)}
+          judul="Konfirmasi Keluar"
+          terkunci={keluarLoading}
+        >
+          <p className="text-sm text-muted">
+            Apakah Anda yakin ingin keluar dari akun LeaveSync? Anda perlu masuk kembali untuk mengakses sistem.
+          </p>
+          <div className="mt-6 flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setModalKeluarBuka(false)}
+              disabled={keluarLoading}
+              className={btnGhost}
+              suppressHydrationWarning
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              onClick={eksekusiKeluar}
+              disabled={keluarLoading}
+              className={btnDanger}
+              suppressHydrationWarning
+            >
+              {keluarLoading ? "Keluar…" : "Ya, Keluar"}
+            </button>
+          </div>
+        </Modal>
       </div>
     </MotionConfig>
   );

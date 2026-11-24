@@ -1,8 +1,9 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { CalendarDays } from "lucide-react";
+import { useDropzone } from "react-dropzone";
+import { FileText, Upload, X } from "lucide-react";
 import { inputCls, btnPrimary, btnGhost, labelCls, selectCls } from "@/components/ui";
 import KalenderMini from "@/components/KalenderMini";
 import AutoTextarea from "@/components/AutoTextarea";
@@ -23,6 +24,8 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
   const [pending, setPending] = useState(false);
   const [jenisId, setJenisId] = useState("");
   const [set半分, setSetengah] = useState(false);
+  const [jamMulai, setJamMulai] = useState("08:00");
+  const [jamSelesai, setJamSelesai] = useState("12:00");
   const [mulai, setMulai] = useState("");
   const [selesai, setSelesai] = useState("");
   const [handoverId, setHandoverId] = useState("");
@@ -32,6 +35,16 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
   const [simMuat, setSimMuat] = useState(false);
   const urutan = useRef(0);
   const terpilih = jenis.find((j) => String(j.id) === jenisId);
+  const isTahunan = Boolean(terpilih && (terpilih.kode === "tahunan" || (terpilih.isSystem && terpilih.nama.toLowerCase().includes("tahunan"))));
+
+  function handlePilihJenis(id) {
+    setJenisId(id);
+    const j = jenis.find((item) => String(item.id) === id);
+    const bolehSetengah = j && (j.kode === "tahunan" || (j.isSystem && j.nama.toLowerCase().includes("tahunan")));
+    if (!bolehSetengah) {
+      setSetengah(false);
+    }
+  }
 
   useEffect(() => {
     if (!mulai || !selesai) return;
@@ -42,7 +55,13 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
         const res = await fetch("/api/cuti/simulasi", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ jenisId, mulai, selesai, setengahHari: set半分, handoverId }),
+          body: JSON.stringify({
+            jenisId,
+            mulai,
+            selesai,
+            setengahHari: isTahunan && set半分,
+            handoverId,
+          }),
         });
         const r = await res.json();
         if (nomor === urutan.current) setSim(r.siap ? r : null);
@@ -53,7 +72,7 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
       }
     }, 350);
     return () => clearTimeout(t);
-  }, [jenisId, mulai, selesai, set半分, handoverId]);
+  }, [jenisId, mulai, selesai, set半分, isTahunan, handoverId]);
 
   const punyaSim = Boolean(mulai && selesai && sim);
   const opsiRekan = punyaSim ? sim.kandidatRekan.map((r) => ({ id: r.id, nama_lengkap: r.nama })) : rekan;
@@ -61,7 +80,17 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
 
   function reset() {
     urutan.current++;
-    setJenisId(""); setSetengah(false); setMulai(""); setSelesai(""); setHandoverId(""); setLampiran(null); setSim(null); setUnggah({ loading: false, error: "" }); setErrorPesan("");
+    setJenisId("");
+    setSetengah(false);
+    setJamMulai("08:00");
+    setJamSelesai("12:00");
+    setMulai("");
+    setSelesai("");
+    setHandoverId("");
+    setLampiran(null);
+    setSim(null);
+    setUnggah({ loading: false, error: "" });
+    setErrorPesan("");
   }
 
   function handlePilihTanggal(arg1, arg2) {
@@ -78,8 +107,19 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
     setSelesai(s);
   }
 
-  async function pilihBerkas(e) {
-    const f = e.target.files?.[0];
+  const onDrop = useCallback(async (acceptedFiles, fileRejections) => {
+    if (fileRejections.length > 0) {
+      const rej = fileRejections[0];
+      if (rej.errors.some((e) => e.code === "file-too-large")) {
+        setUnggah({ loading: false, error: "Ukuran berkas melebihi batas 2 MB." });
+      } else if (rej.errors.some((e) => e.code === "file-invalid-type")) {
+        setUnggah({ loading: false, error: "Format berkas harus PDF, JPG, atau PNG." });
+      } else {
+        setUnggah({ loading: false, error: rej.errors[0]?.message || "Berkas tidak valid." });
+      }
+      return;
+    }
+    const f = acceptedFiles?.[0];
     if (!f) return;
     setUnggah({ loading: true, error: "" });
     const fd = new FormData();
@@ -87,13 +127,27 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
     try {
       const res = await fetch("/api/lampiran", { method: "POST", body: fd });
       const data = await res.json();
-      if (!res.ok) { setLampiran(null); return setUnggah({ loading: false, error: data.message }); }
+      if (!res.ok) {
+        setLampiran(null);
+        return setUnggah({ loading: false, error: data.message || "Gagal mengunggah berkas." });
+      }
       setLampiran(data);
       setUnggah({ loading: false, error: "" });
     } catch {
       setUnggah({ loading: false, error: "Gagal mengunggah berkas." });
     }
-  }
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      "application/pdf": [".pdf"],
+      "image/jpeg": [".jpg", ".jpeg"],
+      "image/png": [".png"],
+    },
+    maxSize: 2 * 1024 * 1024,
+    multiple: false,
+  });
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -126,17 +180,54 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
     <div className="grid gap-8 lg:grid-cols-[1fr_22rem]">
       <form onSubmit={handleSubmit} onReset={reset} className="space-y-5 rounded-2xl border border-line bg-surface p-5 sm:p-6">
         <L t="Jenis cuti">
-          <select name="jenisId" required value={jenisId} onChange={(e) => setJenisId(e.target.value)} className={selectCls}>
+          <select name="jenisId" required value={jenisId} onChange={(e) => handlePilihJenis(e.target.value)} className={selectCls}>
             <option value="" disabled>Pilih jenis cuti</option>
             {jenis.map((j) => <option key={j.id} value={j.id}>{j.nama}</option>)}
           </select>
         </L>
         {terpilih && <p className="-mt-3 text-xs text-muted">{hint(terpilih)}</p>}
 
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" name="setengahHari" checked={set半分} onChange={(e) => { setSetengah(e.target.checked); if (e.target.checked) setSelesai(mulai); }} />
-          Cuti setengah hari (0,5 hari)
-        </label>
+        {isTahunan && (
+          <div className="space-y-3 rounded-xl border border-line/60 bg-ink/5 p-3.5">
+            <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+              <input
+                type="checkbox"
+                name="setengahHari"
+                checked={set半分}
+                onChange={(e) => {
+                  setSetengah(e.target.checked);
+                  if (e.target.checked) setSelesai(mulai);
+                }}
+                className="rounded border-line accent-accent"
+              />
+              <span>Cuti setengah hari (0,5 hari)</span>
+            </label>
+            {set半分 && (
+              <div className="grid gap-3 pt-1 sm:grid-cols-2">
+                <L t="Jam mulai">
+                  <input
+                    name="jamMulai"
+                    type="time"
+                    required
+                    value={jamMulai}
+                    onChange={(e) => setJamMulai(e.target.value)}
+                    className={inputCls}
+                  />
+                </L>
+                <L t="Jam selesai">
+                  <input
+                    name="jamSelesai"
+                    type="time"
+                    required
+                    value={jamSelesai}
+                    onChange={(e) => setJamSelesai(e.target.value)}
+                    className={inputCls}
+                  />
+                </L>
+              </div>
+            )}
+          </div>
+        )}
         <div className="grid gap-4 sm:grid-cols-2">
           <L t="Tanggal mulai">
             <input name="mulai" type="date" required value={mulai ?? ""} className={inputCls}
@@ -158,17 +249,70 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
         <L t="Catatan tugas untuk rekan pengganti"><AutoTextarea name="catatanTugas" rows={2} placeholder="Tuliskan serah terima tugas pekerjaan..." className={inputCls} /></L>
         <div className="grid gap-4 sm:grid-cols-2">
           <L t="Alamat selama cuti"><input name="alamatCuti" className={inputCls} /></L>
-          <L t="Nomor darurat"><input name="nomorDarurat" inputMode="tel" className={inputCls} /></L>
+          <L t="Nomor darurat">
+            <input
+              name="nomorDarurat"
+              inputMode="numeric"
+              pattern="[0-9]{10,13}"
+              maxLength={13}
+              placeholder="08xxxxxxxxxx (10–13 digit)"
+              className={inputCls}
+              onInput={(e) => {
+                e.target.value = e.target.value.replace(/\D/g, "").slice(0, 13);
+              }}
+            />
+          </L>
         </div>
 
-        <div className="text-sm">
-          Surat dokter / lampiran {terpilih?.lampiran ? <span className="text-bad">(wajib)</span> : <span className="text-muted">(opsional)</span>}
-          <input type="file" accept="application/pdf,image/jpeg,image/png" onChange={pilihBerkas} className={`${inputCls} mt-1`} />
+        <div className="space-y-2">
+          <span className={labelCls}>
+            Surat dokter / lampiran{" "}
+            {terpilih?.lampiran ? (
+              <span className="text-bad">(wajib)</span>
+            ) : (
+              <span className="text-muted">(opsional)</span>
+            )}
+          </span>
           <input type="hidden" name="lampiranId" value={lampiran?.id ?? ""} />
-          <p className="mt-1 text-xs text-muted">PDF, JPG, atau PNG, maksimal 2 MB.</p>
-          {unggah.loading && <p className="mt-1 text-xs text-muted">Mengunggah…</p>}
-          {lampiran && <p className="mt-1 text-xs text-ok">Terunggah: {lampiran.nama}</p>}
-          {unggah.error && <p role="alert" className="mt-1 text-xs text-bad">{unggah.error}</p>}
+
+          {lampiran ? (
+            <div className="flex items-center justify-between rounded-xl border border-ok/30 bg-ok/10 p-3.5 text-sm">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <FileText className="h-5 w-5 shrink-0 text-ok" />
+                <div className="min-w-0">
+                  <p className="truncate font-medium text-ink">{lampiran.nama}</p>
+                  <p className="text-xs text-ok">Berkas berhasil diunggah</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setLampiran(null)}
+                className="ml-3 shrink-0 rounded-lg p-1 text-muted transition hover:bg-ink/5 hover:text-bad"
+                title="Hapus lampiran"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            <div
+              {...getRootProps()}
+              className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 text-center transition ${
+                isDragActive
+                  ? "border-accent bg-accent/10"
+                  : "border-line bg-surface hover:border-line-focus hover:bg-ink/5"
+              }`}
+            >
+              <input {...getInputProps()} />
+              <Upload className={`h-8 w-8 ${isDragActive ? "text-accent" : "text-muted"}`} />
+              <p className="mt-2 text-sm font-medium text-ink">
+                {isDragActive ? "Lepaskan berkas di sini" : "Tarik & lepas berkas ke sini, atau klik untuk memilih"}
+              </p>
+              <p className="mt-1 text-xs text-muted">Format: PDF, JPG, atau PNG (Maks. 2 MB)</p>
+            </div>
+          )}
+
+          {unggah.loading && <p className="text-xs text-muted">Mengunggah…</p>}
+          {unggah.error && <p role="alert" className="text-xs text-bad">{unggah.error}</p>}
         </div>
 
         {errorPesan && <p role="alert" className="rounded-lg bg-bad/10 px-3 py-2 text-sm text-bad">{errorPesan}</p>}

@@ -45,7 +45,16 @@ export default async function BaruUserPage() {
               <span className="text-xs text-muted">(mengikuti jenis Cuti Tahunan)</span>
             </p>
           </div>
-          <L t="Telepon"><input name="telepon" className={inputCls} /></L>
+          <L t="Telepon">
+            <input
+              name="telepon"
+              inputMode="numeric"
+              pattern="[0-9]{10,13}"
+              maxLength={13}
+              placeholder="08xxxxxxxxxx (10–13 digit)"
+              className={inputCls}
+            />
+          </L>
         </div>
       </FormAction>
     </div>

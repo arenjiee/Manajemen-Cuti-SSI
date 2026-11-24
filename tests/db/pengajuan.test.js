@@ -144,3 +144,35 @@ test("overlap dan rekan sedang cuti ditolak pada pengajuan berikutnya", async ()
   await simpanPengajuan(pool, ids.e, input({ handoverId: ids.d }));
   assert.equal((await simpanPengajuan(pool, ids.b, input({ handoverId: ids.e }))).kode, "REKAN_TIDAK_VALID");
 });
+
+test("cuti setengah hari: wajib cuti tahunan, wajib jam mulai & selesai, dan nomor darurat 10-13 digit", async () => {
+  const tgl = hariKerja(5);
+  // Cuti Sakit dengan setengah hari ditolak
+  const rSakit = await simpanPengajuan(pool, ids.a, input({ jenisId: SAKIT, mulai: tgl, selesai: tgl, setengahHari: true, jamMulai: "08:00", jamSelesai: "12:00" }));
+  assert.equal(rSakit.ok, false);
+  assert.match(rSakit.pesan, /Cuti Tahunan/i);
+
+  // Tanpa jam mulai & selesai ditolak
+  const rTanpaJam = await simpanPengajuan(pool, ids.a, input({ mulai: tgl, selesai: tgl, setengahHari: true }));
+  assert.equal(rTanpaJam.ok, false);
+  assert.match(rTanpaJam.pesan, /Jam mulai/i);
+
+  // Jam selesai <= jam mulai ditolak
+  const rJamSalah = await simpanPengajuan(pool, ids.a, input({ mulai: tgl, selesai: tgl, setengahHari: true, jamMulai: "13:00", jamSelesai: "12:00" }));
+  assert.equal(rJamSalah.ok, false);
+  assert.match(rJamSalah.pesan, /setelah jam mulai/i);
+
+  // Valid tersimpan dengan jam
+  const rOk = await simpanPengajuan(pool, ids.a, input({ mulai: tgl, selesai: tgl, setengahHari: true, jamMulai: "08:00", jamSelesai: "12:00", nomorDarurat: "081234567890" }));
+  assert.equal(rOk.ok, true);
+  const row = (await q("SELECT setengah_hari, jam_mulai, jam_selesai, nomor_darurat FROM pengajuan_cuti WHERE id=$1", [rOk.id])).rows[0];
+  assert.equal(row.setengah_hari, true);
+  assert.equal(row.jam_mulai.slice(0, 5), "08:00");
+  assert.equal(row.jam_selesai.slice(0, 5), "12:00");
+  assert.equal(row.nomor_darurat, "081234567890");
+
+  // Nomor darurat tidak valid (bukan angka / <10 / >13)
+  const rNoDarurat = await simpanPengajuan(pool, ids.b, input({ mulai: hariKerja(6), selesai: hariKerja(6), nomorDarurat: "12345" }));
+  assert.equal(rNoDarurat.ok, false);
+  assert.match(rNoDarurat.pesan, /Nomor darurat/i);
+});

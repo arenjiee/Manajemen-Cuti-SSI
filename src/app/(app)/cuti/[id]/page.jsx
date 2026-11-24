@@ -83,7 +83,10 @@ export default async function DetailCutiPage({ params, searchParams }) {
       <Section title="Rincian">
         <dl className="rounded-2xl border border-line bg-surface px-5 py-2">
           <Baris t="Periode">{formatRentang(p.tanggal_mulai, p.tanggal_selesai)}</Baris>
-          <Baris t="Total hari kerja">{formatHari(p.total_hari)}{p.setengah_hari ? " (setengah hari)" : ""}</Baris>
+          <Baris t="Total hari kerja">
+            {formatHari(p.total_hari)}
+            {p.setengah_hari ? (p.jam_mulai && p.jam_selesai ? ` (setengah hari: ${p.jam_mulai.slice(0, 5)} – ${p.jam_selesai.slice(0, 5)})` : " (setengah hari)") : ""}
+          </Baris>
           <Baris t="Tanggal pengajuan">{formatTanggal(p.tanggal_pengajuan)}</Baris>
           <Baris t="Alasan">{p.alasan}</Baris>
           <Baris t="Alamat selama cuti">{p.alamat_cuti}</Baris>

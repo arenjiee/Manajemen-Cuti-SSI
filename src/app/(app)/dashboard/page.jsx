@@ -20,6 +20,7 @@ import {
   FileCheck2,
   FileText,
   Gauge,
+  Hourglass,
   Plus,
   ShieldAlert,
   ShieldCheck,
@@ -128,12 +129,6 @@ async function DashKaryawan({ user }) {
       <Bagian
         judul="Cuti Mendatang"
         deskripsi="Daftar cuti disetujui yang dijadwalkan dalam waktu dekat"
-        aksi={
-          <Link href="/cuti/ajukan" className={btnPrimary}>
-            <Plus className="mr-1.5 h-4 w-4" aria-hidden />
-            Ajukan Cuti
-          </Link>
-        }
       >
         <DataTable
           kolom={[{ label: "Jenis", key: "jenis_nama" }, kolomPeriode, kolomHari, kolomDetail]}
@@ -455,6 +450,14 @@ async function DashAdmin() {
           description={`Kalender hari libur tahun ${d.bulan.label.slice(-4)}`}
           tone="default"
           href="/admin/hari-libur"
+        />
+        <GlowCard
+          icon={ikon(Hourglass)}
+          label="Kuota Hangus"
+          value="Pengingat Cuti"
+          description="Kirim pengingat sisa cuti berisiko hangus"
+          tone="default"
+          href="/kuota-hangus"
         />
       </div>
 

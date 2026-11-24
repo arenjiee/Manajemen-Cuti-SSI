@@ -81,7 +81,17 @@ export default async function ProfilPage({ searchParams }) {
           <L t="Nama lengkap"><input name="nama_lengkap" defaultValue={p.nama_lengkap} required className={inputCls} /></L>
           <L t="Username"><input name="username" defaultValue={p.username} required className={inputCls} /></L>
           <L t="Email"><input name="email" type="email" defaultValue={p.email} required className={inputCls} /></L>
-          <L t="Nomor telepon"><input name="telepon" defaultValue={p.telepon ?? ""} inputMode="tel" className={inputCls} /></L>
+          <L t="Nomor telepon">
+            <input
+              name="telepon"
+              defaultValue={p.telepon ?? ""}
+              inputMode="numeric"
+              pattern="[0-9]{10,13}"
+              maxLength={13}
+              placeholder="08xxxxxxxxxx (10–13 digit)"
+              className={inputCls}
+            />
+          </L>
           <L t="Alamat"><AutoTextarea name="alamat" rows={2} defaultValue={p.alamat ?? ""} className={inputCls} /></L>
           {admin && (
             <div className="rounded-2xl border border-line p-4 space-y-4">

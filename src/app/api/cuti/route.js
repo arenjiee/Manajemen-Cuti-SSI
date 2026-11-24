@@ -21,6 +21,8 @@ export const POST = withRole(["karyawan", "ketua_divisi"], async ({ request, use
     mulai: s(b.mulai),
     selesai: s(b.selesai),
     setengahHari: bool(b.setengahHari),
+    jamMulai: s(b.jamMulai),
+    jamSelesai: s(b.jamSelesai),
     alasan: s(b.alasan),
     handoverId: num(b.handoverId),
     catatanTugas: s(b.catatanTugas),

@@ -20,7 +20,7 @@ beforeEach(async () => {
 after(() => pool.end());
 
 const baris = async (u) => (await q("SELECT * FROM users WHERE id=$1", [id[u]])).rows[0];
-const data = (o = {}) => ({ nama_lengkap: "Nama Baru", email: "baru@ssi.co.id", telepon: "0812 3456 789", alamat: "Jl. Baru 1", ...o });
+const data = (o = {}) => ({ nama_lengkap: "Nama Baru", email: "baru@ssi.co.id", telepon: "08123456789", alamat: "Jl. Baru 1", ...o });
 
 test("ambilProfil: data lengkap tanpa password_hash, dengan divisi dan ketua", async () => {
   const p = await ambilProfil(pool, id.ana, { hari: HARI });
@@ -56,7 +56,7 @@ test("user mengubah data miliknya sendiri", async () => {
   const r = await ubahProfil(pool, aktor.ana, id.ana, data());
   assert.deepEqual(r, { ok: true });
   const u = await baris("ana");
-  assert.deepEqual([u.nama_lengkap, u.email, u.telepon, u.alamat], ["Nama Baru", "baru@ssi.co.id", "0812 3456 789", "Jl. Baru 1"]);
+  assert.deepEqual([u.nama_lengkap, u.email, u.telepon, u.alamat], ["Nama Baru", "baru@ssi.co.id", "08123456789", "Jl. Baru 1"]);
   assert.equal(u.role, "karyawan"); assert.equal(u.username, "ana");
 });
 
@@ -114,7 +114,8 @@ test("validasi: nama, email, telepon, dan duplikat email memberi pesan jelas; ti
   await cek({ nama_lengkap: "x".repeat(101) }, /Nama/);
   await cek({ email: "bukan-email" }, /email/i);
   await cek({ telepon: "abc" }, /telepon/i);
-  await cek({ telepon: "1".repeat(31) }, /telepon/i);
+  await cek({ telepon: "1".repeat(9) }, /telepon/i);
+  await cek({ telepon: "1".repeat(14) }, /telepon/i);
   await cek({ email: "BUDI@ssi.co.id" }, /sudah terdaftar/);
   assert.equal((await baris("ana")).nama_lengkap, "Ana Rahma");
   assert.equal((await ubahProfil(pool, aktor.ana, id.ana, data({ email: "ANA@ssi.co.id", telepon: "", alamat: "" }))).ok, true);   // email sendiri, kolom opsional boleh kosong
