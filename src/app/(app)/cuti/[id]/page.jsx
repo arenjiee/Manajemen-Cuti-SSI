@@ -5,7 +5,6 @@ import pool from "@/lib/db";
 import { parseId } from "@/lib/id";
 import { tautanInternal } from "@/lib/tautan";
 import { detailPengajuan } from "@/lib/queries/detail";
-import { bolehUnduhSurat } from "@/lib/surat-akses";
 import { formatRentang, formatHari, formatTanggal, formatWaktu } from "@/lib/format";
 import StatusBadge from "@/components/StatusBadge";
 import Timeline from "@/components/Timeline";
@@ -14,7 +13,6 @@ import TombolKembali from "@/components/TombolKembali";
 import PageHeader from "@/components/PageHeader";
 import BatalkanCuti from "./BatalkanCuti";
 import PreviewLampiran from "./PreviewLampiran";
-import { btnPrimary } from "@/components/ui";
 
 export const metadata = { title: "Detail Cuti | LeaveSync" };
 
@@ -62,16 +60,7 @@ export default async function DetailCutiPage({ params, searchParams }) {
         eyebrow="Detail Pengajuan Cuti"
         title={p.jenis_nama}
         description={`${p.pengaju_nama}${p.divisi_nama ? ` · ${p.divisi_nama}` : ""}`}
-        action={
-          <div className="flex flex-col items-end gap-3">
-            <StatusBadge status={p.status} tahap={p.tahap} />
-            {bolehUnduhSurat(user, p) && (
-              <a href={`/api/surat/${p.id}`} className={btnPrimary}>
-                Unduh surat cuti (PDF)
-              </a>
-            )}
-          </div>
-        }
+        action={<StatusBadge status={p.status} tahap={p.tahap} />}
       />
 
       {tolak?.catatan && p.status === "Rejected" && (

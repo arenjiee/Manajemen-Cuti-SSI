@@ -94,7 +94,7 @@ async function DashKaryawan({ user }) {
         />
         <GlowCard
           icon={ikon(CheckCircle2)}
-          label={`Disetujui ${d.tahun}`}
+          label="Disetujui"
           value={d.perStatus.Approved}
           description="Pengajuan cuti yang telah aktif"
           tone="ok"
