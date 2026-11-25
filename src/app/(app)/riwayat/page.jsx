@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { requireRole } from "@/lib/guard";
 import pool from "@/lib/db";
 import { riwayat } from "@/lib/queries/riwayat";
@@ -10,6 +9,7 @@ import { labelStatus } from "@/components/StatusBadge";
 import StatusBadge from "@/components/StatusBadge";
 import DataTable from "@/components/DataTable";
 import FilterBar from "@/components/FilterBar";
+import CariLangsung from "@/components/CariLangsung";
 import PageHeader from "@/components/PageHeader";
 import TautanDetail from "@/components/TautanDetail";
 
@@ -29,16 +29,21 @@ export default async function RiwayatPage({ searchParams }) {
   const [rows, jenis, divisi] = await Promise.all([riwayat(pool, user, sp), daftarJenis(pool), luas ? daftarDivisi(pool, {}) : []]);
 
   const fields = [
-    ...(user.role !== "karyawan" ? [{ name: "q", label: "Cari nama", placeholder: "Nama pengaju" }] : []),
     { name: "status", label: "Status", type: "select", options: STATUS.map((s) => ({ value: s, label: s === "Pending" ? "Menunggu persetujuan" : labelStatus(s, "leader") })) },
     { name: "jenisId", label: "Jenis cuti", type: "select", options: jenis.map((j) => ({ value: j.id, label: j.nama })) },
     ...(luas ? [{ name: "divisiId", label: "Divisi", type: "select", options: divisi.map((d) => ({ value: d.id, label: d.nama })) }] : []),
-    { name: "tahun", label: "Tahun", type: "number", placeholder: "2026" },
+    { name: "tahun", label: "Tahun", type: "number", placeholder: String(new Date().getFullYear()) },
     {
       name: "urut", label: "Urutkan", type: "select",
       options: [{ value: "terbaru", label: "Terbaru diajukan" }, { value: "mulai", label: "Tanggal mulai" }, ...(user.role !== "karyawan" ? [{ value: "pengaju", label: "Nama pengaju" }] : [])],
     },
   ];
+
+  const q = typeof sp.q === "string" ? sp.q : "";
+  const paramFilter = Object.fromEntries(
+    ["status", "jenisId", "divisiId", "tahun", "urut"].map((k) => [k, typeof sp[k] === "string" ? sp[k] : ""])
+  );
+
   const kolom = [
     ...(user.role !== "karyawan" ? [{ label: "Pengaju", key: "pengaju_nama" }] : []),
     ...(luas ? [{ label: "Divisi", render: (r) => r.divisi_nama ?? "-" }] : []),
@@ -56,7 +61,21 @@ export default async function RiwayatPage({ searchParams }) {
         title="Riwayat Cuti"
         description={`${CAKUPAN[user.role]} ${rows.length} pengajuan ditampilkan.`}
       />
-      <FilterBar fields={fields} values={sp} resetHref="/riwayat" />
+      {user.role !== "karyawan" && (
+        <CariLangsung
+          basePath="/riwayat"
+          params={paramFilter}
+          defaultValue={q}
+          placeholder="Cari nama pengaju cuti..."
+        />
+      )}
+      <FilterBar
+        key={Object.values(paramFilter).join("|")}
+        fields={fields}
+        values={sp}
+        resetHref="/riwayat"
+        hidden={{ q }}
+      />
       <DataTable kolom={kolom} rows={rows} kosong="Tidak ada pengajuan yang cocok dengan filter." />
     </div>
   );
