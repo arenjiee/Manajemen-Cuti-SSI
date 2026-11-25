@@ -140,3 +140,28 @@ test("admin: tepat satu tahun masa kerja sudah tidak termasuk; nonaktif dihitung
   const b = await dashboardAdmin(pool, opts);
   assert.equal(b.totalAktif, aktif - 1); assert.equal(b.tidakAktif, 1);
 });
+
+test("admin: grafik riwayat — status dipetakan per bulan diajukan, 'berlalu' per bulan mulai dan hanya yang sudah selesai", async () => {
+  const ins = (mulai, selesai, status, diajukan, oleh = null) =>
+    q(`INSERT INTO pengajuan_cuti (pengaju_id,divisi_id,jenis_id,tanggal_pengajuan,tanggal_mulai,tanggal_selesai,total_hari,alasan,handover_id,status,tahap,ditolak_oleh)
+       VALUES ($1,$2,1,$3,$4,$5,1,'x',$1,$6,'hrd',$7)`, [id.ana, null, diajukan, mulai, selesai, status, oleh]);
+  await q("DELETE FROM pengajuan_cuti");
+  await ins("2026-03-10", "2026-03-10", "Approved", "2026-03-01");              // berlalu (selesai sebelum 10 Nov)
+  await ins("2026-11-10", "2026-11-12", "Approved", "2026-11-02");              // sedang berjalan hari ini → belum berlalu
+  await ins("2026-12-01", "2026-12-01", "Approved", "2026-11-05");              // akan datang
+  await ins("2026-04-06", "2026-04-06", "Rejected", "2026-04-01", "leader");
+  await ins("2026-04-07", "2026-04-07", "Rejected", "2026-04-01", "hrd");
+  await ins("2026-05-04", "2026-05-04", "Approved by Leader", "2026-05-01");
+  await ins("2026-06-01", "2026-06-01", "Cancelled", "2026-05-20");
+  await ins("2025-12-01", "2025-12-01", "Approved", "2025-11-20");              // tahun lain → tidak dihitung
+  const g = (await dashboardAdmin(pool, opts)).grafik;
+  assert.equal(g.tahun, 2026); assert.equal(g.bulanIni, 11);
+  assert.equal(g.perBulan[2].disetujui, 1);
+  assert.equal(g.perBulan[10].disetujui, 2);
+  assert.deepEqual([g.perBulan[3].ditolak, g.perBulan[3].ditolakKetua], [2, 1]);
+  assert.equal(g.perBulan[4].menunggu, 1);
+  assert.equal(g.perBulan[4].dibatalkan, 1);
+  assert.equal(g.perBulan[2].berlalu, 1);
+  assert.equal(g.total.berlalu, 1);
+  assert.equal(g.total.semua, 7);
+});

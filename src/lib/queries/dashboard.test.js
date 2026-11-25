@@ -62,6 +62,14 @@ test("dashboardAdmin mengembalikan seluruh field metrik, tabel, dan filter masa 
     { rows: [] },
     // 12. hari_libur (petaKapasitas → muatHariLibur)
     { rows: [] },
+    // 13. grafik: pengajuan per bulan menurut status
+    { rows: [
+      { bulan: 10, status: "Approved", ditolak_oleh: null, n: 3 },
+      { bulan: 11, status: "Rejected", ditolak_oleh: "leader", n: 1 },
+      { bulan: 11, status: "Pending", ditolak_oleh: null, n: 2 },
+    ] },
+    // 14. grafik: cuti disetujui yang sudah berlalu per bulan mulai
+    { rows: [{ bulan: 9, n: 4 }] },
   ]);
 
   const res = await dashboardAdmin(db, { hari: "2026-11-20" });
@@ -73,6 +81,14 @@ test("dashboardAdmin mengembalikan seluruh field metrik, tabel, dan filter masa 
   assert.equal(res.hariLiburTahunIni, 15);
   assert.equal(res.pengajuanBulanIni, 7);
   assert.equal(res.pengajuanMenunggu, 3);
+
+  // Grafik riwayat pengajuan
+  assert.equal(res.grafik.tahun, 2026);
+  assert.equal(res.grafik.bulanIni, 11);
+  assert.equal(res.grafik.perBulan[9].disetujui, 3);
+  assert.deepEqual([res.grafik.perBulan[10].ditolak, res.grafik.perBulan[10].ditolakKetua, res.grafik.perBulan[10].menunggu], [1, 1, 2]);
+  assert.equal(res.grafik.perBulan[8].berlalu, 4);
+  assert.equal(res.grafik.total.semua, 6);
 
   // Chart kapasitas: tanpa divisi = ringkasan kosong
   assert.deepEqual(res.kapasitas, []);

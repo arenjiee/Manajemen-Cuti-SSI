@@ -10,6 +10,7 @@ import GlowCard from "@/components/GlowCard";
 import Panah from "@/components/Panah";
 import Section from "@/components/Section";
 import KapasitasChart from "@/components/KapasitasChart";
+import GrafikPengajuan from "@/components/GrafikPengajuan";
 import { btnGhost, btnPrimary, linkCls } from "@/components/ui";
 import {
   CalendarDays,
@@ -451,6 +452,15 @@ async function DashAdmin() {
           href="/admin/hari-libur"
         />
       </div>
+
+      {/* Chart Riwayat Pengajuan */}
+      <Bagian
+        judul={`Riwayat Pengajuan Cuti ${d.grafik.tahun}`}
+        deskripsi="Tren pengajuan sepanjang tahun berjalan, bisa dilihat per status"
+        aksi={<TautanAksi href="/riwayat">Lihat semua riwayat</TautanAksi>}
+      >
+        <GrafikPengajuan data={d.grafik} />
+      </Bagian>
 
       {/* Chart Kapasitas Divisi */}
       <Bagian

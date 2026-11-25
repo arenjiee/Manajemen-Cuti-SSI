@@ -1,6 +1,7 @@
 import { hariIni } from "../leave/tanggal.js";
 import { tambahTahun } from "../leave/aturan-jenis.js";
 import { rentangMinggu, rentangBulan, labelBulan } from "../periode.js";
+import { susunGrafikPengajuan } from "../grafik-pengajuan.js";
 import { ringkasanKuota } from "./kuota.js";
 import { STATUS } from "./detail.js";
 import { daftarDivisi } from "./divisi.js";
@@ -14,6 +15,28 @@ function konteks(opts) {
 
 const PEMOHON = ["karyawan", "ketua_divisi"];
 const ROLE_KOSONG = () => ({ admin: 0, karyawan: 0, ketua_divisi: 0, hrd: 0 });
+
+// Riwayat pengajuan tahun berjalan per bulan. Dipanggil setelah query dashboard lain (bukan di dalam Promise.all-nya).
+// Disetujui/Ditolak/Menunggu/Dibatalkan dikelompokkan menurut tanggal pengajuan; "berlalu" menurut bulan mulai cuti.
+export async function grafikPengajuan(db, { hari, tahun }) {
+  const [status, berlalu] = await Promise.all([
+    db.query(
+      `SELECT EXTRACT(MONTH FROM tanggal_pengajuan)::int AS bulan, status, ditolak_oleh, count(*)::int AS n
+       FROM pengajuan_cuti
+       WHERE EXTRACT(YEAR FROM tanggal_pengajuan) = $1
+       GROUP BY 1, 2, 3`,
+      [tahun]
+    ),
+    db.query(
+      `SELECT EXTRACT(MONTH FROM tanggal_mulai)::int AS bulan, count(*)::int AS n
+       FROM pengajuan_cuti
+       WHERE status = 'Approved' AND tanggal_selesai < $2 AND EXTRACT(YEAR FROM tanggal_mulai) = $1
+       GROUP BY 1`,
+      [tahun, hari]
+    ),
+  ]);
+  return susunGrafikPengajuan({ tahun, bulanIni: Number(hari.slice(5, 7)), barisStatus: status.rows, barisBerlalu: berlalu.rows });
+}
 
 export async function dashboardAdmin(db, opts) {
   const { hari, tahun } = konteks(opts);
@@ -67,6 +90,7 @@ export async function dashboardAdmin(db, opts) {
     ),
     ringkasKapasitasDivisi(db, bulan),
   ]);
+  const grafik = await grafikPengajuan(db, { hari, tahun });
   const karyawanTanpaDivisi = tanpaDivisi.rows.filter((u) => u.role === "karyawan").length;
   const ketuaTanpaDivisi = tanpaDivisi.rows.filter((u) => u.role === "ketua_divisi").length;
   const perRole = ROLE_KOSONG();
@@ -88,6 +112,7 @@ export async function dashboardAdmin(db, opts) {
     },
     divisiTanpaKetua: divisiTanpaKetua.rows,
     kapasitas,
+    grafik,
     cutiHariIni: cutiHariIni.rows,
     bulan: { ...bulan, label: labelBulan(hari) },
     masaKerjaDiBawah1Tahun: baru.rows
