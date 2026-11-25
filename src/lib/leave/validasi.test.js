@@ -7,7 +7,7 @@ const SAKIT = { id: 2, kode: "sakit", nama: "Cuti Sakit", kuotaHari: null, batas
 const LAINNYA = { id: 3, kode: null, nama: "Cuti Duka", kuotaHari: 3, batasPengajuanHari: 0, wajibLampiran: false, potongKuota: false };
 const PDF = { mime: "application/pdf", ukuran: 1000 };
 
-const input = (o = {}) => ({ mulai: "2026-11-16", selesai: "2026-11-18", setengahHari: false, alasan: "Keperluan", handoverId: 2, ...o });
+const input = (o = {}) => ({ mulai: "2026-11-16", selesai: "2026-11-18", setengahHari: false, alasan: "Keperluan", catatanTugas: "Delegasi pekerjaan", nomorDarurat: "081234567890", handoverId: 2, ...o });
 const ctx = (o = {}) => ({
   hariIni: "2026-11-09",
   pengaju: { id: 1, divisiId: 1, tanggalBergabung: "2022-01-01", kuotaAwal: 12 },
@@ -31,11 +31,16 @@ test("pengajuan tahunan valid", () => {
   assert.deepEqual(validasiPengajuan(input(), ctx()), { ok: true, totalHari: 3 });
 });
 
-test("bentuk data: tanggal mustahil, terbalik, setengah hari beda tanggal, alasan kosong", () => {
+test("bentuk data: tanggal mustahil, terbalik, setengah hari beda tanggal, alasan kosong, catatan tugas kosong, nomor darurat kosong/invalid", () => {
   gagal(validasiPengajuan(input({ mulai: "2026-02-31" }), ctx()), "BENTUK_DATA");
   gagal(validasiPengajuan(input({ mulai: "2026-11-18", selesai: "2026-11-16" }), ctx()), "BENTUK_DATA");
   gagal(validasiPengajuan(input({ setengahHari: true }), ctx()), "BENTUK_DATA");
   gagal(validasiPengajuan(input({ alasan: "  " }), ctx()), "BENTUK_DATA");
+  gagal(validasiPengajuan(input({ catatanTugas: "  " }), ctx()), "BENTUK_DATA");
+  gagal(validasiPengajuan(input({ nomorDarurat: "  " }), ctx()), "BENTUK_DATA");
+  gagal(validasiPengajuan(input({ nomorDarurat: "12345" }), ctx()), "BENTUK_DATA");
+  gagal(validasiPengajuan(input({ nomorDarurat: "0812345678901234" }), ctx()), "BENTUK_DATA");
+  gagal(validasiPengajuan(input({ nomorDarurat: "0812abcdef" }), ctx()), "BENTUK_DATA");
 });
 
 test("cuti setengah hari: jam wajib valid, selesai > mulai, dan maksimal 4 jam", () => {

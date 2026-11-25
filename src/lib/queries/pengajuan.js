@@ -98,11 +98,15 @@ export async function simpanPengajuan(pool, pengajuId, input, lampiranId = null)
   if (!tanggalValid(input.mulai) || !tanggalValid(input.selesai)) return gagal("BENTUK_DATA", "Tanggal tidak valid.");
   if (input.selesai < input.mulai) return gagal("BENTUK_DATA", "Tanggal selesai tidak boleh sebelum tanggal mulai.");
   if (selisihHari(input.mulai, input.selesai) > MAKS_RENTANG_HARI) return gagal("BENTUK_DATA", `Rentang tanggal maksimal ${MAKS_RENTANG_HARI} hari.`);
-  if (input.nomorDarurat) {
-    const nd = String(input.nomorDarurat).trim();
-    if (!/^\d{10,13}$/.test(nd)) {
-      return gagal("BENTUK_DATA", "Nomor darurat harus berupa 10–13 digit angka.");
-    }
+  if (!input.catatanTugas || !String(input.catatanTugas).trim()) {
+    return gagal("BENTUK_DATA", "Catatan tugas untuk rekan pengganti wajib diisi.");
+  }
+  if (!input.nomorDarurat || !String(input.nomorDarurat).trim()) {
+    return gagal("BENTUK_DATA", "Nomor telepon darurat wajib diisi.");
+  }
+  const nd = String(input.nomorDarurat).trim();
+  if (!/^\d{10,13}$/.test(nd)) {
+    return gagal("BENTUK_DATA", "Nomor darurat harus berupa 10–13 digit angka.");
   }
   if (Boolean(input.setengahHari)) {
     if (!input.jamMulai || !input.jamSelesai) {

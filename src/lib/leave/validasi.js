@@ -36,6 +36,16 @@ export function validasiPengajuan(input, k) {
     }
   }
   if (!input.alasan || !String(input.alasan).trim()) return gagal("BENTUK_DATA", "Alasan cuti wajib diisi.");
+  if (!input.catatanTugas || !String(input.catatanTugas).trim()) {
+    return gagal("BENTUK_DATA", "Catatan tugas untuk rekan pengganti wajib diisi.");
+  }
+  if (!input.nomorDarurat || !String(input.nomorDarurat).trim()) {
+    return gagal("BENTUK_DATA", "Nomor telepon darurat wajib diisi.");
+  }
+  const nd = String(input.nomorDarurat).trim();
+  if (!/^\d{10,13}$/.test(nd)) {
+    return gagal("BENTUK_DATA", "Nomor darurat harus berupa 10–13 digit angka.");
+  }
   if (k.pengaju.divisiId == null) return gagal("TANPA_DIVISI", "Anda belum tergabung di divisi mana pun. Hubungi Admin.");
 
   // 3. aturan jenis cuti

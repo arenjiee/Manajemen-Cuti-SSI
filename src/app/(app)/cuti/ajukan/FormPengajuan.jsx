@@ -249,14 +249,24 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
           </select>
         </L>
         {punyaSim && opsiRekan.length === 0 && <p className="-mt-3 text-sm text-bad">Tidak ada rekan yang tersedia pada tanggal tersebut.</p>}
-        <L t="Catatan tugas untuk rekan pengganti"><AutoTextarea name="catatanTugas" rows={2} placeholder="Tuliskan serah terima tugas pekerjaan..." className={inputCls} /></L>
+        <L t="Catatan tugas untuk rekan pengganti">
+          <AutoTextarea
+            name="catatanTugas"
+            required
+            rows={2}
+            placeholder="Tuliskan serah terima tugas pekerjaan..."
+            className={inputCls}
+          />
+        </L>
         <div className="grid gap-4 sm:grid-cols-2">
           <L t="Alamat selama cuti"><input name="alamatCuti" className={inputCls} /></L>
           <L t="Nomor darurat">
             <input
               name="nomorDarurat"
+              required
               inputMode="numeric"
               pattern="[0-9]{10,13}"
+              minLength={10}
               maxLength={13}
               placeholder="08xxxxxxxxxx (10–13 digit)"
               className={inputCls}

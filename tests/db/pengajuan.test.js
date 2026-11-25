@@ -19,7 +19,7 @@ function hariKerja(n = 0) {
   while (adalahAkhirPekan(t)) t = tambahHari(t, 1);
   return t;
 }
-const input = (o = {}) => ({ jenisId: TAHUNAN, mulai: hariKerja(0), selesai: hariKerja(0), setengahHari: false, alasan: "Keperluan", handoverId: ids.e, ...o });
+const input = (o = {}) => ({ jenisId: TAHUNAN, mulai: hariKerja(0), selesai: hariKerja(0), setengahHari: false, alasan: "Keperluan", catatanTugas: "Delegasi pekerjaan", nomorDarurat: "081234567890", handoverId: ids.e, ...o });
 
 async function user(username, role, divisi) {
   const r = await q(`INSERT INTO users (username,email,password_hash,nama_lengkap,role,tanggal_bergabung,divisi_id)
@@ -185,4 +185,14 @@ test("cuti setengah hari: wajib cuti tahunan, wajib jam mulai & selesai, dan nom
   const rNoDarurat = await simpanPengajuan(pool, ids.b, input({ mulai: hariKerja(6), selesai: hariKerja(6), nomorDarurat: "12345" }));
   assert.equal(rNoDarurat.ok, false);
   assert.match(rNoDarurat.pesan, /Nomor darurat/i);
+
+  // Nomor darurat kosong ditolak
+  const rDaruratKosong = await simpanPengajuan(pool, ids.b, input({ mulai: hariKerja(6), selesai: hariKerja(6), nomorDarurat: "   " }));
+  assert.equal(rDaruratKosong.ok, false);
+  assert.match(rDaruratKosong.pesan, /Nomor telepon darurat/i);
+
+  // Catatan tugas kosong ditolak
+  const rCatatanKosong = await simpanPengajuan(pool, ids.b, input({ mulai: hariKerja(6), selesai: hariKerja(6), catatanTugas: "   " }));
+  assert.equal(rCatatanKosong.ok, false);
+  assert.match(rCatatanKosong.pesan, /Catatan tugas/i);
 });
