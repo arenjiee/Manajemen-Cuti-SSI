@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "@/lib/theme";
 
-// Kanvas WebGL hanya ada di browser: muat setelah hidrasi agar tidak ikut SSR.
 const Vortex = dynamic(() => import("@/components/ui/vortex"), { ssr: false });
 
 export default function MercuryLogin() {
@@ -54,6 +53,7 @@ export default function MercuryLogin() {
       <div className="absolute top-4 right-4 z-20">
         <button
           type="button"
+          suppressHydrationWarning
           onClick={toggleTheme}
           aria-label={`Ganti ke mode ${resolvedTheme === "dark" ? "terang" : "gelap"}`}
           title={`Ganti ke mode ${resolvedTheme === "dark" ? "terang" : "gelap"}`}
@@ -107,6 +107,7 @@ export default function MercuryLogin() {
             <label className={label} htmlFor="mc-identifier">Email / Username</label>
             <input
               id="mc-identifier"
+              suppressHydrationWarning
               className={input}
               type="text"
               placeholder="nama@ssi.co.id"
@@ -122,6 +123,7 @@ export default function MercuryLogin() {
             <label className={label} htmlFor="mc-password">Password</label>
             <input
               id="mc-password"
+              suppressHydrationWarning
               className={input}
               type="password"
               placeholder="••••••••"
@@ -148,6 +150,7 @@ export default function MercuryLogin() {
             <div className="absolute top-1/2 left-1/2 z-[1] h-full w-full -translate-x-1/2 -translate-y-1/2 rounded-[50px] bg-accent transition-all duration-500 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] group-hover/submit:scale-x-105 group-hover/submit:scale-y-120 motion-reduce:transition-none" />
             <button
               type="submit"
+              suppressHydrationWarning
               disabled={loading}
               aria-busy={loading}
               className="relative z-[2] w-full cursor-pointer border-0 bg-accent px-10 py-5 text-sm font-bold tracking-[2px] text-accent-ink uppercase transition-[letter-spacing] duration-300 hover:enabled:tracking-[4px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent disabled:cursor-progress disabled:opacity-70 motion-reduce:transition-none"

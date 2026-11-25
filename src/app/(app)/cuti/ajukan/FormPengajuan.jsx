@@ -268,7 +268,7 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
               pattern="[0-9]{10,13}"
               minLength={10}
               maxLength={13}
-              placeholder="08xxxxxxxxxx (10–13 digit)"
+              placeholder="08xxxxxxxxxx"
               className={inputCls}
               onInput={(e) => {
                 e.target.value = e.target.value.replace(/\D/g, "").slice(0, 13);
@@ -309,11 +309,10 @@ export default function FormPengajuan({ jenis, rekan, sisa, tahun, kalenderAwal 
           ) : (
             <div
               {...getRootProps()}
-              className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 text-center transition ${
-                isDragActive
+              className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 text-center transition ${isDragActive
                   ? "border-accent bg-accent/10"
                   : "border-line bg-surface hover:border-line-focus hover:bg-ink/5"
-              }`}
+                }`}
             >
               <input {...getInputProps()} />
               <Upload className={`h-8 w-8 ${isDragActive ? "text-accent" : "text-muted"}`} />
