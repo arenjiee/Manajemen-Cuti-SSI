@@ -211,7 +211,7 @@ Buka file `.env.local` menggunakan editor teks (VS Code, Notepad, dll), lalu ses
 DATABASE_URL=postgresql://postgres:PASSWORD_POSTGRES_KAMU@localhost:5432/SSI_manajemen_cuti
 
 # Database pengujian terpisah (wajib jika ingin menjalankan npm test)
-DATABASE_URL_TEST=postgresql://postgres:PASSWORD_POSTGRES_KAMU@localhost:5432/smck_test
+DATABASE_URL_TEST=postgresql://postgres:PASSWORD_POSTGRES_KAMU@localhost:5432/ssi_manajemen_cuti_test
 
 # Kunci rahasia minimal 32 karakter untuk enkripsi & verifikasi cookie sesi JWT
 SESSION_SECRET=hasil_generate_secret_acak_di_sini
@@ -313,9 +313,9 @@ LeaveSync dilengkapi dengan **244 skenario automated testing** yang menguji atur
 
 ### Menyiapkan Database Pengujian
 
-Buat database pengujian terpisah bernama `smck_test`:
+Buat database pengujian terpisah bernama `ssi_manajemen_cuti_test`:
 ```bash
-psql -U postgres -c "CREATE DATABASE smck_test;"
+psql -U postgres -c "CREATE DATABASE ssi_manajemen_cuti_test;"
 ```
 
 ### Menjalankan Pengujian
