@@ -44,3 +44,4 @@ uploads/
 .superpowers/
 # tooling lokal (skill OpenCode) — bukan bagian kode proyek
 .opencode/
+docs/
