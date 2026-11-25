@@ -79,11 +79,15 @@ CREATE TABLE pengajuan_cuti (
   alasan_batal TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   CHECK (tanggal_selesai >= tanggal_mulai),
-  CHECK (NOT setengah_hari OR tanggal_mulai = tanggal_selesai)
+  CHECK (NOT setengah_hari OR tanggal_mulai = tanggal_selesai),
+  CONSTRAINT pengajuan_jam_urut CHECK (jam_mulai IS NULL OR jam_selesai IS NULL OR jam_selesai > jam_mulai),
+  CONSTRAINT pengajuan_jam_hanya_setengah_hari CHECK (setengah_hari OR (jam_mulai IS NULL AND jam_selesai IS NULL))
 );
 CREATE INDEX pengajuan_pengaju ON pengajuan_cuti (pengaju_id);
 CREATE INDEX pengajuan_divisi_status ON pengajuan_cuti (divisi_id, status);
 CREATE INDEX pengajuan_rentang ON pengajuan_cuti (tanggal_mulai, tanggal_selesai);
+-- Chart riwayat dashboard admin mengelompokkan per bulan/tahun tanggal_pengajuan
+CREATE INDEX pengajuan_tanggal_pengajuan ON pengajuan_cuti (tanggal_pengajuan);
 
 CREATE TABLE persetujuan (
   id SERIAL PRIMARY KEY,
@@ -124,6 +128,8 @@ CREATE TABLE notifications (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX notifications_user ON notifications (user_id, dibaca);
+-- Daftar notifikasi terbaru per pengguna
+CREATE INDEX notifications_user_waktu ON notifications (user_id, created_at DESC);
 
 CREATE TABLE pengaturan (
   key VARCHAR(50) PRIMARY KEY,
