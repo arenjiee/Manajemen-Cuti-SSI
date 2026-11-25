@@ -213,11 +213,26 @@ DATABASE_URL=postgresql://postgres:PASSWORD_POSTGRES_KAMU@localhost:5432/SSI_man
 # Database pengujian terpisah (wajib jika ingin menjalankan npm test)
 DATABASE_URL_TEST=postgresql://postgres:PASSWORD_POSTGRES_KAMU@localhost:5432/smck_test
 
-# Kunci rahasia minimal 32 karakter untuk enkripsi cookie sesi
-SESSION_SECRET=kunci-rahasia-keamanan-sesi-leavesync-minimal-32-karakter-bebas
+# Kunci rahasia minimal 32 karakter untuk enkripsi & verifikasi cookie sesi JWT
+SESSION_SECRET=hasil_generate_secret_acak_di_sini
 ```
 
 > 💡 **Tips Password Khusus**: Jika password PostgreSQL Anda mengandung karakter unik (seperti `@`, `#`, `:`, `/`), lakukan URL-encoding (contoh: `@` menjadi `%40`).
+
+#### Cara Generate `SESSION_SECRET`
+`SESSION_SECRET` digunakan oleh server untuk menandatangani cookie sesi JWT secara aman. Nilai ini harus berupa string acak yang kuat (minimal 32 karakter). Jalankan salah satu perintah berikut di terminal Anda untuk membuatnya:
+
+```bash
+# Opsi 1: Menggunakan Node.js (Semua OS: Windows PowerShell / CMD / macOS / Linux)
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+
+# Opsi 2: Menggunakan OpenSSL (Git Bash / Linux / macOS)
+openssl rand -base64 32
+```
+
+Salin teks keluaran dari terminal, lalu tempelkan sebagai nilai `SESSION_SECRET` di file `.env.local`.
+
+> ⚠️ **Penting**: Jangan bagikan atau commit file `.env.local` ke repositori git publik. Cukup buat secret ini satu kali saat inisialisasi lingkungan lokal.
 
 ---
 
