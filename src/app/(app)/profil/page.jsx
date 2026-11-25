@@ -47,9 +47,12 @@ export default async function ProfilPage({ searchParams }) {
         description={`${NAMA_ROLE[p.role]}${p.divisi_nama ? ` · Divisi ${p.divisi_nama}` : ""}${p.aktif ? "" : " · Akun nonaktif"}`}
       />
 
-      {sp.ok && <p role="status" className="rounded-2xl border border-ok/30 bg-ok/10 px-4 py-3 text-sm text-ok">{sp.ok === "foto" ? "Foto profil diperbarui." : "Profil berhasil disimpan."}</p>}
-
-      <FotoProfil userId={p.id} nama={p.nama_lengkap} fotoKey={p.foto_key} />
+      <FotoProfil
+        userId={p.id}
+        nama={p.nama_lengkap}
+        fotoKey={p.foto_key}
+        notifAwal={sp.ok ? (sp.ok === "foto" ? "Foto profil diperbarui." : "Profil berhasil disimpan.") : null}
+      />
 
       {k && (
         <Section title={`Kuota cuti tahunan ${k.tahun}`}>
